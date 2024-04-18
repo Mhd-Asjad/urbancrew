@@ -19,7 +19,7 @@
           align-items: center;
           justify-content: center;
           padding: 0 60px;
-          background-image: url("{% static 'img/login.png' %}");
+          background-image: url("{ '/img/login-pic1.jpeg' }");
           background-repeat: no-repeat;
           background:content-box;
         }
@@ -317,10 +317,7 @@
       
     <div class="container">
         <div class="content-wrapper">
-          <header class="header">
-            <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/1f674152c0824aa6fed1e93aaa31c76998c92ce8eba8e5e56e2abdc3875bb384?apiKey=18e4b5a9f2d741d992a4002a490a8902&" alt="Logo" class="logo" />
 
-          </header>
           <form method="post" action="{% url 'user_login' %}">
             {% csrf_token %}
             <div class="form-content">
