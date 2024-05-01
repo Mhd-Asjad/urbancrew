@@ -1,0 +1,70 @@
+{% extends 'nav.html' %}
+{% load static %}
+
+{% block body %}
+
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <style>
+        .stretch-card {
+            min-width: 75% ;
+        }
+        h4{
+            font-family: Georgia, 'Times New Roman', Times, serif
+        }
+    </style>
+</head>
+
+<body>
+    <div class="content-wrapper">
+        <div class="row d-flex justify-content-center">
+            <div class="col-lg-6 grid-margin stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-wrapper">
+                            <h4 class="card-title text-center">CUSTOMER</h4>
+                            <div class="table-responsive">
+                                <!-- Table content -->
+                            </div>  
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th><h5><b> profile </b></h5></th>
+                                            <th><h5><b> email </b></h5></th>
+                                            <th><h5><b> created </b></h5></th>
+                                            <th><h5><b> action </b></h5></th>   
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for user in users %} 
+
+                                        <tr>
+                                            <td>{{ user.username }}</td>
+                                            <td>{{ user.email }}</td>
+                                            <td>{{ user.date_joined|date:"d M Y" }}</td>
+                                            <td>
+                                                {% if user.is_active %} 
+                                                <form action="{% url 'user_block' user.id %}">
+                                                    <button type="submit" class="btn btn-danger">Block</button>
+                                                </form>
+                                                {% else %}
+                                                <form action="{% url 'user_unblock' user.id %}">
+                                                    <button type="submit" class="btn btn-success">Unblock</button>
+                                                </form>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    {% endblock body %}
+</body>

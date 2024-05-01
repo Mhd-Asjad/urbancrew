@@ -1,0 +1,112 @@
+{% extends 'navigation.html' %}
+
+{% load static %}
+
+{% block body %}
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select,
+        input[type="file"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        input[type="checkbox"] {
+            margin-bottom: 15px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+    </style>
+</head>
+    
+<div class="container" >
+    <div class="row">
+        <h1>add size</h1>
+        <form action="{% url 'addsize' %}" method="post" >
+            {% csrf_token %}
+
+        <label for="product_color" >products :</label>
+        <select name="img" id="product_color">
+            <option value="">select color & prod </option>
+            {% for add in add_color %}
+            <option value="{{ add.id }}">{{ add.color }}({{add.product.product_name}})</option>
+            {% endfor %}
+
+        </select>
+
+        <br>
+        <br>
+            <label for="size">size :</label>
+            <input type="text" name="size" id="product_size"    >
+
+
+            </select>
+
+            <label for="stock">stock :</label>
+            <input type="number" id="prod_size" name="stock" >
+            {% if messages %}
+                <ul class='messages' >
+                    {% for message in messages %}
+                    <li{% if message.tags == 'error' %}  style="color: red; text-decoration: none; font-size: 21px; " {% elif message.tags %} style="color: green; font-size: 21px; font-family: Verdana, Geneva, Tahoma, sans-serif; " class="d-flex justify-content-center"
+                        
+                    {% endif %}>{{ message }}</li>
+                        
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            <br><br>
+
+            <button type="submit" class="button">Add size</button>
+
+        </form>
+    </div>
+</div>
+{% endblock body %}

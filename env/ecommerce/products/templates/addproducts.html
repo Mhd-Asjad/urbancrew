@@ -1,0 +1,164 @@
+{% extends 'navigation.html' %}
+
+{% load static %}
+
+
+<head>
+    
+    {% block body %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product</title>
+    <style>
+        
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select,
+        input[type="file"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        input[type="checkbox"] {
+            margin-bottom: 15px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+        .messages li.error {
+            color: red;
+            font-size: 1.7em; 
+        }
+        {% comment %} .file-input {
+            width: 0.1px;
+            height: 0.1px;
+            opacity: 0;
+            overflow: hidden;
+            position: absolute;
+            z-index: -1;
+        }
+
+        .file-input + label {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            display: inline-block;
+        }
+
+        .file-input:focus + label,
+        .file-input + label:hover {
+            background-color: #45a049;
+        } {% endcomment %}
+    </style>
+</head>
+
+
+    <div class='container' >
+        <div class='row d-flex justify-content-center  '>
+
+        <h1>Add Product</h1>
+        <br>
+        <br>
+        <form action='{% url 'addproduct' %}' method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <label for="product_name">Product Name:</label>
+            <input type="text" id="product_name" name="name" ><br><br>
+
+            <label for="price">Price:</label>
+            <input type="number" id="price" name="price" ><br><br>
+
+            <label for="category">Category :</label>
+            <select name="cat" id="category" style="width:150px;" >
+                <option value="">Select category</option>
+                {% for category in categories %}
+                <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+            <br><br>
+
+            <label for="imageupload">Thumbnail :</label>
+            <input type="file" id="imageUpload" name="image" class="file-input" accept="image/*" required><br><br>
+
+            {% if messages %}
+                <ul class='messages' >
+                    {% for msg in messages %}
+                    <li{% if message.tags == 'error' %}  style="color: red; text-decoration: none; font-size: 21px; "
+                        
+                    {% endif %}>{{ message }}</li>
+                        
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <button type="submit" class="button">Add Product</button>
+        </form>
+        </div>
+    </div>
+
+
+    <script>
+        
+        {% if messages %} 
+            {% for message in messages %} 
+        swal({
+            title: "{{ message }}",
+            icon: "error",
+            text :"updation failed"
+    
+        }).then(()=> {
+            window.location.href = "/addproduct/"
+          })
+        {% endfor %}
+        {% endif %}
+    
+    </script>
+
+
+{% endblock body %}

@@ -27,17 +27,17 @@ SECRET_KEY = 'django-insecure-xo)x1b0m#(t-w!ycm5eojlaqmmom#g$6q-rwl&w768*f9gv71c
 DEBUG = True
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.example.com' 
-EMAIL_PORT = 587  
-EMAIL_HOST_USER = 'urbancrew144@gmail.com' 
-EMAIL_HOST_PASSWORD = 'ynxn tmnu jzau ohzv'  
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'urbancrew144@gmail.com'
+EMAIL_HOST_PASSWORD = 'ynxn tmnu jzau ohzv' 
 
 ALLOWED_HOSTS = []
 
 
 # Application definition
-
+SITE_ID = 2
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -45,10 +45,25 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
     'useracc',
+    'products',
     'adminapp'
     
 ]
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': ['profile', 'email'],
+        'AUTH_PARAMS': {'access_type': 'online'}
+    }
+}
+
+SOCIALACCOUNT_LOGIN_ON_GET = True
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -58,6 +73,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
 ]
 
 ROOT_URLCONF = 'ecommerce.urls'
@@ -66,12 +83,14 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, 'useracc', 'templates')
-                
+            os.path.join(BASE_DIR, 'useracc', 'templates'),
+            os.path.join(BASE_DIR, 'adminapp', 'templates'),
+            os.path.join(BASE_DIR, 'products', 'templates'),
                 ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'useracc.context_processor.default',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
@@ -135,10 +154,26 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'useracc', 'static')
+    os.path.join(BASE_DIR, 'useracc', 'static'),
+    os.path.join(BASE_DIR, 'adminapp', 'static'),
+    os.path.join(BASE_DIR, 'products' , 'static')
+
 ]
+
+MEDIA_URL =  '/media/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend"
+]
+
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"

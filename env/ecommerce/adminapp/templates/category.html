@@ -1,0 +1,167 @@
+{% extends 'nav.html' %}
+{% load static %}
+
+{% block body %}
+
+<head>
+
+  <style>
+  .stretch-card {
+  
+    min-width: 50%;
+  }
+
+  h4 {
+    font-family: sans-serif
+  }
+
+  .table th{
+
+    font-size: 22px;
+    font-weight: 700;
+  }
+  .table td{
+
+    font-size: 22px;
+  }
+  .button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: grey;
+    color: white;
+    text-decoration: none; 
+    border-radius: 5px; 
+    border: none; 
+    cursor: pointer;
+  }
+
+  .button:hover {
+    color: aliceblue;
+    background-color: #3d3d38; 
+  }
+
+  .transition {
+    opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+  }
+
+  .transition.show {
+    opacity: 1;
+  }
+  .icon{
+    margin-left:50.4rem;
+    font-size: 34px;
+    margin-top: -61px;
+  
+  }
+
+  /* Added new style */
+  .table-wrapper {
+    overflow-x: auto;
+  }
+  .table-wrapper {
+    overflow-x: auto;
+    max-width: 100%;
+  }
+
+  /* Added new style */
+  .table {
+    width: 100%;
+  }
+
+  </style>
+</head>
+
+<!-- partial -->
+<div class="main-panel">
+  <div class="content-wrapper">
+    <div class="row d-flex justify-content-center">
+      <div class="col-lg-6 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body ">
+            <div class="d-flex justify-content-between">
+              <h4 class="card-title">category</h4>
+
+                <a href="{% url 'addcategory' %}" class="button" >add</a>  
+
+            </div>
+            <div class="icon " >
+              <button type="button" class="btn btn-dark btn-rounded btn-icon">
+                <p class="label"><b>Trash</b></p>
+                <a href="{% url 'trash' %}">
+
+                  <i class="fa fa-trash" aria-hidden="true"></i></a>
+                  
+              </button>            
+            </div>
+            <p class="card-description">
+            </p>
+            <div class="table-responsive">
+              <table class="table">
+                <div class="table-wrapper">
+                  <table class="table table-striped">
+                <thead>
+
+                  <tr>
+
+                    <th><h3><b> id </b></h3></th>
+                    <th><h3><b> name </b></h3></th>
+                    <th><h3><b> description </b></h3></th>
+                    <th><h3><b> action </b></h3></th>
+
+                  </tr>
+
+                </thead>
+                <tbody>
+                  {% for category in cat %}
+                  {% if not category.is_deleted %}
+
+                  <tr>
+                    <td><p>{{ forloop.counter }}</p> </td>
+                    <td> {{category.name}} </td>
+                    <td> {{category.description}} </td>
+
+                    <div class="row mb-2" >
+                      
+                      <td class='col'>
+  
+                        <a href="{% url 'edit_category' category.pk %}" class="btn btn-dark">edit</a>
+  
+                        <a href="{% url 'delete' category.pk %}" class="btn btn-danger confirm-delete">delete</a>
+  
+                        {% if category.is_listed %}
+                        <a href="{% url 'unlist_category' category.pk %}" class="btn btn-success ">List</a>
+  
+                        {% else %}
+                        <a href="{% url 'list_category' category.pk %}" class="btn btn-outline-success">unlist</a>
+                        {% endif %}
+                      </td>
+                    </tr>
+  
+                    {% endif %}
+                    {% endfor %}
+                    </div>
+
+                  <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                      document.querySelectorAll('.confirm-delete').forEach(function (element) {
+                        element.addEventListener('click', function (event) {
+                          event.preventDefault(); // Prevent the default action
+                          var confirmation = confirm('Are you sure you want to delete this category?');
+                          if (confirmation) {
+                            window.location.href = this.href; // Redirect to the delete URL if confirmed
+                          }
+                        });
+                      });
+                    });
+                  </script>
+
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% endblock body %}

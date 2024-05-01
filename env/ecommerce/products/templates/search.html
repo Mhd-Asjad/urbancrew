@@ -1,0 +1,124 @@
+{% extends 'navigation.html' %}
+
+<head>
+  <style>
+  .stretch-card .card{
+
+    min-width: 100% ;
+    width : 80% ;
+  }
+  h4{
+    
+    font-family: sans-serif
+  }
+  </style>
+</head>
+{% load static %}
+    {% block body %}
+
+      <div class="main-panel">
+          <div class="content-wrapper">
+            <h2 style="font-family:san-serif ; color: orange; " >Search Results for "{{ query }}" </h2>
+            <br><br>
+            <form class="search-form" action="{% url 'search_results' %}" method="GET">
+              <div class="input-group">
+                  <input type="text" style='width:30' class="form-control" id="searchInput" name='query' placeholder="Search Here" value="{{ query }}" >
+                 
+              </div>
+          </form>
+          <br>
+          <br>
+            <div class="row d-flex justify-content-center">
+              <div class="col-lg-6 grid-margin stretch-card w-100">
+                <div class="card">
+                  <div class="card-body">
+                    <p class="card-description">
+                      <b>products</b>
+                    </p>
+                    <div class="table-responsive d-flex justify-content-center">
+                      <table class="table">
+                        <thead>
+                          <tr>
+                            <th><h5><b> id </b></h5></th>
+                            <th><h5><b>product name</b></h5></th>
+                            <th><h5><b> category </b></h5></th>
+                            <th><h5><b> price </b></h5></th>
+                            <th><h5><b> Color </b></h5></th>
+                            <th><h5><b> size </b></h5></th>
+                            <th><h5><b> stock </b></h5></th>
+                            <th><h5><b> image </b></h5></th>
+                            <th><h5><b> action </b></h5></th>
+                          </tr>
+                        </thead>
+                        
+                        <tbody>
+
+                          {% for product in products %}
+
+                          <tr>
+
+                            <td> {{ forloop.counter }} </td>
+                            <td> {{product.product.product_name}} </td>
+                            <td> {{product.product.categorys.name}} </td>
+                            <td> {{product.product.price }} </td>
+                            <td> {{product.color}} </td>
+                            <td>
+                              <div>
+                                <select name="size" id="size-{{ product.product.id }}" onchange="updateQuantity(this)">
+                                  {% for size in product.sizes.all %}
+                                  <option value="{{ size.id }}" data-quantity="{{ size.stock }}">{{ size.size }}</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+
+                            </td>
+
+
+                            <td class='quantity' > 
+                            {% if product.sizes.exists %}
+                              {% for size in product.sizes.all %}
+                                {{ size.stock }} ({{ size.size }})<br><br>
+
+                              {% endfor %}
+                            {% else %}
+                              0
+                            {% endif %}
+                            </td>
+
+                            <td><img src="{{ product.product.img.url }}" alt="img" style="width: 100px; height: 100px; " ></td>
+
+                            <div class="row mb-2">
+
+                              <td class="col">
+
+                                <a href="" class="btn btn-dark mr-2">edit</a>
+
+                                <a href="{% url 'delete_prod' product.product.id %}" class="btn btn-danger mr-2">Delete</a>
+
+                                {% if product.product.is_available %}
+
+                                  <a href="{% url 'unlist_prod' product.product.id %}" class="btn btn-success">Unlist</a>
+
+                                {% else %}
+
+                                  <a href="{% url 'list_prod' product.product.id %}" class="btn btn-success">List</a>
+
+                                {% endif %}
+
+                              </td>
+
+                            </div>
+
+                          </tr> 
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                </div>
+              </div>
+            </div>
+         </div>
+        </div>
+
+   
+{% endblock body %}

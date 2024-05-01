@@ -1,0 +1,265 @@
+{% extends 'navigation.html' %}
+
+{% load static %}
+
+{% block body %}
+
+
+
+<style>
+
+    .row > * {
+    flex-shrink: 0;
+    width: 75%;
+    max-width: 100%;
+    padding-right: calc(var(--bs-gutter-x) / 2);
+    padding-left: calc(var(--bs-gutter-x) / 2);
+    margin-top: var(--bs-gutter-y);
+    }
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 20px;
+    }
+
+    h1 {
+        text-align: center;
+        color: #333;
+    }
+
+    form {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        max-width: 500px ;
+        margin: 0 auto;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 10px;
+        color: #333;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select,
+    input[type="file"] {
+        width: 100% ;
+        padding: 8px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        font-size: 16px;
+    }
+
+    input[type="checkbox"] {
+
+        margin-bottom: 15px;
+    }
+
+    button {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+    .image-preview {
+        width: 234px;
+        height: 200px;
+        border: 1px solid #ccc;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        margin-left: 10px; 
+    }
+
+    .image-preview img {
+        max-width: 500%;
+        max-height: 250px;
+        gap: 50px;
+        display: block;
+    }
+
+    .form-group.image-group {
+        flex-direction: column; 
+        align-items: flex-start; 
+    }
+
+    .form-group.image-group .form-control-file {
+        margin-bottom: 10px;
+    }
+
+    </style>
+<body>
+    
+    <div class="container">
+        <div class="row justify-content-center" >
+    
+                <h1>Add images</h1><hr><br>
+                <form action="{% url 'addimage' %}" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+    
+                    <div class="form-group">
+                        <label for="category"><b>Product Name :</b></label>
+
+                        <br>
+                        
+                        <select name="prd" id="category" style="width:160px;" required>
+                            <option value="">Select Category</option>
+                            <br>
+
+                            {% for products in product %}
+                            <option value="{{ products.id }}">{{ products.product_name }}</option>
+                            {% endfor %}
+
+                        </select>
+                    </div>
+    
+                    <div class="form-group">
+
+                        <label for="color" class="form-label"><b>Color:</b></label>
+                        <input type="text" id="color" name="color" class="form-control" style="width:400px" required>
+
+                    </div>
+                    <br>
+                    <br>
+    
+                    <div class="d-flex justify-content-between">
+    
+                        <div class="form-group ">
+                        <label for="image1" class="form-label"><b>Image 1 :</b></label>
+                        
+                        <input type="file" id="image1" name="image1" accept="image/*" class="form-control-file" style="width: 250px;  border-radius: 20px; background-color: #f7f4f4;  " required>
+                        
+                    </div>
+    
+                    <div class="form-group ">
+    
+                        <label for="image2" class="form-label"><b>Image 2</b>:</label>
+                        <input type="file" id="image2" name="image2" accept="image/*" class="form-control-file" style="width: 250px;  border-radius: 20px; background-color: #f7f4f4;  " required>
+                        
+                    </div>
+    
+                    <div class="form-group ">
+                        <label for="image3" class="form-label"><b>Image 3</b>:</label>
+                        <input type="file" id="image3" name="image3" accept="image/*" class="form-control-file" style="width: 250px; border-radius: 20px; background-color: #f7f4f4;  " required>
+    
+                    </div>
+    
+                    </div>
+    
+                    <div class="image-preview-container d-flex justify-content-between">
+                        <div class="image-preview d-flex">
+                            <img id="previewImage1" src="#" alt="Image 1">
+                        </div>
+                        <div class="image-preview d-flex">
+                            <img id="previewImage2" src="#" alt="Image 2">
+                        </div>
+                        <div class="image-preview d-flex">
+                            <img id="previewImage3" src="#" alt="Image 3">
+                        </div>
+                    </div>
+
+                    <canvas id="croppedImagePreview" style="display: none;"></canvas>
+
+                    <br>
+                    <br>
+    
+                    <button type="submit" class="btn btn-primary">Add Product</button>
+                </form>
+        </div>
+    </div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+
+    {% if messages %} 
+        {% for message in messages %} 
+    swal({
+        title: "{{ message }}",
+        icon: "success",
+        text :"added succesfully"
+
+    }).then(()=> {
+        window.location.href = "/product/"
+      })
+    {% endfor %}
+    {% endif %}
+
+</script>
+<script>
+    $(document).ready(function () {
+        var image1 = document.getElementById('image1');
+        var image2 = document.getElementById('image2');
+        var image3 = document.getElementById('image3');
+
+        var cropper1 = new Cropper(image1, {
+            aspectRatio: 1 / 1, // Set aspect ratio as needed
+            crop: function (event) {
+                var canvas = document.getElementById('croppedImagePreview');
+                var ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(cropper1.getCroppedCanvas(), 0, 0, canvas.width, canvas.height);
+            }
+        });
+
+        // Initialize croppers for image2 and image3 similarly
+        // ...
+
+        // Attach change event handlers to update Cropper.js when a new image is selected
+        image1.addEventListener('change', function () {
+            var file = this.files[0];
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                cropper1.replace(e.target.result);
+            };
+            reader.readAsDataURL(file);
+        });
+
+    });
+</script>
+
+<script>
+    function previewImage(input, previewElement) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                previewElement.src = e.target.result;
+            };
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // Attach event handlers to file inputs
+    $('#image1').change(function () {
+        previewImage(this, document.getElementById('previewImage1'));
+    });
+
+    $('#image2').change(function () {
+        previewImage(this, document.getElementById('previewImage2'));
+    });
+
+    $('#image3').change(function () {
+        previewImage(this, document.getElementById('previewImage3'));
+    });
+</script>
+</body>
+
+{% endblock body %}

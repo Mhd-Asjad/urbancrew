@@ -7,7 +7,7 @@
   Created: Colorib 
 ******************************************************************/
 
-/*------------------------------------------------------------------
+/*------------------------------------------------------------------/
 [Table of contents]
 
 1.  Template default CSS
@@ -1402,6 +1402,7 @@ ol {
 	right: 0;
 	top: 2px;
 	line-height: 20px;
+	
 }
 
 .shop__sidebar__accordion .card-heading.active a:after {
@@ -1503,7 +1504,7 @@ ol {
 
 .product__details__pic {
 	text-align: center;
-	background: #f3f2ee;
+	background: #fff;
 	padding: 40px 0 60px;
 	margin-bottom: 100px;
 }
@@ -1528,7 +1529,7 @@ ol {
 
 .product__details__pic .nav-tabs .nav-item .nav-link .product__thumb__pic {
 	height: 120px;
-	width: 95px;
+	width: 115px;
 	display: -webkit-box;
 	display: -ms-flexbox;
 	display: flex;
@@ -1605,9 +1606,7 @@ ol {
 	margin-left: -28px;
 }
 
-.product__details__text {
-	text-align: center;
-}
+
 
 .product__details__text h4 {
 	color: #111111;
@@ -1620,8 +1619,8 @@ ol {
 }
 
 .product__details__text .rating i {
-	font-size: 15px;
-	color: #f7941d;
+	font-size: 20px;
+	color: #e4e14b;
 	display: inline-block;
 	margin-right: -5px;
 }

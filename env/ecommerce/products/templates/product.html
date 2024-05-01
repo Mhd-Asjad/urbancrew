@@ -1,0 +1,96 @@
+{% extends 'navigation.html' %}
+
+{% block body %}
+
+<head>
+  <style>
+    .stretch-card .card {
+      min-width: 100%;
+      width: 80%;
+    }
+
+    h4 {
+      font-family: sans-serif;
+    }
+  </style>
+</head>
+
+<div class="main-panel">
+  <div class="content-wrapper">
+    <h2 style="font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;">Products</h2>
+    <br><br>
+    <form class="search-form" action="{% url 'search_results' %}" method="GET">
+      <div class="input-group">
+        <input type="text" style="width:30;" class="form-control" id="searchInput" name="query" placeholder="Search Here" value="{{ query }}">
+      </div>
+    </form>
+    <br><br>
+    <div class="table-responsive d-flex justify-content-center">
+      <table class="table">
+        <thead>
+          <tr>
+            <th><h5><b>ID</b></h5></th>
+            <th><h5><b>Product Name</b></h5></th>
+            <th><h5><b>Category</b></h5></th>
+            <th><h5><b>Price</b></h5></th>
+            <th><h5><b>Color</b></h5></th>
+            <th><h5><b>Stock</b></h5></th>
+            <th><h5><b>Image</b></h5></th>
+            <th><h5><b>Action</b></h5></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for product in products %}
+          <tr>
+            <td>{{ product.id }}</td>
+            <td>{{ product.product.product_name }}</td>
+            <td>{{ product.product.categorys.name }}</td>
+            <td>{{ product.product.price }}</td>
+            <td>{{ product.color }}</td>
+            <td>
+              {% if product.sizes.exists %}
+                {% for size in product.sizes.all %}
+                  {{ size.stock }} ({{ size.size }})<br><br>
+                {% endfor %}
+              {% else %}
+                0
+              {% endif %}
+            </td>
+            
+            <td><img src="{{ product.product.img.url }}" alt="img" style="width: 100px; height: 100px;"></td>
+
+            <div class="row mb-2">
+                <td class="col">
+                <a href="{% url 'edit_prod' product.product.id %}" class="btn btn-dark mr-2">Edit</a>
+                <a href="{% url 'delete_prod' product.product.id %}" class="btn btn-danger mr-2">Delete</a>
+                {% if product.product.is_available %}
+                  <a href="{% url 'unlist_prod' product.product.id %}" class="btn btn-success">Unlist</a>
+                {% else %}
+                  <a href="{% url 'list_prod' product.product.id %}" class="btn btn-success">List</a>
+                {% endif %}
+              </td>
+            </div>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+  <script>
+  
+// Set modal content for Delete Modal
+$('#deleteUserModal').on('show.bs.modal', function (event) {
+  var button = $(event.relatedTarget);
+  var userId = button.data('user-id');
+  var username = button.data('username');
+
+  var modal = $(this);
+  modal.find('#deleteUserId').val(userId);
+  modal.find('.modal-body p').text('Are you sure you want to delete user "' + username + '"?');
+});
+
+
+  </script>
+   
+{% endblock body %}

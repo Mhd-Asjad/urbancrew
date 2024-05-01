@@ -1,0 +1,120 @@
+    {% extends 'navigation.html' %}
+
+    {% block body %}
+
+    <style>
+    
+        
+        .form-container {
+            background-color: #fff ;
+            padding: 60px ;
+            border-radius: 10px ;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width:100%;
+            margin:auto;
+        }
+        
+        label {
+            font-weight: bold;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        input[type="file"],
+        select {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 19px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+
+
+    <div class="form-container">
+        {% if product %}
+        <form action="{% url 'edit_prod' product.id %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            {% if messages %}
+
+                <ul class='messages' >
+                    {% for message in messages %}
+                    <li{% if message.tags == 'error' %}  style="color: red; text-decoration: none; font-size: 21px; " class="d-flex justify-content-center" {% elif message.tags %} style="color: green; font-size: 21px; font-family: Verdana, Geneva, Tahoma, sans-serif; " class="d-flex justify-content-center"
+                        
+                    {% endif %}>{{ message }}</li>
+                        
+                    {% endfor %}
+                </ul>
+
+            {% endif %}
+
+            <label for="product_name">Product Name:</label>
+            <input type="text" id="product_name" name="product_name" value="{{ product.product_name }}"><br>
+
+            <label for="price">Price:</label>
+            <input type="number" id="price" name="price" value="{{ product.price }}"><br>
+
+            <label for="category">Category:</label>
+            
+            <input type="text" id="category" name="category" value="{{ product.categorys.name }}"><br>
+
+            <div class="form-group">
+
+                <label for="color">Color:</label>
+                <input type="text" id="color" name="color" value="{{ product.images.first.color }}"><br>
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="image1">thumb image:</label>
+                <input type="file" id="thumb_img" name="thumbnail" accept="image/*">
+
+            </div>
+
+
+            <div class="form-group">
+                <label for="image1">Image 1:</label>
+                <input type="file" id="image1" name="image1" accept="image/*">
+
+            </div>
+
+            <div class="form-group">
+                <label for="image2">Image 2:</label>
+                <input type="file" id="image2" name="image2" accept="image/*">
+
+            </div>
+
+            <div class="form-group">
+                <label for="image3">Image 3:</label>
+                <input type="file" id="image3" name="image3" accept="image/*">
+
+            </div>
+
+            <!-- Submit button -->
+            <button type="submit">Update Product</button>
+
+        </form>
+        {% else %}
+
+        <div class="alert alert-danger d-flex justify-content-center">Product does not exist.</div>
+
+        {% endif %}
+
+    </div>
+
+    {% endblock body %}
