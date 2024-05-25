@@ -73,31 +73,11 @@
             color: red;
             font-size: 1.7em; 
         }
-        {% comment %} .file-input {
-            width: 0.1px;
-            height: 0.1px;
-            opacity: 0;
-            overflow: hidden;
-            position: absolute;
-            z-index: -1;
-        }
 
-        .file-input + label {
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            cursor: pointer;
-            border-radius: 5px;
-            display: inline-block;
-        }
-
-        .file-input:focus + label,
-        .file-input + label:hover {
-            background-color: #45a049;
-        } {% endcomment %}
     </style>
 </head>
 
+    
 
     <div class='container' >
         <div class='row d-flex justify-content-center  '>
@@ -124,14 +104,14 @@
             <br><br>
 
             <label for="imageupload">Thumbnail :</label>
-            <input type="file" id="imageUpload" name="image" class="file-input" accept="image/*" required><br><br>
+            <input type="file" id="imageUpload" name="image" class="file-input" accept=".jpg, .jpeg, .png" required><br><br>
 
             {% if messages %}
-                <ul class='messages' >
+                <ul class='messages d-flex justify-content-center ' style="color:red; text-decoration:none; font-size: 21px; " >
                     {% for msg in messages %}
-                    <li{% if message.tags == 'error' %}  style="color: red; text-decoration: none; font-size: 21px; "
+                    <li{% if message.tags == 'error' %} 
                         
-                    {% endif %}>{{ message }}</li>
+                    {% endif %}>{{ msg }}</li>
                         
                     {% endfor %}
                 </ul>
@@ -140,25 +120,7 @@
             <button type="submit" class="button">Add Product</button>
         </form>
         </div>
+
     </div>
-
-
-    <script>
-        
-        {% if messages %} 
-            {% for message in messages %} 
-        swal({
-            title: "{{ message }}",
-            icon: "error",
-            text :"updation failed"
-    
-        }).then(()=> {
-            window.location.href = "/addproduct/"
-          })
-        {% endfor %}
-        {% endif %}
-    
-    </script>
-
 
 {% endblock body %}

@@ -7,40 +7,81 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('products', '0005_product_is_deleted'),
+        ("products", "0005_product_is_deleted"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='product',
-            name='img_height',
+            model_name="product",
+            name="img_height",
         ),
         migrations.RemoveField(
-            model_name='product',
-            name='img_width',
+            model_name="product",
+            name="img_width",
         ),
         migrations.RemoveField(
-            model_name='product',
-            name='stock',
+            model_name="product",
+            name="stock",
         ),
         migrations.CreateModel(
-            name='AddImages',
+            name="AddImages",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('color', models.CharField(max_length=30)),
-                ('image1', models.ImageField(upload_to='product_images')),
-                ('image2', models.ImageField(upload_to='product_images')),
-                ('image3', models.ImageField(upload_to='product_images')),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='images', to='products.product')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("color", models.CharField(max_length=30)),
+                ("image1", models.ImageField(upload_to="product_images")),
+                ("image2", models.ImageField(upload_to="product_images")),
+                ("image3", models.ImageField(upload_to="product_images")),
+                (
+                    "product",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="images",
+                        to="products.product",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='ProductSize',
+            name="ProductSize",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('size', models.CharField(choices=[('S', 'Small'), ('M', 'Medium'), ('L', 'Large'), ('XL', 'Extra Large')], max_length=10)),
-                ('stock', models.PositiveIntegerField(default=0)),
-                ('image', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sizes', to='products.addimages')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "size",
+                    models.CharField(
+                        choices=[
+                            ("S", "Small"),
+                            ("M", "Medium"),
+                            ("L", "Large"),
+                            ("XL", "Extra Large"),
+                        ],
+                        max_length=10,
+                    ),
+                ),
+                ("stock", models.PositiveIntegerField(default=0)),
+                (
+                    "image",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="sizes",
+                        to="products.addimages",
+                    ),
+                ),
             ],
         ),
     ]

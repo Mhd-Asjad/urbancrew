@@ -119,7 +119,7 @@
                         <br>
                         
                         <select name="prd" id="category" style="width:160px;" required>
-                            <option value="">Select Category</option>
+                            <option value="">Select product</option>
                             <br>
 
                             {% for products in product %}
@@ -139,43 +139,43 @@
                     <br>
     
                     <div class="d-flex justify-content-between">
-    
+
                         <div class="form-group ">
                         <label for="image1" class="form-label"><b>Image 1 :</b></label>
                         
                         <input type="file" id="image1" name="image1" accept="image/*" class="form-control-file" style="width: 250px;  border-radius: 20px; background-color: #f7f4f4;  " required>
                         
                     </div>
-    
+        
+        
                     <div class="form-group ">
-    
+        
                         <label for="image2" class="form-label"><b>Image 2</b>:</label>
                         <input type="file" id="image2" name="image2" accept="image/*" class="form-control-file" style="width: 250px;  border-radius: 20px; background-color: #f7f4f4;  " required>
                         
                     </div>
-    
+        
                     <div class="form-group ">
                         <label for="image3" class="form-label"><b>Image 3</b>:</label>
                         <input type="file" id="image3" name="image3" accept="image/*" class="form-control-file" style="width: 250px; border-radius: 20px; background-color: #f7f4f4;  " required>
-    
+        
                     </div>
-    
+        
                     </div>
-    
+        
                     <div class="image-preview-container d-flex justify-content-between">
-                        <div class="image-preview d-flex">
-                            <img id="previewImage1" src="#" alt="Image 1">
-                        </div>
-                        <div class="image-preview d-flex">
-                            <img id="previewImage2" src="#" alt="Image 2">
-                        </div>
-                        <div class="image-preview d-flex">
-                            <img id="previewImage3" src="#" alt="Image 3">
-                        </div>
+        
+                       <button class="btn btn-success" type="button" onmouseover="preveiw('image1')">
+                        preveiw
+                       </button>
+                       <button class="btn btn-success" type="button" onmouseover="preveiw('image2')">
+                        preveiw
+                       </button>
+                       <button class="btn btn-success" type="button" onmouseover="preveiw('image3')">
+                        preveiw
+                       </button>
+                       
                     </div>
-
-                    <canvas id="croppedImagePreview" style="display: none;"></canvas>
-
                     <br>
                     <br>
     
@@ -186,80 +186,49 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
 <script>
-
-    {% if messages %} 
-        {% for message in messages %} 
+    {% if messages %}
+    {% for msg in messages %}
     swal({
-        title: "{{ message }}",
+        
+        {% if msg.tags == 'success' %}
+        title: "{{ msg }}",
         icon: "success",
-        text :"added succesfully"
-
-    }).then(()=> {
-        window.location.href = "/product/"
-      })
+        {% endif %}
+        
+    });
     {% endfor %}
     {% endif %}
 
-</script>
-<script>
-    $(document).ready(function () {
-        var image1 = document.getElementById('image1');
-        var image2 = document.getElementById('image2');
-        var image3 = document.getElementById('image3');
+        function previewImage(input, previewElementId) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
 
-        var cropper1 = new Cropper(image1, {
-            aspectRatio: 1 / 1, // Set aspect ratio as needed
-            crop: function (event) {
-                var canvas = document.getElementById('croppedImagePreview');
-                var ctx = canvas.getContext('2d');
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(cropper1.getCroppedCanvas(), 0, 0, canvas.width, canvas.height);
+                reader.onload = function (e) {
+                    // previewElement.src = e.target.result;
+                    console.log('this is working');
+                    Swal.fire({
+                        imageUrl: `${e.target.result}`,
+                        imageWidth: 400,
+                        imageHeight: 400,
+                        imageAlt: "Custom image"
+                    });
+                    
+                };
+
+                reader.readAsDataURL(input.files[0]);
             }
-        });
-
-        // Initialize croppers for image2 and image3 similarly
-        // ...
-
-        // Attach change event handlers to update Cropper.js when a new image is selected
-        image1.addEventListener('change', function () {
-            var file = this.files[0];
-            var reader = new FileReader();
-            reader.onload = function (e) {
-                cropper1.replace(e.target.result);
-            };
-            reader.readAsDataURL(file);
-        });
-
-    });
-</script>
-
-<script>
-    function previewImage(input, previewElement) {
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-
-            reader.onload = function (e) {
-                previewElement.src = e.target.result;
-            };
-
-            reader.readAsDataURL(input.files[0]);
         }
-    }
 
-    // Attach event handlers to file inputs
-    $('#image1').change(function () {
-        previewImage(this, document.getElementById('previewImage1'));
-    });
+        function preveiw (name) {
+            let input = document.getElementById(name)
+            previewImage(input,'previewImage1')
+        }
 
-    $('#image2').change(function () {
-        previewImage(this, document.getElementById('previewImage2'));
-    });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    $('#image3').change(function () {
-        previewImage(this, document.getElementById('previewImage3'));
-    });
-</script>
 </body>
 
 {% endblock body %}

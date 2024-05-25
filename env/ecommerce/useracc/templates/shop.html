@@ -60,16 +60,12 @@
                                         <div id="collapseOne" class="collapse show" data-parent="#accordionExample">
                                             <div class="card-body">
                                                 <div class="shop__sidebar__categories">
+                                                    
                                                     <ul class="nice-scroll">
-                                                        <li><a href="#">Men (20)</a></li>
-                                                        <li><a href="#">Women (20)</a></li>
-                                                        <li><a href="#">Bags (20)</a></li>
-                                                        <li><a href="#">Clothing (20)</a></li>
-                                                        <li><a href="#">Shoes (20)</a></li>
-                                                        <li><a href="#">Accessories (20)</a></li>
-                                                        <li><a href="#">Kids (20)</a></li>
-                                                        <li><a href="#">Kids (20)</a></li>
-                                                        <li><a href="#">Kids (20)</a></li>
+                                                    {% for category in categorys %}
+                                                        <li><a href="#">{{ category }}</a></li>
+
+                                                    {% endfor %}
                                                     </ul>
                                                 </div>
                                             </div>
@@ -237,7 +233,6 @@
                                         <div class="product__item__pic set-bg" data-setbg="">
                                         <a href="{% url 'shop_details' product.id %}"><img style='width: 300px; height:270px; ' src="{{ product.product.img.url }}" alt=""></a>
                                             {% if product.product.is_available %}
-
                                             <span class="label" style="background-color:green; border-radius:5px; color:white; ">New</span>
 
                                             {% else %}

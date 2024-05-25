@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('products', '0002_alter_product_img'),
+        ("products", "0002_alter_product_img"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='product',
-            name='img_height',
+            model_name="product",
+            name="img_height",
             field=models.PositiveIntegerField(default=50),
         ),
         migrations.AddField(
-            model_name='product',
-            name='img_width',
+            model_name="product",
+            name="img_width",
             field=models.PositiveIntegerField(default=70),
         ),
     ]

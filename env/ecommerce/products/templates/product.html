@@ -12,13 +12,24 @@
     h4 {
       font-family: sans-serif;
     }
+    
   </style>
 </head>
 
 <div class="main-panel">
   <div class="content-wrapper">
-    <h2 style="font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;">Products</h2>
-    <br><br>
+    <h2 style="font-family:'Lucida Sans','Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;">Products</h2>
+    <br>
+    {% if messages %}
+    <div class="messages">
+    {% for message in messages %}
+    <li {% if message.tags == 'success' %} style="color: green; font-size: 21px; font-family: Verdana, Geneva, Tahoma, sans-serif; " class="d-flex justify-content-center">
+      {% endif %}{{ message }}</li>
+    {% endfor %}
+    </div>
+    {% endif %}
+    <br>
+    <br>
     <form class="search-form" action="{% url 'search_results' %}" method="GET">
       <div class="input-group">
         <input type="text" style="width:30;" class="form-control" id="searchInput" name="query" placeholder="Search Here" value="{{ query }}">
@@ -36,7 +47,13 @@
             <th><h5><b>Color</b></h5></th>
             <th><h5><b>Stock</b></h5></th>
             <th><h5><b>Image</b></h5></th>
-            <th><h5><b>Action</b></h5></th>
+            <th colspan="2">
+              <div class="d-flex justify-content-between align-items-center">
+                  <h5><b>Actions</b></h5>
+
+                  <a href="{% url 'addproduct' %}" class="btn btn-secondary"><b>add me</b></a>
+              </div>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -53,16 +70,16 @@
                   {{ size.stock }} ({{ size.size }})<br><br>
                 {% endfor %}
               {% else %}
-                0
+                <P>0</P>
               {% endif %}
             </td>
             
-            <td><img src="{{ product.product.img.url }}" alt="img" style="width: 100px; height: 100px;"></td>
+            <td><img src="{{ product.product.img.url }}" alt="img" style="width: 100px; height: 100px;border-radius:1px !important;"></td>
 
             <div class="row mb-2">
                 <td class="col">
                 <a href="{% url 'edit_prod' product.product.id %}" class="btn btn-dark mr-2">Edit</a>
-                <a href="{% url 'delete_prod' product.product.id %}" class="btn btn-danger mr-2">Delete</a>
+                <button class="btn btn-danger mr-2" data-toggle="modal" data-target="#deleteModal" data-product-id="{{ product.product.id }}">Delete</button>
                 {% if product.product.is_available %}
                   <a href="{% url 'unlist_prod' product.product.id %}" class="btn btn-success">Unlist</a>
                 {% else %}
@@ -77,20 +94,42 @@
     </div>
   </div>
 </div>
+
+  <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteModalLabel">Delete Product</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to delete this product?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <form method="post" id="deleteForm">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Delete</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
   <script>
-  
+    
 // Set modal content for Delete Modal
-$('#deleteUserModal').on('show.bs.modal', function (event) {
-  var button = $(event.relatedTarget);
-  var userId = button.data('user-id');
-  var username = button.data('username');
-
-  var modal = $(this);
-  modal.find('#deleteUserId').val(userId);
-  modal.find('.modal-body p').text('Are you sure you want to delete user "' + username + '"?');
-});
-
-
-  </script>
-   
+    $('#deleteModal').on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget);
+      var productId = button.data('product-id');
+      var action = '/delete_prod/' + productId + '/';
+      $('#deleteForm').attr('action', action);
+    });
+</script>
 {% endblock body %}

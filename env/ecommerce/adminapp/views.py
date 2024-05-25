@@ -1,185 +1,194 @@
 from django.contrib.auth.models import User
-from django.shortcuts import render,redirect
+from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.contrib.auth import login,logout,authenticate
+from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from .models import category
 import re
 from datetime import datetime
 from django.views.decorators.cache import never_cache
 
+
 @never_cache
-def dash_view(request) :
+def dash_view(request):
     if request.user.is_superuser:
-        return render(request,'dashboard.html')
-    return redirect('adminlog')
+        return render(request, "dashboard.html")
+    return redirect("adminlog")
+
 
 @never_cache
 def adminlog(request):
-        if request.user.is_superuser:
-            return redirect('dashboard')
-        
-        if request.method == 'POST':
-            username = request.POST.get('username')
-            password = request.POST.get('password')
-            print(username, password)
 
-            user = authenticate(request, username=username, password=password)
-            print(user)
+    if request.method == "POST" :
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        print(username,password)
 
-            if user is not None and user.is_superuser:
-                login(request, user)
-                return redirect('dashboard')
-            else:
-                messages.error(request, 'Incorrect username or password!!')
-                return redirect('adminlog')
+        user = authenticate(request, username=username, password=password)
+        print(user)
 
+        if user is not None and user.is_superuser:
+            login(request, user)
+            return redirect("dashboard")
         else:
+            messages.error(request, "Incorrect username or password!!")
+            return redirect("adminlog")
 
-            return render(request, 'adminlog.html')
+    else:
 
-@login_required(login_url='adminlog')
-def customer_view(request) :
+        return render(request, "adminlog.html")
 
-    users = User.objects.all().order_by('id')
-    return render(request,'customer.html',{'users' : users})
+
+@login_required(login_url="adminlog")
+def customer_view(request):
+    users = User.objects.all().order_by("id")
+    return render(request, "customer.html", {"users": users})
 
 
 def user_block(request, user_id):
 
-    user = User.objects.get(id = user_id)
+    user = User.objects.get(id=user_id)
     user.is_active = False
     user.save()
     return redirect(customer_view)
-    
+
+
 def user_unblock(request, user_id):
-    user = User.objects.get(id = user_id)
+    user = User.objects.get(id=user_id)
     user.is_active = True
     user.save()
     return redirect(customer_view)
 
-@login_required(login_url='adminlog')
-def category_view(request) :
-    if request.user.is_superuser:
-        cat = category.objects.filter(is_deleted=False).order_by('name')
-        return render(request,'category.html',{'cat' : cat})
-    
-    else :
 
-        return redirect('adminlog')
+@login_required(login_url="adminlog")
+def category_view(request):
+    if request.user.is_superuser:
+        cat = category.objects.filter(is_deleted=False).order_by("name")
+        return render(request, "category.html", {"cat": cat})
+
+    else:
+
+        return redirect("adminlog")
+
 
 @never_cache
-def sf_delete_cat(request,category_id):
-    try :
+def sf_delete_cat(request, category_id):
+    try:
 
         print(category_id)
         cat1 = category.objects.get(id=category_id)
         cat1.is_deleted = True
         cat1.save()
-        return redirect('trash')
-    
-    except Exception as e :
+        return redirect("trash")
+
+    except Exception as e:
         messages.error(request, str(e))
-        return redirect('category')
+        return redirect("category")
+
 
 @never_cache
-@login_required(login_url='adminlog')
-def restore_cat (request,category_id):
-    try :
+@login_required(login_url="adminlog")
+def restore_cat(request, category_id):
+    try:
 
         cat1 = category.objects.get(id=category_id)
         cat1.is_deleted = False
         cat1.save()
-        return redirect('category')
-    
+        return redirect("category")
+
     except Exception as e:
-        messages.error(request,str(e))
-        return redirect('category')
+        messages.error(request, str(e))
+        return redirect("category")
+
 
 @never_cache
-@login_required(login_url='adminlog')
-def add_category(request) :
-    if request.method == 'POST' :
+@login_required(login_url="adminlog")
+def add_category(request):
+    if request.method == "POST":
 
-        name = request.POST.get('name')
-        description = request.POST.get('description')
+        name = request.POST.get("name")
+        description = request.POST.get("description")
 
-        if category.objects.filter(name=name).exists():
-            messages.error(request,'catogory already exists')
-            # return redirect('addcategory')
-                        
-        else :
+        if category.objects.filter(name__iexact = name).exists():
+            messages.error(request, "catogory already exists")
+            return redirect('addcategory')
 
-            categorys = category.objects.create(name=name,description=description)
+        else:
+
+            categorys = category.objects.create(name=name, description=description)
             categorys.save()
-            messages.success(request,'category added sucessfully')
+            messages.success(request, "category added sucessfully")
 
-    return render(request, 'add_category.html')
+    return render(request, "add_category.html")
 
-@login_required(login_url='adminlog')
-def edit_category (request,category_id):
+
+@login_required(login_url="adminlog")
+def edit_category(request, category_id):
     data = category.objects.get(id=category_id)
 
-    if request.method == 'POST' :
-        name = request.POST.get('name')
-        description = request.POST.get('description')
+    if request.method == "POST":
+        name = request.POST.get("name")
+        description = request.POST.get("description")
 
-        data.name=name 
-        data.description=description
+        data.name = name
+        data.description = description
         data.save()
-        messages.success(request,'category updated ')
-        return redirect('category')
-        
-    return render(request,'edit_cat.html',{'data' : data})
+        messages.success(request, "category updated successfuly")
+        return redirect("category")
 
-def list_category(request,category_id):
+    return render(request, "edit_cat.html", {"data": data})
 
-    is_list = category.objects.get(id = category_id)
+
+def list_category(request, category_id):
+
+    is_list = category.objects.get(id=category_id)
     is_list.is_listed = True
     is_list.save()
-    return redirect('category')
+    return redirect("category")
 
-def unlist_category (request,category_id):
+
+def unlist_category(request, category_id):
 
     is_unlist = category.objects.get(id=category_id)
     is_unlist.is_listed = False
     is_unlist.save()
-    return redirect('category')
+    return redirect("category")
 
-@login_required(login_url='adminlog')
-def trash (request) :
+
+@login_required(login_url="adminlog")
+def trash(request):
     cat = None
     try:
 
-        if request.user.is_superuser :
-            cat = category.objects.filter(is_deleted=True).order_by('name')
-           
-        
-        if cat not in cat :
+        if request.user.is_superuser:
+            cat = category.objects.filter(is_deleted=True).order_by("name")
+
+        if cat not in cat:
             messages.error(request, "No items found in the recycle bin.")
 
-    except Exception as e :
-        messages.error(request,str(e))
-        return redirect('adminlog')
+    except Exception as e:
+        messages.error(request, str(e))
+        return redirect("adminlog")
 
-    
-    return render(request,'trash.html', {'cat': cat} )
+    return render(request, "trash.html", {"cat": cat})
 
-def trash_remove (request,category_id) :
-    try :
+
+def trash_remove(request, category_id):
+    try:
         categorys = category.objects.get(id=category_id)
         categorys.delete()
-        return redirect('trash')
-    
-    except Exception as e :
-        messages.error(request,str(e))
-        return redirect('trash')
+        return redirect("trash")
+
+    except Exception as e:
+        messages.error(request, str(e))
+        return redirect("trash")
 
 
 def log_out(request):
 
     logout(request)
-    return redirect('adminlog')
+    return redirect("adminlog")
+
 
 def greet_based_on_time(request):
     now = datetime.now()
@@ -193,4 +202,4 @@ def greet_based_on_time(request):
     else:
         message = "Good evening"
 
-    return render(request, 'nav.html', {'message': message})
+    return render(request, "nav.html", {"message": message})

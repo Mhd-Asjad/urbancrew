@@ -9,7 +9,7 @@
 #     confirmpassword = forms.CharField(widget=forms.PasswordInput(attrs={'class':'form-control','id':'pass1','placeholder':'password 2'}))
 
 #     def clean(self) :
-#         cleaned_data = super().clean()  
+#         cleaned_data = super().clean()
 #         username = self.cleaned_data['username']
 #         password = cleaned_data.get('password')
 #         confirmpassword = cleaned_data.get('confirmpassword')

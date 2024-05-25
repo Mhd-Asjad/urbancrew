@@ -1,121 +1,111 @@
-{% extends 'nav.html' %}
-<!DOCTYPE html>
-<html lang="en">
-  {% block body %}
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Add Category</title>
-      <style>
+{% extends 'navigation.html' %}
+
+{% block title %}Add Category{% endblock title %}
+
+{% block body %}
+    <style>
         body {
-          font-family: Arial, sans-serif;
-          background-color: #f4f4f4;
-          margin: 0;
-          padding: 0;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100vh;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
         }
-        
+
         .container {
-          width: 80%;
-          margin-top: 40px;
+            width: 80%;
+            margin-top: 40px;
         }
-        
+
         form {
-          background-color: #fff;
-          padding: 20px;
-          border-radius: 8px;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin: auto;
         }
-        
+
         h2 {
-          text-align: center;
-          margin-bottom: 20px;
+            text-align: center;
+            margin-bottom: 20px;
         }
-        
+
         label {
-          display: block;
-          margin-bottom: 8px;
+            display: block;
+            margin-bottom: 8px;
         }
-        
-        input[type='text'],
+
+        input[type="text"],
         textarea {
-          width: 100%;
-          padding: 8px;
-          margin-bottom: 16px;
-          border: 1px solid #ccc;
-          border-radius: 4px;
-          box-sizing: border-box;
-          resize: vertical;
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            resize: vertical;
         }
-        
+
         button {
-          background-color: #007bff;
-          color: #fff;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 4px;
-          cursor: pointer;
-          font-size: 16px;
-          transition: background-color 0.3s;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
         }
-        
+
         button:hover {
-          background-color: #0056b3;
+            background-color: #0056b3;
         }
-        
-      </style>
-    </head>
-    <body>
+    </style>
+{% comment %} 
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %} {% endcomment %}
 
-      <div class="container">
+    <div class="container mt-5">
         <div class="row">
-
-          <h2><b>Add Category</b></h2>
-
-          <form action="{% url 'addcategory' %}" method="post">
-
-            {% csrf_token %}
-
-            <label for="name">Name :</label>
-
-            <input type="text" id="name" name="name" placeholder="Name" required />
-
-            <label for="description">Description :</label>
-            <textarea id="description" name="description" placeholder="Description" required></textarea>
-
-            <button type="submit">Add Category</button>
-            <button><a href="{% url 'category' %}" style="text-decoration: none;color:white;">back</a></button>
-          </form>
+            <h2><b>Add Category</b></h2>
+            <form action="{% url 'addcategory' %}" method="post">
+                {% csrf_token %}
+                <label for="name">Name :</label>
+                <input type="text" id="name" name="name" placeholder="Name" required />
+                <label for="description">Description :</label>
+                <textarea id="description" name="description" placeholder="Description" required></textarea>
+                <button type="submit">Add Category</button>
+                <button>
+                    <a href="{% url 'category' %}" style="text-decoration: none; color: white;">Back</a>
+                </button>
+            </form>
         </div>
-      </div>
+    </div>
 
-      <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-      <script>
-          {% if messages %}
-              {% for msg in messages %}
-                  {% if msg.tags == 'error' %}
-                      swal({
-                          title: "{{ msg }}",
-                          icon: "error"                
-                      })
-                  {% elif msg.tags == 'success' %}
-                      swal({
-                          title: "{{ msg }}",
-                          icon: "success",
-                          text: "Added successfully",
-                        
-                        }).then(()=> {
-                          window.location.href = "/category/"
-                        })
-                  {% endif %}
-              {% endfor %}
-          {% endif %}
-      </script>
-      
-    </body>
-  {% endblock %}
-
-</html>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script>
+        {% if messages %}
+            {% for msg in messages %}
+                {% if msg.tags == 'error' %}
+                    swal({
+                        title: "{{ msg }}",
+                        icon: "error"                
+                    })
+                {% elif msg.tags == 'success' %}
+                    swal({
+                        title: "{{ msg }}",
+                        icon: "success",
+                        text: "Added successfully",
+                    }).then(() => {
+                        window.location.href = "{% url 'category' %}";
+                    })
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    </script>
+{% endblock body %}

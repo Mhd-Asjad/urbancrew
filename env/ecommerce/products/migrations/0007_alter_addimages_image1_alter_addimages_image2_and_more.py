@@ -6,23 +6,26 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('products', '0006_remove_product_img_height_remove_product_img_width_and_more'),
+        (
+            "products",
+            "0006_remove_product_img_height_remove_product_img_width_and_more",
+        ),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='addimages',
-            name='image1',
-            field=models.ImageField(upload_to='product_images/'),
+            model_name="addimages",
+            name="image1",
+            field=models.ImageField(upload_to="product_images/"),
         ),
         migrations.AlterField(
-            model_name='addimages',
-            name='image2',
-            field=models.ImageField(upload_to='product_images/'),
+            model_name="addimages",
+            name="image2",
+            field=models.ImageField(upload_to="product_images/"),
         ),
         migrations.AlterField(
-            model_name='addimages',
-            name='image3',
-            field=models.ImageField(upload_to='product_images/'),
+            model_name="addimages",
+            name="image3",
+            field=models.ImageField(upload_to="product_images/"),
         ),
     ]

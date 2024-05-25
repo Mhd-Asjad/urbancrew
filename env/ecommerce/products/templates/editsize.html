@@ -1,0 +1,94 @@
+{% extends 'navigation.html' %}
+<!DOCTYPE html>
+{% load static %}
+{% block body %}
+<style>
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333 ;
+        }
+
+        form {
+
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin: 0 auto;
+            
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select,
+        input[type="file"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        input[type="checkbox"] {
+            margin-bottom: 15px;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <h1>Edit Sizes</h1>
+
+            <form action="{% url 'edit_size' available_size.id %}" method="POST">
+                {% csrf_token %}
+
+                {% for size in available_size.sizes.all %}
+                
+                    <label for="size{{ size.id }}">Size:</label>
+
+                    <input type="hidden" name="size_id" value="{{ size.id }}">
+
+                    <input type="text" name="size" id="size{{ size.id }}" value="{{ size.size }}">
+
+                    <label for="stock{{ size.id }}">Stock:</label>
+
+                    <input type="number" name="stock" id="stock{{ size.id }}" value="{{ size.stock }}">
+                    <br><br>
+
+                <button type="submit">Save Changes</button>
+                {% endfor %}
+
+            </form>
+        </div>
+    </div>
+    {% endblock %}

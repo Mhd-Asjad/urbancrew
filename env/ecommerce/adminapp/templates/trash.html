@@ -1,4 +1,4 @@
-{% extends 'nav.html' %}
+{% extends 'navigation.html' %}
 
 {% load static %}
 
@@ -58,6 +58,7 @@
                 <th>Item</th>
                 <th>Description</th>
                 <th>Option</th>
+                <!-- <th>del</th> -->
               </tr>
             </thead>
             <tbody>
@@ -72,9 +73,10 @@
                     <button type="submit" class="restore-btn btn btn-outline-primary"><i class="fas fa-undo"></i>Restore</button>
                   </form>
 
-                  {% comment %} <a href="{% url 'trash_remove' item.id %}">
-                    <i class="fa-solid fa-trash-can fa-bounce"></i>
-                  </a> {% endcomment %}
+                </td>
+                <td>
+                  <a href="{% url 'trash_remove' item.id %}">
+                  <i class="fa-solid fa-trash fa-shake" style="width: 20px;"></i>
 
                 </td>
               </tr>

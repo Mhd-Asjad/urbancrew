@@ -16,9 +16,11 @@
 <body>
   <style>
       body{
-        {% comment %} width :100%; {% endcomment %}
-        {% comment %} background-image: url('{% static 'img/bg-login.webp' %}'); {% endcomment %}
+        width :100%;
+        background-image: url('{% static 'img/login-pic1.jpeg' %}');
         background-repeat : no-repeat;
+        background-size: cover;
+        background-position: center; 
       }
         .container {
           width: 100%;
@@ -378,7 +380,7 @@
             <div class="form-content">
 
 
-              <h2 class="form-title">sign in</h2>
+              <h2 class="form-title text-white">sign in</h2>
 
               <div class="input-box">
 
@@ -416,16 +418,18 @@
           <div class="social-login-options">
 
             <button type="button" class="google-login-button">
-              <a href="{% provider_login_url 'google' %}?next=/"><img src="https://cdn.builder.io/api/v1/image/assets/TEMP/0c9d9b79c2e1aac5aeab46abcfded8e531604584ccb8eeb386386537615f2261?apiKey=18e4b5a9f2d741d992a4002a490a8902&" alt="Google logo" class="google-icon" />
+
+              <a href="{% provider_login_url 'google' %}?next=/"><img src="https://cdn.builder.io/api/v1/image/assets/TEMP/0c9d9b79c2e1aac5aeab46abcfded8e531604584ccb8eeb386386537615f2261?apiKey=18e4b5a9f2d741d992a4002a490a8902&" alt="Google logo" class="google-icon"/>
+
                 <span class="social-login-text">Google</span>
               </a>
             </button>
               
-  </div>
+    </div>
           </div>
           <div class="sign-up-prompt">
-            <div class="no-account-text-dark">Don't have an account ?</div>
-            <a href="{% url 'register' %}" class="sign-up-link"style="margin-left: -24px ;" >Sign Up</a>
+            <div class="no-account text-white">Don't have an account ?</div>
+            <a href="{% url 'register' %}" class="sign-up-link"style="margin-left: -24px;" >Sign Up</a>
           </div>
         </div>
       </form>

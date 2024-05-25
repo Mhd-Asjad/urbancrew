@@ -1,111 +1,103 @@
-{% extends 'nav.html' %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
-    {% block body %}
+{% extends 'navigation.html' %}
+{% block title %}Edit Category{% endblock title %}
+{% block body %}
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
 
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            height: 26rem;
+            width: 100%;
+            max-width: 500px;
+            margin: auto;
+        }
 
-form {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    height: 26rem;
-}
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
 
-.container {
-    width: 80%;
-    margin-top: 40px;
-}
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
 
-form {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            resize: vertical;
+        }
 
-h2 {
-    text-align: center;
-    margin-bottom: 20px;
-}
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+        }
 
-label {
-    display: block;
-    margin-bottom: 8px;
-}
+        button:hover {
+            background-color: #0056b3;
+        }
 
-input[type="text"],
-textarea {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 16px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    resize: vertical;
-}
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
+            }
+        }
+    </style>
 
-button {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s;
-}
+   
 
-button:hover {
-    background-color: #0056b3;
-
-}
-</style>
-</head>
-<body>
-
-    {% if messages %}
-        <ul>
-            {% for message in messages %}
-                <li>{{ message }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
-
-    <div class='container'>
-
-        <div class="raw">
-
-            <form action="{% url 'edit_category' data.id %}" method='post'>
-                <h2><b>update category</b></h2>
-                {% csrf_token %}
-                
-                <label for="name">Name :</label>
-                <input type="text" id="name" name="name" placeholder="Name" value="{{ data.name }}">
-                <label for="description">Description:</label>
-
-                <textarea id="description" name="description" placeholder="Description">{{ data.description }}</textarea>
-                <button type="submit" >update</button>
-
-            </form>
-        </div>
+    <div class="container mt-5">
+        <form action="{% url 'edit_category' data.id %}" method="post">
+            <h2><b>Update Category</b></h2>
+            {% csrf_token %}
+            <label for="name">Name :</label>
+            <input type="text" id="name" name="name" placeholder="Name" value="{{ data.name }}">
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" placeholder="Description">{{ data.description }}</textarea>
+            <button type="submit">Update</button>
+        </form>
     </div>
-</body> 
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script>
+        {% if messages %}
+            {% for msg in messages %}
+                {% if msg.tags == 'error' %}
+                    swal({
+                        title: "{{ msg }}",
+                        icon: "error"                
+                    })
+                {% elif msg.tags == 'success' %}
+                    swal({
+                        title: "{{ msg }}",
+                        icon: "success",
+                        text: "Added successfully",
+                    }).then(() => {
+                        window.location.href = "{% url 'category' %}";
+                    })
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    </script>
 {% endblock body %}
-</html>

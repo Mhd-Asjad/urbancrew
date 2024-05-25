@@ -9,22 +9,36 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('adminapp', '0001_initial'),
+        ("adminapp", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Product',
+            name="Product",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('product_name', models.CharField(max_length=200, unique=True)),
-                ('price', models.IntegerField()),
-                ('img', models.ImageField(upload_to='photo/products')),
-                ('stock', models.IntegerField()),
-                ('is_available', models.BooleanField(default=True)),
-                ('created_date', models.DateTimeField(auto_now_add=True)),
-                ('modified_date', models.DateTimeField(auto_now=True)),
-                ('categorys', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='adminapp.category')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("product_name", models.CharField(max_length=200, unique=True)),
+                ("price", models.IntegerField()),
+                ("img", models.ImageField(upload_to="photo/products")),
+                ("stock", models.IntegerField()),
+                ("is_available", models.BooleanField(default=True)),
+                ("created_date", models.DateTimeField(auto_now_add=True)),
+                ("modified_date", models.DateTimeField(auto_now=True)),
+                (
+                    "categorys",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="adminapp.category",
+                    ),
+                ),
             ],
         ),
     ]

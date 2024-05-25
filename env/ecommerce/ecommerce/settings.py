@@ -21,17 +21,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-xo)x1b0m#(t-w!ycm5eojlaqmmom#g$6q-rwl&w768*f9gv71c'
+SECRET_KEY = "django-insecure-xo)x1b0m#(t-w!ycm5eojlaqmmom#g$6q-rwl&w768*f9gv71c"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'urbancrew144@gmail.com'
-EMAIL_HOST_PASSWORD = 'ynxn tmnu jzau ohzv' 
+EMAIL_HOST_USER = "urbancrew144@gmail.com"
+EMAIL_HOST_PASSWORD = "ynxn tmnu jzau ohzv"
 
 ALLOWED_HOSTS = []
 
@@ -39,81 +39,78 @@ ALLOWED_HOSTS = []
 # Application definition
 SITE_ID = 2
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django.contrib.sites',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
-    'useracc',
-    'products',
-    'adminapp'
-    
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django.contrib.sites",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
+    "useracc",
+    "products",
+    "cart",
+    "adminapp",
 ]
 
 SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'SCOPE': ['profile', 'email'],
-        'AUTH_PARAMS': {'access_type': 'online'}
-    }
+    "google": {"SCOPE": ["profile", "email"], "AUTH_PARAMS": {"access_type": "online"}}
 }
 
 SOCIALACCOUNT_LOGIN_ON_GET = True
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
 ]
 
-ROOT_URLCONF = 'ecommerce.urls'
+ROOT_URLCONF = "ecommerce.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            os.path.join(BASE_DIR, 'useracc', 'templates'),
-            os.path.join(BASE_DIR, 'adminapp', 'templates'),
-            os.path.join(BASE_DIR, 'products', 'templates'),
-                ],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'useracc.context_processor.default',
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [
+            os.path.join(BASE_DIR, "useracc", "templates"),
+            os.path.join(BASE_DIR, "adminapp", "templates"),
+            os.path.join(BASE_DIR, "products", "templates"),
+        ],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "useracc.context_processor.default",
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'ecommerce.wsgi.application'
+WSGI_APPLICATION = "ecommerce.wsgi.application"
 
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ecommerce',
-        'USER': 'postgres',
-        'PASSWORD': 'asjadk123',
-        'HOST': 'localhost',
-        'PORT': '5432',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "ecommerce",
+        "USER": "postgres",
+        "PASSWORD": "asjadk123",
+        "HOST": "localhost",
+        "PORT": "5432",
     }
 }
 
@@ -123,16 +120,16 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -140,9 +137,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 
@@ -152,27 +149,27 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'useracc', 'static'),
-    os.path.join(BASE_DIR, 'adminapp', 'static'),
-    os.path.join(BASE_DIR, 'products' , 'static')
+STATIC_URL = "static/"
 
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "useracc", "static"),
+    os.path.join(BASE_DIR, "adminapp", "static"),
+    os.path.join(BASE_DIR, "products", "static"),
+    os.path.join(BASE_DIR, "cart", "static"),
 ]
 
-MEDIA_URL =  '/media/'
+MEDIA_URL = "/media/"
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
-    "allauth.account.auth_backends.AuthenticationBackend"
+    "allauth.account.auth_backends.AuthenticationBackend",
 ]
 
 LOGIN_REDIRECT_URL = "/"
