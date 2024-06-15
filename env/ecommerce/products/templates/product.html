@@ -44,14 +44,12 @@
             <th><h5><b>Product Name</b></h5></th>
             <th><h5><b>Category</b></h5></th>
             <th><h5><b>Price</b></h5></th>
-            <th><h5><b>Color</b></h5></th>
-            <th><h5><b>Stock</b></h5></th>
             <th><h5><b>Image</b></h5></th>
             <th colspan="2">
-              <div class="d-flex justify-content-between align-items-center">
+              <div class="d-flex justify-content-center align-items-center m-sm-2">
                   <h5><b>Actions</b></h5>
 
-                  <a href="{% url 'addproduct' %}" class="btn btn-secondary"><b>add me</b></a>
+                  <a href="{% url 'addproduct' %}" class="btn btn-secondary ml-3"><b>Add Products</b></a>
               </div>
             </th>
           </tr>
@@ -60,30 +58,26 @@
           {% for product in products %}
           <tr>
             <td>{{ product.id }}</td>
-            <td>{{ product.product.product_name }}</td>
-            <td>{{ product.product.categorys.name }}</td>
-            <td>{{ product.product.price }}</td>
-            <td>{{ product.color }}</td>
-            <td>
-              {% if product.sizes.exists %}
-                {% for size in product.sizes.all %}
-                  {{ size.stock }} ({{ size.size }})<br><br>
-                {% endfor %}
-              {% else %}
-                <P>0</P>
-              {% endif %}
-            </td>
+            <td>{{ product.product_name }}</td>
+            <td>{{ product.categorys.name }}</td>
+            <td>{{ product.price }}</td>
             
-            <td><img src="{{ product.product.img.url }}" alt="img" style="width: 100px; height: 100px;border-radius:1px !important;"></td>
+            <td><img src="{{ product.img.url }}" alt="img" style="width: 100px; height: 100px;border-radius:1px !important;"></td>
 
             <div class="row mb-2">
                 <td class="col">
-                <a href="{% url 'edit_prod' product.product.id %}" class="btn btn-dark mr-2">Edit</a>
-                <button class="btn btn-danger mr-2" data-toggle="modal" data-target="#deleteModal" data-product-id="{{ product.product.id }}">Delete</button>
-                {% if product.product.is_available %}
-                  <a href="{% url 'unlist_prod' product.product.id %}" class="btn btn-success">Unlist</a>
+                <a href="{% url 'edit_prod' product.id %}" class="btn btn-dark mr-2">Edit</a>
+                <a href="{% url 'show_variants' product.id %}" class="btn btn-dark mr-2">Show variants</a>
+                <a href="{% url 'addvariant' product.id %}" class="btn btn-dark mr-2">add variants</a>
+
+
+                <button class="btn btn-danger mr-2" data-toggle="modal" data-target="#deleteModal" data-product-id="{{ product.id }}">Delete</button>
+                {% if product.is_available %}
+                  <a href="{% url 'unlist_prod' product.id %}" class="btn btn-success">Unlist</a>
+
                 {% else %}
-                  <a href="{% url 'list_prod' product.product.id %}" class="btn btn-success">List</a>
+
+                  <a href="{% url 'list_prod' product.id %}" class="btn btn-success">List</a>
                 {% endif %}
               </td>
             </div>

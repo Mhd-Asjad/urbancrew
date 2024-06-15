@@ -1,8 +1,62 @@
-{% extends 'base.html' %}
+{% extends 'bases.html' %}
 
 {% load static %}
-<body>
-    {% block content %}
+
+{% block content %}
+    
+<style>
+ 
+    .modal-body.img {
+        background-size: cover;
+        background-position: center;
+    }
+    .custom-modal-body {
+        z-index: 1050; /* Adjust the z-index as needed */
+        width: 60%; /* Adjust the width as needed */
+    }
+
+    .modal {
+        display: none; 
+        position: fixed; 
+        z-index: 1; 
+        left: 0;
+        top: 0;
+        width: 100%; 
+        height: 100%; 
+        overflow: auto; 
+        background-color: rgb(0,0,0); 
+        background-color: rgba(0,0,0,0.4); 
+        padding-top: 60px;
+    }
+    .modal-content {
+        background-color: #fefefe;
+        margin: 5% auto; 
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%; 
+        width: auto;
+        margin: auto;
+    }
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+
+        .modal-body.img {
+            background-size: cover;
+            background-position: center;
+        }
+    
+</style>
 
     <section class="hero">
         <div class="hero__slider owl-carousel">
@@ -143,47 +197,59 @@
     <section class="categories spad">
         <div class="container">
             <div class="row">
+            {% if offers %}
+                {% for offer in offers %}
                 <div class="col-lg-3">
+
                     <div class="categories__text">
-                        <h2>Clothings Hot <br /> <span>Shoe Collection</span> <br /> Accessories</h2>
+                        <h2><br /> <span>{{ offer.categorys.name }}</span> <br /> Accessories</h2>
                     </div>
                 </div>
                 <div class="col-lg-4">
+
+                        
                     <div class="categories__hot__deal">
                         <img src="{% static 'img/product-sale.png' %}" alt="">
                         <div class="hot__deal__sticker">
-                            <span>Sale Of</span>
-                            <h5>$29.99</h5>
+                            <span>Sale Offer</span>
+                            <h5>{{ offer.percentage }}%</h5>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-4 offset-lg-1">
                     <div class="categories__deal__countdown">
-                        <span>Deal Of The Week</span>
+                        <span>Deal Ends in {{ offer.end_date }}</span>
                         <h2>Multi-pocket Chest Bag Black</h2>
                         <div class="categories__deal__countdown__timer" id="countdown">
                             <div class="cd-item">
-                                <span>3</span>
+                                <span>{{ offer.time_remaining_days }}</span>
                                 <p>Days</p>
                             </div>
                             <div class="cd-item">
-                                <span>1</span>
+                                <span>{{ offer.time_remaining_hours }}</span>
                                 <p>Hours</p>
                             </div>
                             <div class="cd-item">
-                                <span>50</span>
+                                <span>{{ offer.time_remaining_minutes }}</span>
                                 <p>Minutes</p>
                             </div>
                             <div class="cd-item">
-                                <span>18</span>
+                                <span>{{ offer.time_remaining_seconds }}</span>
                                 <p>Seconds</p>
                             </div>
                         </div>
+
                         <a href="#" class="primary-btn">Shop now</a>
-                    </div>
-                </div>
+                        </div>
+                        </div>
+
+                {% endfor %}
+
+            {% endif %}
             </div>
         </div>
+        <br>
+        <br>
     </section>
     <!-- Categories Section End -->
 
@@ -233,7 +299,73 @@
             </div>
         </div>
     </section>
-    <!-- Latest Blog Section End -->
+
+        <!-- offer Modal -->
+        <div id="myModal" class="modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document" >
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <button type="button" class="close d-flex align-items-center justify-content-center" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true" class="ion-ios-close"></span>
+                    </button>
+                </div>
+                <div class="row no-gutters">
+                    <div class="col-lg-5 custom-modal-body">
+                        <div class="modal-body p-5 color-1 d-flex">
+                            <span class="icon-2 flaticon-snowflake"></span>
+                            <div class="w-100 text text-center">
+                                <span class="subheading">Winter</span>
+                                <h3 class="sale">Sale
+                                    <span class="icon flaticon-snowflake"></span>
+                                </h3>
+                                <h2><span></span><sup>50%</sup><sub>off</sub></h2>
+                                <p class="upper">To all colorlib products</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-7 d-flex">
+                        <div class="modal-body p-5 img d-flex align-items-center" style="background-image: url('{% static 'img/login-pic3.jpg' %}'); background-size: cover;">
+                            <div class="text w-100">
+                                <a href="{% url 'shop' %}" class="btn btn-primary d-block py-3">Shop now</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+
+    <script>
+        // Get the modal
+        var modal = document.getElementById("myModal");
+
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal-fade) {
+                modal.style.display = "none";
+            }
+        }
+
+        // Function to show the modal after a delay
+        function showModalAfterDelay() {
+            setTimeout(function() {
+                modal.style.display = "block";
+            }, 2000); // 5-second delay
+        }
+
+        // Call the function to show the modal after delay
+        showModalAfterDelay();
+    </script>
+    
 
     <script>
     const input = document.getElementById("search-input");
@@ -247,9 +379,4 @@
     searchBtn.addEventListener("click", expand);
     </script>
 
-    {% endblock content %}
-
-        
-</body>
-
-</html>
+{% endblock content %}

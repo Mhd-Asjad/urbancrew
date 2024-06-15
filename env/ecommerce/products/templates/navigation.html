@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="{% static 'vendors/simple-line-icons/css/simple-line-icons.css' %}">
   <link rel="stylesheet" href="{% static 'vendors/css/vendor.bundle.base.css' %}">
   <!-- Plugin css for this page -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="{% static 'vendors/datatables.net-bs4/dataTables.bootstrap4.css' %}">
   <link rel="stylesheet" href="{% static 'js/select.dataTables.min.css' %}">
   <!-- End plugin css for this page -->
@@ -24,7 +25,8 @@
   <link rel="stylesheet" href="{% static 'css/vertical-layout-light/style.css' %}">
   <!-- endinject -->
   <link rel="shortcut icon" href="{% static 'images/favicon.png' %}" />
-  
+  {% block head %}
+  {% endblock %}
   <style>
     @media (max-width: 768px) {
       .navbar-brand img {
@@ -160,45 +162,49 @@
               <ul class="nav flex-column sub-menu">
                 <li class="nav-item"><a class="nav-link" href="{% url 'product' %}">View Product</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'addproduct' %}">Add Product</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'addimage' %}">Add Image</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'addsize' %}">Add Size</a></li>
+                {% comment %} <li class="nav-item"><a class="nav-link" href="{% url 'addimage' %}">Add Image</a></li> {% endcomment %}
+                {% comment %} <li class="nav-item"><a class="nav-link" href="{% url 'addsize' %}">Add Size</a></li> {% endcomment %}
               </ul>
             </div>
           </li>
           <li class="nav-item">
             <a class="nav-link" data-bs-toggle="collapse" href="#tables" aria-expanded="false" aria-controls="tables">
               <i class="menu-icon mdi mdi-table"></i>
-              <span class="menu-title">Tables</span>
+              <span class="menu-title">Orders</span>
               <i class="menu-arrow"></i>
             </a>
             <div class="collapse" id="tables">
               <ul class="nav flex-column sub-menu">
-                <li class="nav-item"><a class="nav-link" href="#">Basic Table</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'order_view' %}">view Orders</a></li>
               </ul>
             </div>
           </li>
+          
           <li class="nav-item">
             <a class="nav-link" data-bs-toggle="collapse" href="#icons" aria-expanded="false" aria-controls="icons">
               <i class="menu-icon mdi mdi-layers-outline"></i>
-              <span class="menu-title">Icons</span>
+              <span class="menu-title">Coupon</span>
               <i class="menu-arrow"></i>
             </a>
             <div class="collapse" id="icons">
               <ul class="nav flex-column sub-menu">
-                <li class="nav-item"><a class="nav-link" href="#">Mdi Icons</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'view_coupon' %}">view coupon</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'add_coupon' %}">add coupon</a></li>
               </ul>
             </div>
           </li>
-          <li class="nav-item nav-category">Pages</li>
+          
           <li class="nav-item">
             <a class="nav-link" data-bs-toggle="collapse" href="#auth" aria-expanded="false" aria-controls="auth">
-              <i class="menu-icon mdi mdi-account-circle-outline"></i>
-              <span class="menu-title">User Pages</span>
+              <i class="menu-icon mdi mdi-gift-outline"></i>
+              <span class="menu-title">offers</span>
               <i class="menu-arrow"></i>
             </a>
             <div class="collapse" id="auth">
               <ul class="nav flex-column sub-menu">
-                <li class="nav-item"><a class="nav-link" href="#">Login</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'view_offer' %}">view offers</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'add_offer' %}">add offers</a></li>
+
               </ul>
             </div>
           </li>
@@ -232,6 +238,13 @@
     <!-- Custom js for this page -->
     <script src="{% static 'js/dashboard.js' %}"></script>
     <script src="{% static 'js/Chart.roundedBarCharts.js' %}"></script>
+    <!-- script for the variant page -->
+     
+    <script src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
+    <script src="{% static 'js/popper.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+
   </div>
 </body>
 

@@ -1,0 +1,93 @@
+{% extends 'navigation.html' %}
+{% block body %}
+
+<style>
+    body{
+        background-color: #f4f4f4;
+    }
+    .table{
+
+        border: 5px solid ;
+    }
+    .thead-dark th {
+
+        font-weight:900;
+        font-size: 19px;
+    }
+</style>
+
+<div class="container">
+    <div class="row">
+        <div class="d-flex justify-content-center" sytle="color:blue ;" >
+
+            <h2>All Active Offers</h2>
+        </div>
+        <br>
+        <br>
+        <br>
+        <div class="col-md-12 d-flex justify-content-center">
+            <table class="table table-striped table-bordered ">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Type</th>
+                        <th>Details</th>
+                        <th>Percentage Discount</th>
+                        <th>End Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for offer in offers %}
+                    <tr>
+                        <td>{{ offer.offer_type }}</td>
+                        <td>
+                            {% if offer.offer_type == 'category' %}
+                                {{ offer.categorys.name }}
+                            {% elif offer.offer_type == 'product' %}
+                                {{ offer.product.product_name }}
+                            {% endif %}
+                        </td>
+                        <td>{{ offer.percentage }}</td>
+                        <td>{{ offer.end_date }}</td>
+                        <td>
+
+                            <a href="{% url 'edit_offer' offer.id %}" class="btn btn-success" >edit</a>
+
+
+                            {% if offer.is_active %}
+
+                            <a href="{% url 'active_offer' offer.id %}" class="btn btn-danger" >Deactivate</a>
+                            {% else %}
+
+                            <a href="{% url 'active_offer' offer.id %}" class="btn btn-success" >Activate</a>
+                            {% endif %}
+
+
+
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+<script>
+    {% if messages %}
+    {% for message in messages %}
+    {% if message.tags == 'error' %}
+    swal("Error!", "{{ message }}", "error"); // Display error message with a warning icon
+    {% elif message.tags == 'success' %}
+    swal("Success!", "{{ message }}", "success"); // Display success message with a success icon
+    {% else %}
+    swal("Message", "{{ message }}"); // Display general message
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+
+</script>
+
+{% endblock body %}

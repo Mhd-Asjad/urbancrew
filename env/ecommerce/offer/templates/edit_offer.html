@@ -1,0 +1,88 @@
+{% extends 'navigation.html' %}
+
+{% block body %}
+<style>
+
+    body {
+
+        background-color: #f4f4f4;
+        
+    }
+
+</style>
+
+<div class="container">
+    <h2 class="mb-4">Edit Offer</h2>
+    <form method="post" action="{% url 'edit_offer' offer.id %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="offer_type">Offer Type:</label>
+            <select class="form-control" id="offer_type" name="offer_type" required>
+                <option value="category" {% if offer.offer_type == 'category' %}selected{% endif %}>Category Offer</option>
+                <option value="product" {% if offer.offer_type == 'product' %}selected{% endif %}>Product Offer</option>
+            </select>
+        </div>
+
+        <div id="category_section" class="form-group" style="display: {% if offer.offer_type == 'category' %}block{% else %}none{% endif %};">
+            <label for="category">Category:</label>
+            <select class="form-control" id="category" name="category" required>
+                {% for category in categories %}
+                    <option value="{{ category.id }}" {% if offer.categorys and offer.categorys.id == category.id %}selected{% endif %}>{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div id="product_section" class="form-group" style="display: {% if offer.offer_type == 'product' %}block{% else %}none{% endif %};">
+            <label for="product">Product:</label>
+            <select class="form-control" id="product" name="product" required>
+                {% for product in products %}
+                    <option value="{{ product.id }}" {% if offer.product and offer.product.id == product.id %}selected{% endif %}>{{ product.product_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="discount_percentage">Discount Percentage:</label>
+            <input type="number" class="form-control" id="discount_percentage" name="discount_percentage" value="{{ offer.percentage }}" placeholder="Enter discount percentage" required>
+        </div>
+        <div class="form-group">
+            <label for="end_date">End Date:</label>
+            <input type="date" class="form-control" id="end_date" name="end_date" value="{{ offer.end_date|date:'Y-m-d' }}" required>
+        </div>
+        <br><br>
+        <div class="d-flex justify-content-center">
+            <button type="submit" class="btn btn-primary">Update Offer</button>
+        </div>
+    </form>
+</div>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+<script>
+    {% if messages %}
+    {% for message in messages %}
+    {% if message.tags == 'error' %}
+    swal("Error!", "{{ message }}", "error"); // Display error message with a warning icon
+    {% elif message.tags == 'success' %}
+    swal("Success!", "{{ message }}", "success"); // Display success message with a success icon
+    {% else %}
+    swal("Message", "{{ message }}"); // Display general message
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+</script>
+
+<script>
+    document.getElementById('offer_type').addEventListener('change', function() {
+        var offerType = this.value;
+        var categorySection = document.getElementById('category_section');
+        var productSection = document.getElementById('product_section');
+
+        if (offerType === 'category') {
+            categorySection.style.display = 'block';
+            productSection.style.display = 'none';
+        } else if (offerType === 'product') {
+            categorySection.style.display = 'none';
+            productSection.style.display = 'block';
+        }
+    });
+</script>
+
+{% endblock body %}

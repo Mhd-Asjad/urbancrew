@@ -1,0 +1,207 @@
+{% extends 'navigation.html' %}
+
+
+{% block body %}
+
+<style>
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+    .body {
+
+        background-color: #f4f5f7;
+        
+    }
+    
+    .table thead th {
+        text-align: center;
+    }
+    
+    .table tbody td {
+        text-align: center;
+    }
+    
+    .card-header {
+        background-color: #f8f9fa;
+        font-weight: bold;
+    }
+    
+    .card-body {
+        padding: 20px;
+    }
+    
+    .d-flex.align-items-center {
+        display: flex;
+        align-items: center;
+    }
+    
+    .d-flex.align-items-center img {
+        margin-right: 10px;
+    }
+    
+    body{
+
+        background-color: #f4f5f7;
+    }
+
+</style>
+<div class="container py-5">
+    <h3>Order Details</h3>
+    <br>
+    <div class="card mb-3">
+        <div class="card-header">
+            Products
+        </div>
+        <div class="card-body">
+            <form action="{% url 'update_order_status' order.id %}">
+                {% csrf_token %}
+
+                <table class="table table-bordered table-responsive">
+                <thead>
+                    <tr>
+                        <th>no :</th>
+                        <th style="width: 25%;">Product Name</th>
+                        <th style="width: 15%;">Price</th>
+                        <th style="width: 10%;">Quantity</th>
+                        <th style="width: 15%;">Status</th>
+                        <th style="width: 15%;">Action</th>
+                        {% comment %} <th style="width: 15px;" >return</th> {% endcomment %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order_items %}
+                    <tr>
+                        <td>
+                            {{ forloop.counter }}
+                        </td>
+                        <td class="d-flex align-items-center">
+
+                            <img src="{{ item.product.image1.url }}" alt="img" style="width: 100px; height: 100px; border-radius:1px; margin-right: 10px;">
+                            <div>
+                                {{ item.product.product_name }}
+                                <br>
+                                size: {{ item.size }}
+                            </div>
+                        </td>
+                        <td>$ {{ item.price }}</td>
+                        <td>{{ item.qnty }}</td>
+                        <td>{{ item.status }}</td>
+                        <td>
+
+                            {% if item.request_return == True %}
+                                <a class="btn btn-success" href="{% url 'confirm_return_order_item' item.id %}">Confirm Return</a>
+                            {% elif item.cancel == True %}
+                            <h4> Reason to Cancel</h4>
+                                <p style="color:red;" ><b> {{ item.cancel_reason }}</b></p>
+                            {% else %}
+                            <select name="status_{{ item.id }}" class="form-select"{% if item.status == 'Returned' %}text-success{% endif %} onchange="updateStatus({{ item.id }}, this.value)">
+                                {% for choice in item.STATUS_CHOICES %}
+                                <option value="{{ choice.0 }}" {% if item.status == choice.0 %}selected{% endif %}>{{ choice.1 }}</option>
+                                {% endfor %}
+                            </select>
+                            
+                            {% endif %}
+                            
+                        </td>
+                        
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            </form>
+
+        </div>
+    </div>
+    <br>
+
+    <div class="card mb-3" style="width:400px;" >
+        <div class="card-header">
+            Shipping Address
+        </div>
+        <div class="card-body">
+              
+            <p>{{ order.address.first_name }} - {{ order.address.last_name }} </p>
+            <p>{{ order.address.email }}</p>
+            <p>{{ order.address.house }}, {{ order.address.state }} - {{ order.address.pin_code }}</p>
+            <p>{{ order.address.country }}</p>
+            <p>Phone: {{ order.address.mobile_number }}</p>
+
+        </div>
+    </div>
+
+
+
+</div>
+<script>
+    function updateStatus(itemId, newStatus) {
+        fetch(`/update_order_status/${itemId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}',
+            },
+            body: JSON.stringify({ item_id: itemId, status: newStatus }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Status updated successfully');
+            } else {
+                alert('Failed to update status');
+            }
+        });
+    }
+</script>
+<script>
+    function updateStatus(itemId, newStatus) {
+        const csrfToken = '{{ csrf_token }}';
+        fetch('{% url "update_order_status" order.id %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({
+                'status': newStatus,
+                'item_id': itemId
+            })
+        }).then(response => {
+            if (response.ok) {
+                console.log('Status updated successfully');
+                location.reload();  // Reload the page to show the updated status and possible return button
+            } else {
+                console.error('Failed to update status');
+            }
+        }).catch(error => {
+            console.error('Error:', error);
+        });
+    }
+
+    function requestReturn(itemId) {
+        const csrfToken = '{{ csrf_token }}';
+        fetch('{% url "confirm_return_order_item" order.id %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({
+                'item_id': itemId
+            })
+        }).then(response => {
+            if (response.ok) {
+                console.log('Return requested successfully');
+                location.reload();  // Reload the page to reflect the return request
+            } else {
+                console.error('Failed to request return');
+            }
+        }).catch(error => {
+            console.error('Error:', error);
+        });
+    }
+</script>
+
+
+{% endblock body %}

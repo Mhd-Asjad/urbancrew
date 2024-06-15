@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <h5><strong>Order Invoice</strong></h5>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .invoice-box {
+            max-width: 800px;
+            margin: auto;
+            padding: 30px;
+            border: 1px solid #eee;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+        }
+        .invoice-box table {
+            width: 100%;
+            line-height: inherit;
+            text-align: left;
+        }
+        .invoice-box table td {
+            padding: 5px;
+            vertical-align: top;
+        }
+        .invoice-box table tr td:nth-child(2) {
+            text-align: right;
+        }
+        .invoice-box table tr.top table td {
+            padding-bottom: 20px;
+        }
+        .invoice-box table tr.top table td.title {
+            font-size: 45px;
+            line-height: 45px;
+            color: #333;
+        }
+        .invoice-box table tr.information table td {
+            padding-bottom: 40px;
+        }
+        .invoice-box table tr.heading td {
+            background: #eee;
+            border-bottom: 1px solid #ddd;
+            font-weight: bold;
+        }
+        .invoice-box table tr.details td {
+            padding-bottom: 20px;
+        }
+        .invoice-box table tr.item td {
+            border-bottom: 1px solid #eee;
+        }
+        .invoice-box table tr.item.last td {
+            border-bottom: none;
+        }
+        .invoice-box table tr.total td:nth-child(2) {
+            border-top: 2px solid #eee;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-box">
+        <table cellpadding="0" cellspacing="0">
+            <tr class="information">
+                <td colspan="2">
+                    <table>
+                        <tr>
+                            <td>
+                                Date: {{ order_items.first.order.created_at|date:"d M Y" }}
+                                Time: {{ order_items.first.order.created_at|time:"H:i:s" }}                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            {% for item in order_items %}
+
+            <tr class="heading">
+
+                <tr class="heading">
+                <td>Product</td>
+                <td>Quantity</td>
+                <td>Payment Method</td>
+                <td>Price</td>
+                <td>Status</td>
+            </tr>
+            <tr class="item">
+                <td>{{ item.product.product.product_name }}</td>
+                <td>{{ item.qnty }}</td>
+                <td>{{ item.order.payment_method }}</td>
+                <td>₹{{ item.product.product.offer_price }}</td>
+                <td>{{ item.status }}</td>
+            </tr>
+
+            <tr class="total">
+                <td colspan="3"></td>
+                <td>Grand Total: ₹{{ total }}</td>
+            </tr>
+
+        {% endfor %}
+        </table>
+    </div>
+</body>
+</html>

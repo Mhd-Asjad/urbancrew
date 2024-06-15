@@ -27,8 +27,9 @@ class register(models.Model):
         ("F" , "Female"),
         ("O" , "Other")
     ]
-    mobile = models.CharField(max_length=12, unique=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE,blank=True , null=True)
+
+    mobile = models.CharField(max_length=12, unique=True, null=True, blank=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE,blank=True , null=True)
     dob = models.DateField(blank=True,null=True)
     gender = models.CharField(max_length=10, choices = Gender_Choice,blank=True)
 
@@ -37,4 +38,4 @@ class register(models.Model):
 def create_Customer(sender,instance,created,**kwargs) :
     if created :
         register.objects.create(user = instance)
-        print('customer createdd//!')
+        print('customer createdd!')

@@ -1,0 +1,255 @@
+{% extends 'navigation.html' %}
+
+{% load static %}
+
+{% block body %}
+
+
+
+<style>
+
+    .row > * {
+    flex-shrink: 0;
+    width: 75%;
+    max-width: 100%;
+    padding-right: calc(var(--bs-gutter-x) / 2);
+    padding-left: calc(var(--bs-gutter-x) / 2);
+    margin-top: var(--bs-gutter-y);
+    }
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 20px;
+    }
+
+    h1 {
+        text-align: center;
+        color: #333;
+    }
+
+    form {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        max-width: 500px ;
+        margin: 0 auto;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 10px;
+        color: #333;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select,
+    input[type="file"] {
+        width: 100% ;
+        padding: 8px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        font-size: 16px;
+    }
+
+    input[type="checkbox"] {
+
+        margin-bottom: 15px;
+    }
+
+    button {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+    .image-preview {
+        width: 234px;
+        height: 200px;
+        border: 1px solid #ccc;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        margin-left: 10px; 
+    }
+
+    .image-preview img {
+        max-width: 500%;
+        max-height: 250px;
+        gap: 50px;
+        display: block;
+    }
+
+    .form-group.image-group {
+        flex-direction: column; 
+        align-items: flex-start; 
+    }
+
+    .form-group.image-group .form-control-file {
+        margin-bottom: 10px;
+    }
+
+    </style>
+<body>
+    
+    <div class="container">
+        <div class="row justify-content-center" >
+    
+                <h1>Add Color Variants</h1><hr><br>
+                <form action="{% url 'addvariant' pro.id   %}" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+    
+                    <div class="form-group">
+                        <label for="category"><b>Product Name : {{pro.product_name}}</b></label>
+
+                        <br>
+
+                    </div>
+                    <div class="form-group">
+
+                        <label for="color" class="form-label"><b>Color:</b></label>
+                        <input type="text" id="color" name="color" class="form-control" style="width:400px" required>
+
+                    </div>
+                    <br>
+                    <br>
+    
+                    <div class="d-flex justify-content-between">
+
+                        <div class="form-group ">
+                        <label for="image1" class="form-label"><b>Image 1 :</b></label>
+                        
+                        <input type="file" id="image1" name="image1" accept="image/*" class="form-control-file" style="width: 250px;  border-radius: 20px; background-color: #f7f4f4;  ">
+                        
+                    </div>
+        
+        
+                    <div class="form-group ">
+        
+                        <label for="image2" class="form-label"><b>Image 2</b>:</label>
+                        <input type="file" id="image2" name="image2" accept="image/*" class="form-control-file" style="width: 250px;  border-radius: 20px; background-color: #f7f4f4;  " >
+                        
+                    </div>
+        
+                    <div class="form-group ">
+                        <label for="image3" class="form-label"><b>Image 3</b>:</label>
+                        <input type="file" id="image3" name="image3" accept="image/*" class="form-control-file" style="width: 250px; border-radius: 20px; background-color: #f7f4f4;  " >
+        
+                    </div>
+        
+                    </div>
+        
+                    <div class="image-preview-container d-flex justify-content-between">
+        
+                       <button class="btn btn-success" type="button" onmouseover="preveiw('image1')">
+                        preveiw
+                       </button>
+                       <button class="btn btn-success" type="button" onmouseover="preveiw('image2')">
+                        preveiw
+                       </button>
+                       <button class="btn btn-success" type="button" onmouseover="preveiw('image3')">
+                        preveiw
+                       </button>
+                       
+                    </div>
+                    <br>
+                    <br>
+                    <div class="form-group">
+
+                        <label for="color" class="form-label"><b>stock for small:</b></label>
+                        <input type="text" id="color" name="ssmall" class="form-control" style="width:400px" >
+
+                    </div>
+                    <br>
+                    <br>
+                    <div class="form-group">
+
+                        <label for="color" class="form-label"><b>stock for medium:</b></label>
+                        <input type="text" id="color" name="smedium" class="form-control" style="width:400px" >
+
+                    </div><br>
+                    <br>
+                    <div class="form-group">
+
+                        <label for="color" class="form-label"><b>stock for large:</b></label>
+                        <input type="text" id="color" name="slarge" class="form-control" style="width:400px" >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="color" class="form-label"><b>stock for Xlarge:</b></label>
+                        <input type="text" id="color" name="sxlarge" class="form-control" style="width:400px" >
+
+                    </div>
+    
+                    <button type="submit" class="btn btn-primary">Add Product</button>
+                </form>
+        </div>
+    </div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+<script>
+
+    {% if messages %}
+    {% for message in messages %}
+    {% if message.tags == 'error' %}
+    swal("Error!", "{{ message }}", "error"); // Display error message with a warning icon
+    {% elif message.tags == 'success' %}
+    swal("Success!", "{{ message }}", "success");
+        {% comment %} window.location.href = '{% url 'show_variants' product.id %}' {% endcomment %}
+    {% comment %} }) {% endcomment %}
+    {% else %}
+    swal("Message", "{{ message }}"); // Display general message
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+
+</script>
+<script>
+
+        function previewImage(input, previewElementId) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    // previewElement.src = e.target.result;
+                    console.log('this is working');
+                    Swal.fire({
+                        imageUrl: `${e.target.result}`,
+                        imageWidth: 400,
+                        imageHeight: 400,
+                        imageAlt: "Custom image"
+                    });
+                    
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function preveiw (name) {
+            let input = document.getElementById(name)
+            previewImage(input,'previewImage1')
+        }
+
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</body>
+
+{% endblock body %}

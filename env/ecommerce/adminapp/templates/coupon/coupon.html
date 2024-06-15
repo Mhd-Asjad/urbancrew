@@ -1,0 +1,91 @@
+{% extends 'navigation.html' %}
+
+{% block head %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+{% endblock head %}
+
+{% block body %}
+<style>
+    body {
+        background-color: #f4f5f7;
+    }
+    .container {
+        margin-top: 50px;
+    }
+    .card {
+        margin-bottom: 20px;
+    }
+    .form-group {
+        margin-bottom: 15px;
+    }
+    .btn-primary {
+        margin-right: 10px;
+    }
+    .pp td{
+        color: #244ea1;
+    }
+
+    .card{
+        box-shadow: -4px 4px 21px -4px rgba(0,0,0,0.2);
+    }
+
+    .inner-circle {
+        position: fixed;
+        box-shadow: inset -5px 0px 30px 0px rgb(0 0 0 / 25%);
+    }
+</style>
+
+<div class="container">
+    <div class="row">
+        {% for coupon in cup %}
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        Name: {{ coupon.coupon_name }}
+                    </div>
+                    <div class="card-body">
+                        <h4 style="color: #244ea1;">Coupon Code: {{ coupon.coupon_code }}</h4>
+                        <p>{{ coupon.discount_percentage }}% off</p>
+                        <p>{{ coupon.minimum_amnt }} - ₹{{ coupon.max_amount }}</p>
+                        <p class="font-semibold text-gray-600">Expires on: {{ coupon.expiry_date }}</p>
+                        <br>
+                        <p class="mb-0 text-black font-weight-bold d-flex justify-content-end">
+                            <a class="text-primary mr-3" href="{% url 'edit_coupon' coupon.id %}">
+                                <i class="icofont-ui-edit"></i> EDIT
+                            </a>
+                            <a class="text-danger" href="{% url 'delete_coupon' coupon.id %}" >
+                                <i class="icofont-ui-delete"></i> DELETE
+                            </a>
+                        </p>
+                    </div>
+                </div>
+                <div class="inner-circle w-6 h-14 rounded-l-full absolute right-0 bg-transparent"></div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+    
+</div>
+
+</div>
+
+
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+    <script>
+        {% if messages %}
+        {% for message in messages %}
+        {% if message.tags == 'error' %}
+        swal("Error!", "{{ message }}", "error"); // Display error message with a warning icon
+        {% elif message.tags == 'success' %}
+        swal("Success!", "{{ message }}", "success"); // Display success message with a success icon
+        {% else %}
+        swal("Message", "{{ message }}"); // Display general message
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+    </script>
+<br />
+
+{% endblock body %}

@@ -1,0 +1,66 @@
+{% extends 'bases.html' %}
+
+{% block content %}
+<style>
+    .success-page {
+        max-width: 400px;
+        margin: 50px auto;
+        text-align: center;
+        padding: 20px;
+        border: 1px solid #dcdcdc;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .success-page img {
+        max-width: 80px;
+        margin-bottom: 20px;
+    }
+    .success-page h2 {
+        color: #28a745;
+        margin-bottom: 10px;
+    }
+    .success-page p {
+        margin-bottom: 20px;
+        font-size: 16px;
+        color: #666;
+    }
+    .success-page a {
+        display: inline-block;
+        margin: 10px 0;
+        padding: 10px 20px;
+        color: #fff;
+        background-color: #007bff;
+        border-radius: 5px;
+        text-decoration: none;
+    }
+    .success-page a:hover {
+        background-color: #0056b3;
+    }
+</style>
+
+<script type="text/javascript">
+    
+    document.addEventListener("DOMContentLoaded", function() {
+        // Redirect to the 'Order' tab after 5 seconds
+        setTimeout(function() {
+            var tabId = "v-pills-profile-tab";
+            var url = "{% url 'user_profile_with_tab' 'v-pills-profile-tab' %}" + tabId;
+            window.location.href = url;
+        }, 5000);  // 5000 milliseconds = 5 seconds
+    });
+
+</script>
+<br>
+<br>
+<div class="success-page">
+    {% comment %} <img src="{% static 'img/success.png' %}" alt="Success"> {% endcomment %}
+    <h2>Order Placed Successfully!</h2>
+    <p>Thank you for your purchase. Your order has been placed successfully.</p>
+    <button class="btn btn-primary" ><a href="{% url 'user_profile_with_tab' 'v-pills-profile-tab' %}">view order</a></button>
+    <a href="{% url 'shop' %}">Continue Shopping</a>
+</div>
+<br>
+<br> 
+<br>
+<br>
+{% endblock %}

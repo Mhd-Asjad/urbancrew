@@ -1,0 +1,96 @@
+{% extends 'navigation.html' %}
+
+{% block body %}
+
+<style>
+    body{
+        background-color: #f4f5f7;
+    }
+
+    .variant-card {
+        margin: 20px;
+    }
+    .variant-card img {
+        width: 100%;
+        height: auto;
+    }
+    .variant-card .variant-images img {
+        width: 100px;
+        height: auto;
+        margin-right: 10px;
+    }
+    .variant-card .card-body {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .variant-info p{
+
+        font-size: 17px;
+    }
+    .variant-images img{
+
+        gap: inherit;
+
+    }
+    .pp{
+        border: 2px solid black;
+        border-radius: 30px;
+    }
+
+</style>
+
+
+<div class="container">
+    <div class="row d-flex justify-content-center ">
+        <!-- Example of a single variant card -->
+        <div class="col-md-8">
+            <div class="card variant-card">
+                <div class="card-header">
+                    <h5 class="card-title">Product Name :{{product.product_name}}</h5>
+                </div>
+                {% for item in variants %}
+
+                <div class="card-body bg-gradient pp">
+                    <div class="variant-info">
+                          
+                        <p><strong>Color : {{ item.color }}</strong></p>
+                        {% comment %} <p> {{ item  }} </p> {% endcomment %}
+                        
+                        <p><strong>Sizes avilable :
+                            {% for size in item.sizes.all %}
+                            ({{ size.size }})
+                            {% endfor %} </strong></p>
+                        
+                        <br>
+                       
+                    </div>
+
+                    <div class="variant-images d-flex">
+                        <img src={{item.image1.url}} alt="Image 1" style="width: 250px; height: 250px;">
+                        <img src={{item.image2.url}} alt="Image 2" style="width: 250px; height: 250px;">
+                        <img src={{item.image3.url}} alt="Image 3" class="img-fluid">
+                    </div>
+
+                    <br>
+                    <div class="d-flex justify-content-center">
+                        <br>                          
+                        <a href="" class="btn btn-primary" style="color: white !important;" type="button" data-toggle="modal" data-target="#editSizeModal-{{item.id}}">
+                            Variant stocks
+                        </a>
+                        
+                        <button class="btn btn-primary">Edit</button>
+                    </div>
+                </div>
+                {% endfor %}
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+{% endblock body %}

@@ -1,0 +1,272 @@
+{% extends 'bases.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+
+    @import url('https://fonts.googleapis.com/css?family=Open+Sans&display=swap');body{background-color: #eeeeee;font-family: 'Open Sans',serif}.container{margin-top:50px;margin-bottom: 50px}.card{position: relative;display: -webkit-box;display: -ms-flexbox;display: flex;-webkit-box-orient: vertical;-webkit-box-direction: normal;-ms-flex-direction: column;flex-direction: column;min-width: 0;word-wrap: break-word;background-color: #fff;background-clip: border-box;border: 1px solid rgba(0, 0, 0, 0.1);border-radius: 0.10rem}.card-header:first-child{border-radius: calc(0.37rem - 1px) calc(0.37rem - 1px) 0 0}.card-header{padding: 0.75rem 1.25rem;margin-bottom: 0;background-color: #fff;border-bottom: 1px solid rgba(0, 0, 0, 0.1)}.track{position: relative;background-color: #ddd;height: 7px;display: -webkit-box;display: -ms-flexbox;display: flex;margin-bottom: 60px;margin-top: 50px}.track .step{-webkit-box-flex: 1;-ms-flex-positive: 1;flex-grow: 1;width: 25%;margin-top: -18px;text-align: center;position: relative}.track .step.active:before{background: #FF5722}.track .step::before{height: 7px;position: absolute;content: "";width: 100%;left: 0;top: 18px}.track .step.active .icon{background: #ee5435;color: #fff}.track .icon{display: inline-block;width: 40px;height: 40px;line-height: 40px;position: relative;border-radius: 100%;background: #ddd}.track .step.active .text{font-weight: 400;color: #000}.track .text{display: block;margin-top: 7px}.itemside{position: relative;display: -webkit-box;display: -ms-flexbox;display: flex;width: 100%}.itemside .aside{position: relative;-ms-flex-negative: 0;flex-shrink: 0}.img-sm{width: 80px;height: 80px;padding: 7px}ul.row, ul.row-sm{list-style: none;padding: 0}.itemside .info{padding-left: 15px;padding-right: 7px}.itemside .title{display: block;margin-bottom: 5px;color: #212529}p{margin-top: 0;margin-bottom: 1rem}.btn-warning{color: #ffffff;background-color: #ee5435;border-color: #ee5435;border-radius: 1px}.btn-warning:hover{color: #ffffff;background-color: #000000 ;border-color:  #ede6e4;border-radius: 1px
+    }
+
+    .body{
+        margin:0;
+    }
+    .active .step.active {
+        color: green;
+    }
+
+</style>
+<div class="container py-2 ">
+    <div class="card">
+        <header class="card-header"> My Orders / Tracking </header>
+            <h6><strong>Tracking ID :</strong> {{ order.tracking_id }}  </h6>
+            <br>
+            <article class="card">
+                <div class="card-body row">
+                    <div class="col"> <strong>Shipping address :</strong> <br> {{ order.address.first_name }} {{ order.address.last_name }}<br>  <i class="fa fa-phone"></i> {{ order.address.mobile_number }}
+                    <br>{{ order.address.email }} <br> {{ order.address.house }} , {{ order.address.city }} , {{ order.address.state }} - {{ order.address.pin_code }}</div>
+                    <div class="col"> <strong>offer appled :</strong> <br>{{ order.status }}
+                    <br><p>Paid: {% if order.paid %}Yes{% else %}No{% endif %}</p>
+                    </div>
+                    <div class="col" ><strong> order summary </strong>
+                        <div class="card" style="width:300px;" >
+
+                            <div class="card-body">
+                                <h5 class="card-title">Order Date: {{ order.created_at|date:"Y-m-d" }}</h5>
+                                <p class="card-text">Payment Method: {{ order.payment_method }}</p>
+                                <p class="card-text">Order Status: {{ order.status }}</p>
+                                <p class="card-text">Total Amount:  {{ order.total }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col"> <strong>#more action :</strong> <br><br><br> <a href="{% url 'invoice' order.id %}" class="btn btn-outline-primary">download invoice</a> </div>
+                </div> 
+            </div>
+    <br>    
+{% if order_items %}
+            
+<div class="card mb-5 bg-gradient" style="border-radius:25px;" >
+        {% for item in order_items %}
+        <div class="card-body">
+            <table class="table text-dark">
+                <h5 style="color:brown;" >{{ forloop.counter }} - {{ item.product.product.product_name }} - {{ item.product.color }}</h5>
+                    
+                <thead>
+                    <tr>
+                        <th>Product </th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Status</th>
+                        <th>Action</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+
+
+                        <tr>
+                        
+                            <td class="d-flex justify-content-center">
+                                <img src="{{ item.product.image1.url }}" alt="img" style="width: 100px; height: 100px; border-radius:1px; margin: 20px;" >
+                                {% comment %} {{ item.product.product.product_name }} {% endcomment %}
+                                <br>
+                                 size : {{ item.size }}
+                            </td>
+
+                            <td>$ {{ item.price }}</td>
+
+                            <td>{{ item.qnty }}</td>
+
+                            <td>{{ item.status }}</td>
+                        <td>
+                    {% if not item.request_return %}
+                            
+                        {% if item.cancel == False and item.status != 'Delivered' %}
+
+                        <a class="btn btn-danger" id="cancelOrderBtn{{ item.id }}" href="" >
+                            CANCEL
+                            
+                            </a>
+                        {% elif item.status == 'Delivered' %}
+
+                        {% else %}
+                            <a class="btn btn-danger" disabled>
+                                
+                                CANCELLED
+                                
+                                </a>
+                        {% endif %}
+
+                    {% elif item.status == 'Returned' %}
+
+                        <div class="d-flex justify-content-center" >
+                            <p class="text-success" >item will return after 5 days </p>
+                        </div>
+
+                    {% endif %}
+
+                            {% if item.status == "Delivered" %}
+                            {% if item.request_return and item.status == 'Delivered' %}
+
+                            <a class="btn btn-success" disabled >
+                                RETURN REQUESTED
+                            </a>
+
+
+                                    {% else %}
+                                
+                                <a class="btn btn-warning" href="{% url 'request_return_order_item' item.id %}">
+                                    REQUEST RETURN  
+                                </a>
+
+                            {% endif %}
+                            
+                            {% endif %}
+                        
+                            {% if not item.request_return %}
+                            
+                            {% endif %}
+
+                        </td>
+                        
+                        </tr>
+                {% endfor %}
+
+            {% endif %}
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="progress">
+
+        <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+      </div>
+<!-- <div class="container">
+        <article class="card">
+            <header class="card-header"> My Orders / Tracking </header>
+            <div class="card-body">
+                <h6><strong>Tracking ID :</strong> {{ order.tracking_id }}</h6>
+                <br>
+                <article class="card">
+                    <div class="card-body row">
+                        <div class="col"> <strong>Shipping address :</strong> <br> {{ order.address.first_name }} {{ order.address.last_name }}<br>  <i class="fa fa-phone"></i> {{ order.address.mobile_number }}
+                        <br>{{ order.address.email }} <br> {{ order.address.house }} , {{ order.address.city }} , {{ order.address.state }} - {{ order.address.pin_code }}</div>
+                        <div class="col"> <strong>offer appled :</strong> <br>{{ order.status }}
+                        <br><p>Paid: {% if order.paid %}Yes{% else %}No{% endif %}</p>
+                        </div>
+                        <div class="col" ><strong> order summary </strong>
+                            <div class="card" style="width:300px;" >
+ 
+                                <div class="card-body">
+                                    <h5 class="card-title">Order Date: {{ order.created_at|date:"Y-m-d" }}</h5>
+                                    <p class="card-text">Payment Method: {{ order.payment_method }}</p>
+                                    <p class="card-text">Order Status: {{ order.status }}</p>
+                                    <p class="card-text">Total Amount: $ {{ order.total }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col"> <strong>Tracking #:</strong> <br> BD045903594059 </div>
+                    </div>
+                </article>
+                
+                <hr>
+                <ul class="row">
+                    {% for item in order_items %}
+                        
+                    <li class="col-md-4">
+                        <figure class="itemside mb-3">
+                            <div class="aside"><img src="{{ item.product.image1.url }}" style="width: 100px; height: 100px; border-radius:1px; margin: 20px;" class="img-sm border">
+                            </div>
+                            <figcaption class="info align-self-center">
+                                <p class="title">{{ item.product.product.product_name }}<br>color : {{ item.product.color }}<br> size : {{ item.size }} </p> <span class="text-muted">₹ {{ item.product.product.price }}</span>
+                            </figcaption>
+                        </figure>
+                    </li>
+
+                    <div class="track">
+                        <div class="step active"> <span class="icon"> <i class="fa fa-check"></i> </span> <span class="text">Order confirmed</span> </div>
+                        <div class="step active"> <span class="icon"> <i class="fa fa-user"></i> </span> <span class="text"> Picked by courier</span> </div>
+                        <div class="step"> <span class="icon"> <i class="fa fa-truck"></i> </span> <span class="text"> On the way </span> </div>
+                        <div class="step"> <span class="icon"> <i class="fa fa-box"></i> </span> <span class="text">Ready for pickup</span> </div>
+                    </div>
+
+                    <li>
+
+
+                        <div class="container" >
+                            {% if  item.cancel == False %}
+                            <a class="btn btn-danger" style="margin-left: 72px;" href="{% url 'request_cancel_order_item' item.id %}">
+                                CANCEL
+                            </a>
+                            {% else %}
+
+                            <a class="btn btn-danger" disabled>
+                                
+                                CANCELLED
+
+                            </a>
+                            {% endif %}
+                        </div>
+
+
+
+                    </li>
+
+                    {% endfor %}
+
+
+                </ul>
+                <hr>
+                <a href="#" class="btn btn-warning" data-abc="true"> <i class="fa fa-chevron-left"></i> Back to orders</a>
+            </div>
+        </article>
+    </div> -->
+
+    <!-- Payment Status -->
+
+    
+    <!-- Products in the Order -->
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+{% for item in order_items %}
+<script>
+    $(document).ready(function() {
+        $('#cancelOrderBtn{{ item.id }}').click(function(e) {
+            e.preventDefault(); // Prevent the default action
+            Swal.fire({
+                title: 'Do you really need to cancel this order?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, cancel it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "{% url 'request_cancel_order_item' item.id %}"; // Redirect to the cancel order URL
+                }
+            });
+        });
+    });
+</script>
+{% endfor %}
+<script>
+    {% if messages %}
+    {% for message in messages %}
+    {% if message.tags == 'error' %}
+    swal("Error!", "{{ message }}", "error"); // Display error message with a warning icon
+    {% elif message.tags == 'success' %}
+    swal("Success!", "{{ message }}", "success"); // Display success message with a success icon
+    {% else %}
+    swal("Message", "{{ message }}"); // Display general message
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+</script>
+    <br />
+
+{% endblock %}

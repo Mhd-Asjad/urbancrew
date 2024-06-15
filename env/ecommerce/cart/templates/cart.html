@@ -1,4 +1,5 @@
-{% extends 'base.html' %}
+{% extends 'bases.html' %}
+
 
 {% load static %}
 
@@ -45,6 +46,9 @@
     .ms-5 {
         padding-right: 10px !important ;
     }
+    .cart__total{
+        margin-left : 50px !important;
+    }
 </style>
     <section class="breadcrumb-option">
         <div class="container">
@@ -65,18 +69,36 @@
     <!-- Breadcrumb Section End -->
 
     <!-- Shopping Cart Section Begin -->
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
+    <script>
+        {% if messages %}
+        {% for message in messages %}
+        {% if message.tags == 'error' %}
+        swal("Error!", "{{ message }}", "error"); // Display error message with a warning icon
+        {% elif message.tags == 'success' %}
+        swal("Success!", "{{ message }}", "success"); // Display success message with a success icon
+        {% else %}
+        swal("Message", "{{ message }}"); // Display general message
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+    </script>
+    <br />
         
     <section class="shopping-cart spad">
         <div class="container">
             <div class="row">
                 <div class="col-lg-8">
                     <div class="shopping__cart__table">
-                        <table>
+
+                        {% if cart_items %}
+                            
+                            <table>
                             <thead>
 
                                 <tr>
-
+                                    <th>id</th>
                                     <th>Product</th>
                                     <th>Quantity</th>
                                     <th>Total</th>
@@ -86,14 +108,23 @@
                             <tbody>
                                 {% for cart_item in cart_items %}
                                 <tr>
+                                    <td>{{ forloop.counter }}</td>
                                     <td class="product__cart__item">
                                         <div class="product__cart__item__pic">
-                                            <img src="{{ cart_item.product.img.url }}" style="width:100px; height:100px" alt="">
+                                            <img src="{{ cart_item.product.image1.url }}" style="width:100px; height:100px" alt="imagggeeee">
                                         </div>
 
                                         <div class="product__cart__item__text " style="margin-left:5px;">
-                                            <h6>{{ cart_item.product.product_name }}</h6>
-                                            <h5>₹{{ cart_item.product.price }}</h5>
+                                            <h6>{{ cart_item.product.product.product_name }}</h6>
+                                            {% if cart_item.product.product.offer_price %}
+                                                
+                                            <h5>₹{{ cart_item.product.product.offer_price }}</h5>
+                                            {% else %}
+
+
+                                            <h5>₹{{ cart_item.product.product.price }}</h5>
+
+                                            {% endif %}
                                             <h6>size ( {{ cart_item.sizes.size }} ) </h6>
 
                                         </div>
@@ -127,13 +158,19 @@
 
  
                                 </tr>
-                                
-
-                                {% endfor %}
-
                             </tbody>
-                        </table>
+                            {% endfor %}
+                            </table>
+                        {% else %}
+                        <div class="cart-empty d-flex justify-content-center">
+                            <h3>Your cart is empty.</h3>
+                        </div>
+                    {% endif %}
                     </div>
+                    <br>
+                    <br>
+                    
+
                     <div class="row">
                         <div class="col-lg-6 col-md-6 col-sm-6">
                             <div class="continue__btn">
@@ -147,23 +184,14 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-4">
-                    <div class="cart__discount">
-                        <h6>Discount codes</h6>
-                        <form action="#">
 
-                            <input type="text" placeholder="Coupon code">
-                            <button type="submit">Apply</button>
-
-                        </form>
-                    </div>
                     <div class="cart__total">
                         <h6>Cart total</h6>
                         <ul>
 
-                            <li>Subtotal<span  id="sub-total"> ₹{{subtotal}} </span></li>
+                            <li>Subtotal<span  id="sub-total"> ₹{{subtotal|floatformat:0 }} </span></li>
                             <li>shippingfee <span id="shipping_fee" >₹{{shippingfee}}</span></li>
-                            <li>total<span id="grant_total" >₹{{ full_total }}</span></li>
+                            <li>total<span id="grant_total" >₹{{ full_total|floatformat:0 }}</span></li>
 
                         </ul>
                         <a href="{% url 'checkout' %}" class="primary-btn">Proceed to checkout</a>
@@ -173,6 +201,7 @@
         </div>
 
     </section>
+    
     <!-- Shopping Cart Section End -->
     <script>
        function updateQuantity(cartid, action) {
@@ -186,12 +215,12 @@
         var full_total = parseInt(full_totalInput.value)
 
         var quantity = parseInt(quantityInput.value);
-        if (action === 'increase' && quantity <= 10) {
+        if (action === 'increase' && quantity < 10) {
             $.ajax({
                 url: '/update_quantity/',
                 method: 'POST',
                 headers: {
-                    'X-CSRFToken': '{{ csrf_token }}' // Ensure you have a CSRF token available
+                    'X-CSRFToken': '{{ csrf_token }}'
                 },
                 contentType: 'application/json',
                 dataType: 'json',
@@ -207,13 +236,13 @@
 
                         $("#total_price-" + cartid).html("₹" + data.total);
                         $("#sub-total").html("₹" + data.subtotal);
+                        var shippingFee = updateShippingFee(data.subtotal);
                         $("#grant_total").html("₹" + data.full_total)
 
                         console.log(data.subtotal)
                         console.log(data.full_total)
 
-                    }
-                    else if(data.message == "notupdated"){
+                    }else if(data.message == "notupdated"){
 
                         swal({
 
@@ -251,6 +280,7 @@
                         quantityInput.value = quantity;
                         $("#total_price-" + cartid).html("₹" + data.total);
                         $("#sub-total").html("₹" + data.subtotal);
+                        var shippingFee = updateShippingFee(data.subtotal);                      
                         $("#grant_total").html("₹" + data.full_total)
                         console.log(data.full_total)
                         console.log(data.subtotal)
@@ -264,17 +294,25 @@
                 }
             });
            
+        }else if (quantity >= 10) {
+            swal({
+                title: "Limit Reached",
+                icon: "error",
+                text: "You cannot order more than 10 items"
+            });
         }
-        
     }
     function updateShippingFee(subtotal) {
         var shippingfee = 0;
-        if (subtotal > 5000) {
-            shippingfee = 0;
+        if (subtotal >= 5000) {
+            shippingfee = 0 ;
         } else {
             shippingfee = 100;
         }
         $("#shipping_fee").html("₹" + shippingfee);
+        return shippingfee;
     }
+    
     </script>
+
 {% endblock %}

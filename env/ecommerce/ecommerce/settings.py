@@ -53,7 +53,9 @@ INSTALLED_APPS = [
     "useracc",
     "products",
     "cart",
+    'offer',
     "adminapp",
+
 ]
 
 SOCIALACCOUNT_PROVIDERS = {
@@ -83,6 +85,8 @@ TEMPLATES = [
             os.path.join(BASE_DIR, "useracc", "templates"),
             os.path.join(BASE_DIR, "adminapp", "templates"),
             os.path.join(BASE_DIR, "products", "templates"),
+            os.path.join(BASE_DIR, "offer" , "templates")
+
         ],
         "APP_DIRS": True,
         "OPTIONS": {
@@ -155,9 +159,8 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "useracc", "static"),
     os.path.join(BASE_DIR, "adminapp", "static"),
     os.path.join(BASE_DIR, "products", "static"),
-    os.path.join(BASE_DIR, "cart", "static"),
 ]
-
+STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "/media/"
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
@@ -173,4 +176,10 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 LOGIN_REDIRECT_URL = "/"
+
 LOGOUT_REDIRECT_URL = "/"
+
+SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
+
+RAZORPAY_KEY_ID = "rzp_test_L5qNNRXVbhmnhr"
+RAZORPAY_KEY_SECRET = "ciivOcvarUcV6uSV7WniDwfj"

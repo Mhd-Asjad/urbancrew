@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'bases.html' %}
 {% load static %}
 <!DOCTYPE html>
 <html lang="zxx">
@@ -46,10 +46,14 @@
                     <div class="col-lg-3">
                         <div class="shop__sidebar">
                             <div class="shop__sidebar__search">
-                                <form action="#">
-                                    <input type="text" placeholder="Search...">
+                                <form method="get" action="{% url 'shop_search' %}">
+                                    <input type="text" name="query" placeholder="Search..." value="{{ request.GET.query }}">
                                     <button type="submit"><span class="icon_search"></span></button>
                                 </form>
+                                <br>
+                                <div class="d-flex justify-content-end">
+                                    <a href="{% url 'shop' %}" class="btn btn-outline-primary">clear</a>
+                                </div>
                             </div>
                             <div class="shop__sidebar__accordion">
                                 <div class="accordion" id="accordionExample">
@@ -59,15 +63,21 @@
                                         </div>
                                         <div id="collapseOne" class="collapse show" data-parent="#accordionExample">
                                             <div class="card-body">
+                                            
                                                 <div class="shop__sidebar__categories">
-                                                    
-                                                    <ul class="nice-scroll">
-                                                    {% for category in categorys %}
-                                                        <li><a href="#">{{ category }}</a></li>
 
-                                                    {% endfor %}
-                                                    </ul>
-                                                </div>
+                                                        <ul class="nice-scroll">
+                                                        {% for category in cat %}
+                                                                <li><a href="{% url 'shop' %}?category={{ category.id }} {% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">{{ category.name }}</a></li>
+                                                        {% endfor %}
+                                                        </ul>
+
+                                                        {% comment %} <p> sort by:</p>
+
+                                                        {{ filter_form.as_p }} {% endcomment %}
+
+                                                        <button type="submit" >submit</button>
+                                            </div>
                                             </div>
                                         </div>
                                     </div>
@@ -88,100 +98,14 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="card">
-                                        <div class="card-heading">
-                                            <a data-toggle="collapse" data-target="#collapseThree">Filter Price</a>
-                                        </div>
-                                        <div id="collapseThree" class="collapse show" data-parent="#accordionExample">
-                                            <div class="card-body">
-                                                <div class="shop__sidebar__price">
-                                                    <ul>
+                                    <div class="sidebar__filter">
+                                        <div class="section-title">
+                                            <h4>Shop by price</h4>
 
-                                                        <li><a href="#">$0.00 - $50.00</a></li>
-                                                        <li><a href="#">$50.00 - $100.00</a></li>
-                                                        <li><a href="#">$100.00 - $150.00</a></li>
-                                                        <li><a href="#">$150.00 - $200.00</a></li>
-                                                        <li><a href="#">$200.00 - $250.00</a></li>
-                                                        <li><a href="#">250.00+</a></li>
-                                                        
-                                                    </ul>
-                                                </div>
-                                            </div>
                                         </div>
+                                        <br>
                                     </div>
-                                    <div class="card">
-                                        <div class="card-heading">
-                                            <a data-toggle="collapse" data-target="#collapseFour">Size</a>
-                                        </div>
-                                        <div id="collapseFour" class="collapse show" data-parent="#accordionExample">
-                                            <div class="card-body">
-                                                <div class="shop__sidebar__size">
-                                                    <label for="xs">xs
-                                                        <input type="radio" id="xs">
-                                                    </label>
-                                                    <label for="sm">s
-                                                        <input type="radio" id="sm">
-                                                    </label>
-                                                    <label for="md">m
-                                                        <input type="radio" id="md">
-                                                    </label>
-                                                    <label for="xl">xl
-                                                        <input type="radio" id="xl">
-                                                    </label>
-                                                    <label for="2xl">2xl
-                                                        <input type="radio" id="2xl">
-                                                    </label>
-                                                    <label for="xxl">xxl
-                                                        <input type="radio" id="xxl">
-                                                    </label>
-                                                    <label for="3xl">3xl
-                                                        <input type="radio" id="3xl">
-                                                    </label>
-                                                    <label for="4xl">4xl
-                                                        <input type="radio" id="4xl">
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="card">
-                                        <div class="card-heading">
-                                            <a data-toggle="collapse" data-target="#collapseFive">Colors</a>
-                                        </div>
-                                        <div id="collapseFive" class="collapse show" data-parent="#accordionExample">
-                                            <div class="card-body">
-                                                <div class="shop__sidebar__color">
-                                                    <label class="c-1" for="sp-1">
-                                                        <input type="radio" id="sp-1">
-                                                    </label>
-                                                    <label class="c-2" for="sp-2">
-                                                        <input type="radio" id="sp-2">
-                                                    </label>
-                                                    <label class="c-3" for="sp-3">
-                                                        <input type="radio" id="sp-3">
-                                                    </label>
-                                                    <label class="c-4" for="sp-4">
-                                                        <input type="radio" id="sp-4">
-                                                    </label>
-                                                    <label class="c-5" for="sp-5">
-                                                        <input type="radio" id="sp-5">
-                                                    </label>
-                                                    <label class="c-6" for="sp-6">
-                                                        <input type="radio" id="sp-6">
-                                                    </label>
-                                                    <label class="c-7" for="sp-7">
-                                                        <input type="radio" id="sp-7">
-                                                    </label>
-                                                    <label class="c-8" for="sp-8">
-                                                        <input type="radio" id="sp-8">
-                                                    </label>
-                                                    <label class="c-9" for="sp-9">
-                                                        <input type="radio" id="sp-9">
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                
                                     <div class="card">
                                         <div class="card-heading">
                                             <a data-toggle="collapse" data-target="#collapseSix">Tags</a>
@@ -209,54 +133,86 @@
                             <div class="row">
                                 <div class="col-lg-6 col-md-6 col-sm-6">
                                     <div class="shop__product__option__left">
-                                        <p>Showing 1–12 of 126 results</p>
+                                            
+                                            <p> <b>Showing 1 - {{ products.count }} of {{ tot_count }} results</b></p>
                                     </div>
                                 </div>
                                 <div class="col-lg-6 col-md-6 col-sm-6">
                                     <div class="shop__product__option__right">
-                                        <p>Sort by Price:</p>
-                                        <select>
-                                            <option value="">Low To High</option>
-                                            <option value="">$0 - $55</option>
-                                            <option value="">$55 - $100</option>
-                                        </select>
+                                        <br>
+                                        <form method="get" action="{% url 'shop' %}">
+                                                <p>Sort by Price:</p>
+                                                <select name="sort" onchange="this.form.submit()">
+                                                    <option value="">Select</option>
+
+                                                    <option value="low_to_high" {% if request.GET.sort == 'low_to_high' %}selected{% endif %}>Low To High</option>
+                                                    <option value="high_to_low" {% if request.GET.sort == 'high_to_low' %}selected{% endif %}>High To Low</option>
+                                                    <option value="A-Z" {% if request.GET.sort == 'A-Z' %}selected{% endif %} >A-Z</option>
+                                                    <option value="z-a" {% if request.GET.sort == 'z-a' %}selected{% endif %}>z-a</option>
+
+                                                </select>
+                                            </div>
+                                        
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                       
+                    </form>
+                            
                         <div class="row">
                             {% for product in products %}
-
+                            {% if product.is_active %}
                             <div class="col-lg-4 col-md-6 col-sm-6">
+                            
                                 <div class="product__item">
                                         <div class="product__item__pic set-bg" data-setbg="">
-                                        <a href="{% url 'shop_details' product.id %}"><img style='width: 300px; height:270px; ' src="{{ product.product.img.url }}" alt=""></a>
-                                            {% if product.product.is_available %}
-                                            <span class="label" style="background-color:green; border-radius:5px; color:white; ">New</span>
-
+                                            
+                                        <a href="{% url 'shop_details' product.id %}"><img style='width: 300px; height:270px; ' src="{{ product.image1.url }}" alt=""></a>
+                                        <span class="label" style="background-color:green; border-radius:5px; color:white; ">New</span>
+                                        {% for size in product.sizes.all %}
+                                            
+                                            {% if not size.product_id.is_available %}
+                                            <span class="label" style="background-color:red; border-radius:5px; color:white; ">Out Of Stock</span>
+                                            
                                             {% else %}
+                                            
+                                            <span class="label" style="background-color:green; border-radius:5px; color:white; ">in stock</span>
 
-                                            <span class="label" style="background-color:red; border-radius:5px; color:white; ">Out Of Stock</span>   
                                             {% endif %}
+                                        {% endfor %}
                                             <ul class="product__hover">
-                                                <li><a href="#"><img src="{% static 'img/icon/heart.png' %}" alt=""></a></li>
-                                               {% comment %} <li><a href="#"><img src="{% static 'img/icon/compare.png' %}" alt=""> <span>Compare</span></a></li> {% endcomment %}
+                                                <li><a href="{% url 'add_to_wishlist' product.id %}"><img src="{% static 'img/icon/heart.png' %}" alt=""></a></li>
+                                                {% comment %} <li><a href="#"><img src="{% static 'img/icon/compare.png' %}" alt=""> <span>Compare</span></a></li> {% endcomment %}
                                                 {% comment %} <li><a href="#"><img src="{% static 'img/icon/search.png' %}" alt=""></a></li> {% endcomment %}
                                             </ul>
                                         </div>
                                     <div class="product__item__text">
+
                                         <h6>{{ product.product.product_name }}</h6>
                                         <a href="#" class="add-cart">+ Add To Cart</a>
                                         <div class="rating">
+
                                                 <i class="fa fa-star-o"></i>
                                                 <i class="fa fa-star-o"></i>
                                                 <i class="fa fa-star-o"></i>
                                                 <i class="fa fa-star-o"></i>
                                                 <i class="fa fa-star-o"></i>
+
                                         </div>
+
+                                         {% if product.product.offer_price > 0 %}
+
+                                            
+                                        <h5>₹ {{ product.product.offer_price|floatformat:0 }}</h5>
+                                        {% elif product.product.offer_price == 0 %}
+
+                                        <h5>₹{{ product.product.offer_price|floatformat:0 }}</h5>
+
+                                        {% else %}
+
+                                        <h5>₹{{ product.product.price }}</h5>
                                         
-                                        <h5>${{ product.product.price }}</h5>
+                                        {% endif %}
+                                        
                                         <div class="product__color__select">
                                             
                                             <label for="pc-{{ image.id }}">
@@ -264,17 +220,97 @@
                                             </label>
                                             
                                         </div>
+
+                                    </div>
+
+                                </div>
+                             </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="row">
+                            {% if  product_items %}
+
+                            {% for product in product_items %}
+                            <div class="col-lg-4 col-md-6 col-sm-6">
+    
+                                <div class="product__item">
+                                    <div class="product__item__pic set-bg" data-setbg="">
+                                        <a href="{% url 'shop_details' product.id %}">
+                                            <img style='width: 300px; height:270px;' src="{{ product.image1.url }}" alt="">
+                                        </a>
+                                        {% if product.product.is_available == True %}
+
+                                            
+                                        <span class="label" style="background-color:green; border-radius:5px; color:white;">New</span>
+                                        {% else %}
+                                        <span class="label" style="background-color:red; border-radius:5px; color:white;">Out Of Stock</span>
+                                        {% endif %}
+                                        <ul class="product__hover">
+                                            <li><a href="#"><img src="{% static 'img/icon/heart.png' %}" alt=""></a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="product__item__text">
+                                        <h6>{{ product.product.product_name }}</h6>
+                                        <a href="#" class="add-cart">+ Add To Cart</a>
+                                        <div class="rating">
+                                            <i class="fa fa-star-o"></i>
+                                            <i class="fa fa-star-o"></i>
+                                            <i class="fa fa-star-o"></i>
+                                            <i class="fa fa-star-o"></i>
+                                            <i class="fa fa-star-o"></i>
+                                        </div>
+                                        {% if product.product.offer_price > 0 %}
+
+                                            
+                                        <h5>₹{{ product.product.offer_price }}</h5>
+
+                                        {% else %}
+
+                                        <h5>₹{{ product.product.price }}</h5>
+                                        
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
                             {% endfor %}
+
+                            {% else %}
+
+                            <h4 class='d-flex justify-content-center'>
+                                {% comment %} NO Item found {% endcomment %}
+                            </h4>
+                        {% endif %}
+
                         </div>
-                    
+                    </div>
+    
                         
         </section>
-        <!-- Shop Section End -->
 
-    {% endblock content %}
+        <script>
+            $(function() {
+                // Initialize the price range slider
+                var minPrice = parseInt($("#minamount").val()) || 500;
+                var maxPrice = parseInt($("#maxamount").val()) || 50000;
+        
+                $("#price-range").slider({
+                    range: true,
+                    min: 500,
+                    max: 50000,
+                    values: [minPrice, maxPrice],
+                    slide: function(event, ui) {
+                        $("#minamount").val(ui.values[0]);
+                        $("#maxamount").val(ui.values[1]);
+                    }
+                });
+        
+                // Set initial values in the price display
+                $("#minamount").val(minPrice);
+                $("#maxamount").val(maxPrice);
+            });
+        </script>{% endblock content %}
 </body>
 
 </html> 

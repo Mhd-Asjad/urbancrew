@@ -1,0 +1,110 @@
+{% extends 'navigation.html' %}
+
+
+{% block body %}
+
+<style>
+
+    body{
+
+        background-color: #f4f7f4;
+    }
+    
+    .container {
+        margin-top: 50px;
+      }
+    
+      .table-responsive {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        overflow-x: auto;
+      }
+    
+      .table {
+        width: 100%;
+        color: #212529;
+        background-color: #fff;
+        border-collapse: collapse;
+        font-size: 20px;
+
+
+      }
+    
+      .table th,
+      .table td {
+        padding: 0.75rem;
+        vertical-align: top;
+        border-top: 1px solid #dee2e6;
+      }
+    
+      .table thead th {
+        vertical-align: bottom;
+        border-bottom: 2px solid #dee2e6;
+      }
+    
+      .table tbody + tbody {
+        border-top: 2px solid #dee2e6;
+      }
+    
+      .table .table {
+        background-color: #fff;
+      }
+    
+      .table-bordered {
+        border: 1px solid #dee2e6;
+      }
+    
+      .table-bordered th,
+      .table-bordered td {
+        border: 1px solid #dee2e6;
+      }
+    
+      .table-bordered thead th,
+      .table-bordered thead td {
+        border-bottom-width: 2px;
+      }
+    
+      .text-center {
+        text-align: center;
+      }
+    
+      .text-dark {
+        color: #4274a6 !important;
+      }
+      
+      
+</style>
+<div class="container">
+    <div class="card mb-3">
+    <div class="card-header">
+        <h2 class="mb-4">Orders List</h2>
+    </div>
+
+
+     <div class="card-body">
+        <table class="table table-bordered">
+          <tr>
+            <th class="text-center">Tracking ID</th>
+            <th class="text-center">Username</th>
+            <th class="text-center">Total Item Price</th>
+            <th class="text-center">Payment Method</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in orders %}
+          <tr>
+            <td class="text-center"><a href="{% url 'ordered_item' order.id %}" class="text-dark">{{ order.tracking_id }}</a></td>
+            <td class="text-center">{{ order.register.user.username }}</td>
+            <td class="text-center">₹{{ order.total }}</td>
+            <td class="text-center">{{ order.payment_method }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock body %}
+
+

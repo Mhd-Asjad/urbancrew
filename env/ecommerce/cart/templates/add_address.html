@@ -1,0 +1,70 @@
+{% extends 'bases.html' %}
+
+{% block content %}
+
+
+<div class="container mt-5">
+
+    <div class="d-flex justify-content-center" >
+
+        <h3> Add Address</h3>
+    </div>
+
+    <form action="{% url 'add_address_checkout' %}" method="post">
+        {% csrf_token %}
+        <div class="checkout__input">
+            <p>First Name<span>*</span></p>
+            <input type="text" id="first_name" name="first_name" required>
+            <div id="first_name_error" class="error-message"></div>
+        </div>
+        <div class="checkout__input">
+            <p>Last Name<span>*</span></p>
+            <input type="text" id="last_name" name="last_name" required>
+            <div id="last_name_error" class="error-message"></div>
+        </div>
+        <div class="checkout__input">
+            <p>Email<span>*</span></p>
+            <input type="email" id="email" name="email" required>
+            <div id="email_error" class="error-message"></div>
+        </div>
+        <div class="checkout__input">
+            <p>House<span>*</span></p>
+            <input type="text" id="house" name="house" required>
+            <div id="house_error" class="error-message"></div>
+        </div>
+        <div class="checkout__input">
+            <p>City<span>*</span></p>
+            <input type="text" id="city" name="city" required>
+            <div id="city_error" class="error-message"></div>
+        </div>
+        <div class="checkout__input">
+            <p>State<span>*</span></p>
+            <input type="text" id="state" name="state" required>
+            <div id="state_error" class="error-message"></div>
+        </div>
+        <div class="checkout__input">
+            <p>Country<span>*</span></p>
+            <input type="text" id="country" name="country" required>
+            <div id="country_error" class="error-message"></div>
+        </div>
+        <div class="checkout__input">
+            <p>Postcode / ZIP<span>*</span></p>
+            <input type="text" id="pin_code" name="pin_code" required>
+            <div id="pin_code_error" class="error-message"></div>
+        </div>
+        <div class="checkout__input">
+            <p>Phone<span>*</span></p>
+            <input type="text" id="mobile_number" name="mobile_number" required>
+            <div id="mobile_number_error" class="error-message"></div>
+        </div>
+        <button type="submit" class="site-btn">ADD ADDRESS</button>
+    </form>
+
+
+
+</div>
+<br>
+
+{% endblock content %}
+
+

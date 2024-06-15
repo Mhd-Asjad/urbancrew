@@ -1,0 +1,139 @@
+{% extends 'bases.html' %}
+
+{% block content %}
+
+<style>
+    .wishlist-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .wishlist-item img {
+        width: 100px;
+        height: 100px;
+    }
+
+    .wishlist-item-details {
+        flex-grow: 1;
+        margin-left: 20px;
+    }
+
+    .wishlist-item-actions {
+        display: flex;
+        align-items: center;
+    }
+
+    .wishlist-item-actions button {
+        margin-right: 10px;
+    }
+
+    .wishlist-empty {
+        text-align: center;
+        padding: 50px 0;
+    }
+</style>
+
+<section class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__text">
+                    <h4>Wishlist</h4>
+                    <div class="breadcrumb__links">
+                        <a href="{% url 'home' %}">Home</a>
+                        <a href="{% url 'shop' %}">Shop</a>
+                        <span>Wishlist</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="wishlist spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+
+                {% if wishlist %}
+            <h5>My wishlist ({{ wishlist.count}})</h5>
+                <br>
+                <div class="wishlist-table">
+                    {% for item in wishlist %}
+                    <div class="wishlist-item col-sm-10">
+                        <img src="{{ item.product.image1.url }}" alt="{{ item.product.product.product_name }}">
+                        <div class="wishlist-item-details">
+                            <a href="{% url 'shop_details' item.product.id %}"><h5>{{ item.product.product.product_name }}</h5>                            </a>
+                            <div class="rating">
+                                <i class="fa fa-star-o"></i>
+                                <i class="fa fa-star-o"></i>
+                                <i class="fa fa-star-o"></i>
+                                <i class="fa fa-star-o"></i>
+                                <i class="fa fa-star-o"></i>
+                            </div>
+                            <h5>₹{{ item.product.product.price }}</h5>
+                            {% if item.size %}
+                            <h6>Size: {{ item.size.size }}</h6>
+                            {% endif %}
+                        </div>
+                        <div class="wishlist-item-actions">
+                            
+                                
+                            <a href="{% url 'remove_item_wishlist' item.id %}" ><i class="fa fa-trash"style="font-size:21px; color:grey;"></i></a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="wishlist-empty">
+                    <h3>Your wishlist is empty.</h3>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+<script>
+    const Toast = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 2000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+        toast.onmouseenter = Swal.stopTimer;
+        toast.onmouseleave = Swal.resumeTimer;
+    }
+    });
+    // Handle error messages
+    {% if error_message %}
+        {% for msg in messages %}
+
+            Toast.fire({
+                icon: "error",
+                title: "{{ msg }}"
+            });
+
+        {% endfor %}
+    {% endif %}
+
+    // Handle success message
+    {% if messages %}  
+        {% for success_message in messages %}
+
+            Toast.fire({
+                icon: "success",
+                title: "{{ success_message }}"
+                    
+            });
+        {% endfor %}
+    {% endif %}
+</script>
+    
+{% endblock content %}

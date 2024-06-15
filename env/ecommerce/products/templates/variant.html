@@ -1,0 +1,325 @@
+{% extends 'navigation.html' %}
+{% load static %}
+{% block head %}
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'fonts/icomoon/style.css' %}" type="text/css" >
+    <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}" type="text/css" >
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" type="text/css" >
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" type=" text/css" >
+    <title>Table #9</title>
+    <style>
+      #checkboxInput {
+        display: none;
+      }
+      
+      .toggleSwitch {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        width: 50px;
+        height: 17px;
+        background-color: rgb(82, 82, 82);
+        border-radius: 20px;
+        cursor: pointer;
+        transition-duration: .2s;
+      }
+      
+      .toggleSwitch::after {
+        content: "";
+        position: absolute;
+        height: 22px;
+        width: 22px;
+        left: 0px;
+        background-color: rgb(41, 41, 41);
+        border-radius: 50%;
+        transition-duration: .2s;
+        border: 2px solid rgb(82, 82, 82);
+      }
+      
+      #checkboxInput:checked+.toggleSwitch::after {
+        transform: translateX(100%);
+        transition-duration: .2s;
+        border: 2px solid rgb(165, 255, 105);
+      }
+      /* Switch background change */
+      #checkboxInput:checked+.toggleSwitch {
+        background-color: rgb(165, 255, 105);
+        transition-duration: .2s;
+      }
+      
+      body {
+          background-color: #f4f5f7;
+      }
+
+  </style>
+{% endblock %}
+
+{% block body %}
+  
+    <div class="table-responsive d-flex justify-content-center">
+      <div class="col-md-8" >
+        {% if variants %}
+
+        <h4 class="d-flex justify-content-center m-sm-5"style="color:blue;">{{product.product_name}}</h4>
+        <table class="table custom-table ">
+          <thead>
+            <tr>
+
+              <th scope="col">color</th>
+              <th scope="col">size Available</th>
+              <th>images</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+
+          <tbody>
+            {% for item in variants %}
+
+            <tr>  
+
+              <td id="color_id">
+                <br>
+                {{ item.color }}
+              </td>
+              <td>{% for size in item.sizes.all %}
+
+                {% if size.stock > 0 %}
+                <br>
+                ({{ size.size }})
+
+                {% endif %}
+                {% endfor %}
+              
+              
+              </td>
+              <td>
+                <br>
+                <br>
+                <ul class="persons">
+                    <a href="#" data-toggle="modal" data-target="#imageModal" data-image-url="{{ item.image1.url }}">
+                      <img src="{{ item.image1.url }}" alt="Person" class="img-fluid" style="width;20px;" >
+                    </a>
+                    <a href="#"data-toggle="modal" data-target="#imageModal" data-image-url="{{ item.image2.url }}">
+                      <img src="{{ item.image2.url }}" alt="Person" class="img-fluid">
+                    </a>
+                    <a href="#" data-toggle="modal" data-target="#imageModal" data-image-url="{{ item.image3.url }}">
+
+                      <img src="{{ item.image3.url }}" alt="Person" class="img-fluid">
+                    </a>
+                </ul>
+
+              </td>
+              <td>
+                  
+                  <a href="" class="btn btn-outline-primary" style="color: black !important;" type="button" data-toggle="modal" data-target="#editSizeModal{{item.id}}">
+                      Variant stocks
+                  </a>
+                  <div class="modal fade" id="editSizeModal{{ item.id }}" tabindex="-1" role="dialog" aria-labelledby="editSizeModal{{item.id}}" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">Edit Size</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="editSizeForm{{ item.id }}" method="post" action="{% url 'editsize' item.id %}">
+                                    {% csrf_token %}
+                                    {% for size in sizes %}
+                                        {% if size.image.id == item.id %}
+                                            <div class="form-group">
+                                                <h4 for="size">Size: {{ size.size }}</h4>
+                                                <input type="hidden" value="{{ size.id }}" name="size_{{ size.id }}">
+                                                <label>Stock</label>
+                                                <input type="text" class="form-control stock-input" value="{{ size.stock }}" name="size_{{ size.id }}" required min="0">
+                                                <div class="invalid-feedback text-danger" style="display:none; font-size:15px;">Please enter a valid non-negative number.</div>
+
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <button type="submit" class="btn btn-primary" id="submiBtn{{ item.id }}">Save changes</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                  <div >
+                    <br >
+                    <a href="{% url 'editvariant' item.id %}" class="btn btn-secondary btn-sm">
+
+                      <i class="fas fa-edit" style="font-size: 16px;"></i>
+
+                    </a>
+
+                    <a href="{% url 'delvariant' item.id %}" class="btn btn-danger btn-sm" >
+                      <i class="fa fa-trash" aria-hidden="true" style="font-size: 16px;"></i>
+
+                    </a>
+                    {% if item.is_active %}
+                <a href="{% url 'deactivate' item.id %}" class="btn" style="color:red; font-size:18px;" >deactive</a>
+
+                {% else %}
+
+                <a href="{% url 'active' item.id %}" class="btn-outline" style="color:green; font-size:18px;" >active</a>
+
+              {% endif %}
+                    {% comment %} <input id="checkboxInput" type="checkbox">
+                    <label class="toggleSwitch" for="checkboxInput"></label> {% endcomment %}
+                  </div>
+              </td>
+
+              {% endfor %}
+
+              {% else %}
+              <br>
+              <div class="d-flex justify-content-center" >
+                <h3>no variants available</h3>
+    
+              </div>
+    
+              {% endif %}
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h5 class="modal-title" id="imageModalLabel">Image Preview</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                  </button>
+              </div>
+              <div class="modal-body text-center">
+                  <img id="modalImage" src="" style="height: 500px; width:500px; " alt="Preview" class="img-fluid">
+              </div>
+          </div>
+      </div>
+  </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+    <script>
+
+      {% for message in messages %}
+        
+      Swal.fire({
+        title: "{{ message }}",
+        icon: "success"
+      });
+      {% if message.tags == 'error' %}
+      Swal.fire({
+        title: "{{ message }}",
+        icon: "error"
+      });
+      {% endif %}
+      {% endfor %}
+    </script>
+
+  
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          // Select all anchor tags with data-image-url attribute
+          const imageLinks = document.querySelectorAll('a[data-image-url]');
+  
+          // Add click event listener to each link
+          imageLinks.forEach(function(link) {
+              link.addEventListener('click', function(event) {
+                  // Prevent the default action
+                  event.preventDefault();
+  
+                  // Get the image URL from the data attribute
+                  const imageUrl = link.getAttribute('data-image-url');
+  
+                  // Update the src attribute of the modal image
+                  const modalImage = document.getElementById('modalImage');
+                  modalImage.setAttribute('src', imageUrl);
+              });
+          });
+      });
+  </script>
+
+    <script>
+      // Function to validate input value
+      function validateStockInput() {
+          var stockInput = document.getElementById('stock').value;
+          var stockError = document.getElementById('stockError');
+          
+          if (stockInput.trim() === '' || isNaN(stockInput) || parseInt(stockInput) < 0) {
+              stockError.textContent = "Invalid stock value. Please enter a positive integer.";
+              return false; // Invalid input
+          } else {
+              stockError.textContent = ""; // Clear error message
+              return true; // Valid input
+          }
+      }
+      
+      // Event listener for input field
+      document.getElementById('stock').addEventListener('input', function() {
+          validateStockInput();
+      });
+  </script>
+
+<script>
+  function openModal(sizeId, size) {
+      $('#size_id').val(sizeId);
+      $('#size').val(size);
+      $('#editSizeModal').modal('show');
+  }
+ 
+</script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+      const forms = document.querySelectorAll("form[id^='editSizeForm']");
+      forms.forEach(form => {
+          const submitBtn = form.querySelector("button[type='submit']");
+          const inputs = form.querySelectorAll(".stock-input");
+
+          inputs.forEach(input => {
+              input.addEventListener("input", function() {
+                  validateInput(input, submitBtn);
+              });
+              validateInput(input, submitBtn); // Initial validation
+          });
+
+          function validateInput(input, submitBtn) {
+              const value = parseFloat(input.value);
+              const errorDiv = input.nextElementSibling;
+              if (isNaN(value) || value < 0 || !/^\d+$/.test(input.value)) {
+                input.classList.add("is-invalid");
+                  errorDiv.style.display = "block";
+                  submitBtn.disabled = true;
+              }else {
+                  input.classList.remove("is-invalid");
+                  errorDiv.style.display = "none";
+                  submitBtn.disabled = false;
+
+                  inputs.forEach(inp => {
+                      if (inp.classList.contains("is-invalid")) {
+                          submitBtn.disabled = true;
+                      }
+                  });
+              }
+          }
+      });
+  });
+</script>
+
+
+{% endblock body %}
