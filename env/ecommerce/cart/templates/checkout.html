@@ -89,8 +89,6 @@
 
     <!-- Checkout Section Begin -->
     
-    {% if addresses %}
-    
     <section class="checkout spad">
         <div class="container">
             <div class="checkout__form">
@@ -104,10 +102,14 @@
                         <div id="coupon-form-container" style="display: none;">
                             <form id="coupon-form" method="post" action="{% url 'apply_coupon' %}">
                                 {% csrf_token %}
+                                    
                                 <div class="form-group">
                                     <label for="coupon_code">Coupon Code</label>
-                                    <input type="text" class="form-control" id="coupon_code" name="coupon_code">
+                                    <input type="text" class="form-control" id="coupon_code" name="coupon_code" placeholder="enter here" required {% if request.session.coupon_applied %}
+                                        
+                                   value="{{ coupon_code }}" {% endif %} >
                                 </div>
+
                                 {% if request.session.coupon_applied %}
                                 <button type="submit" class="site-btn">Remove</button>
                                 {% comment %} <input type="text" class="form-control" value=""  >  {% endcomment %}
@@ -117,16 +119,25 @@
                                 {% endif %}
                             </form>
                             <br>
-                            <div id="available-coupons" style="display: none;">
+                            <div id="available-coupons" style="display: none;" class="col-6" >
                                 <h6>Available Coupons</h6>
+                                {% for coupon in available_coupons %}
+                                {% if coupon %}
+                                    
                                 <br>
-                                <ul>
-                                    {% for coupon in available_coupons %}
-                                    <li  >
+                                <ul style="list-style-type: none;" >
+                                    <li>
                                         <button type="button" class="coupon-button" data-coupon="{{ coupon.coupon_code }}">{{ coupon.coupon_name }} - {{ coupon.discount_percentage }}% off</button>
                                     </li>
-                                    {% endfor %}
+
                                 </ul>
+                                {% else %}
+
+                                <h5><b>no Coupons available</b></h5>
+
+                                {% endif %}
+                                {% endfor %}
+
                             </div>
                         </div>
                         <br>
@@ -137,7 +148,7 @@
                             {% for address in addresses %}
                             <br>
                             <br>
-                                <div class="card card-lg bg-light col-sm-8" style="margin: auto;">
+                                <div class="card card-lg bg-light col-lg-8" style="margin-right:100px; width:400px;">
                                     <div class="card-body">
                                         <!-- Radio Button -->
                                         <div class="form-check">
@@ -164,40 +175,62 @@
                                 <div class="checkout__order__products">Product <span></span></div>
                                 <ul class="checkout__total__products">
                                     {% for cart_item in cart_items %}
-                                    <li>* {{ cart_item.product.product.product_name }} X {{ cart_item.quantity }} <span>{{ cart_item.product.price }}</span></li>
+                                    <li>* {{ cart_item.product.product.product_name }} &nbsp; X {{ cart_item.quantity }} <span>({{ cart_item.product.color }}) </span></li>
                                     {% endfor %}
                                 </ul>
                                 <ul class="checkout__total__all">
-                                    {% if coupon_applied %}
-                                    <li>Coupon name : <span>{{ coupon_code }}</span></li>
-                                    <li>Coupon amount :<span>{{ discount_amount }}</span></li>
-                                    {% endif %}
+                                {% if coupon_applied %}
+                                    <li>Coupon name : <span>{% if not coupon_code %}
+                                        <p style="color:red;" > empty</p>
+                                    {% else %}
+                                    <b>{{ coupon_code }}</b>{% endif %}</span></li>
+                                {% endif %}
+                                    <li>Coupon amount :<span> ₹ {{ discount_amount }}</span></li>
+
                                     <li>Subtotal <span>₹ {{ sub_total }}</span></li>
                                     <li>Shipping fee <span>₹ {{ shipping_fee }}</span></li>
                                     <li>Total <span>₹ {{ full_total }}</span></li>
                                 </ul>
-                                <div class="checkout__input__checkbox">
-                                    <label for="acc-or">
-                                        Create an account?
-                                        <input type="checkbox" id="acc-or">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                </div>
+ 
                                     
                                 <h4>Payment method:</h4>
                                 <div class="checkout__input__checkbox">
-                                    <label for="payment1">
+                                    {% if full_total > 1000 %}
+                                        
+                                    <label for="payment1" style='text-decoration: line-through;' >
                                         Cash on delivery
                                         <input type="radio" id="payment1" name="payment_method" value="COD" required>
                                         <span class="checkmark"></span>
                                     </label>
+                                    {% else %}
+                                    <label for="payment1" >
+                                        Cash on delivery
+                                        <input type="radio" id="payment1" name="payment_method" value="COD" required>
+                                        <span class="checkmark"></span>
+                                    </label>
+                                    {% endif %}
+
                                 </div>
                                 <div class="checkout__input__checkbox">
+                                {% if wallet.balance < full_total %}
+
+                                    <label for="payment2" style="text-decoration: line-through;">
+                                        Wallet
+                                        <input type="radio" id="payment2" name="payment_method" value="wallet">
+                                        <span class="checkmark"></span>
+
+                                    </label>
+                                    
+                                {% else %}
+                                
                                     <label for="payment2">
                                         Wallet
                                         <input type="radio" id="payment2" name="payment_method" value="wallet">
                                         <span class="checkmark"></span>
                                     </label>
+
+                                {% endif %}
+
                                 </div>
                                 <div class="checkout__input__checkbox">
                                     <label for="payment3">
@@ -214,121 +247,7 @@
             </div>
         </div>
     </section>
-    {% else %}
-    <section class="checkout spad">
-        <div class="container">
-            <div class="checkout__form">
-                <!-- Form for Existing Addresses and Order Details -->
-                <div class="row">
-                    <div class="col-lg-8 col-md-6">
-                        <h6 class="coupon__code">
-                            <span class="icon_tag_alt"></span> Have a coupon? <a href="#">Click here</a> to enter your code
-                        </h6>
-                        <div id="address-form" style="display: none;">
-                            <form action="{% url 'add_address_checkout' %}" method="post">
-                                {% csrf_token %}
-                                <h6 class="checkout__title">Add Billing Details</h6>
-                                <div class="checkout__input">
-                                    <p>First Name<span>*</span></p>
-                                    <input type="text" id="first_name" name="first_name" required>
-                                    <div id="first_name_error" class="error-message"></div>
-                                </div>
-                                <div class="checkout__input">
-                                    <p>Last Name<span>*</span></p>
-                                    <input type="text" id="last_name" name="last_name" required>
-                                    <div id="last_name_error" class="error-message"></div>
-                                </div>
-                                <div class="checkout__input">
-                                    <p>Email<span>*</span></p>
-                                    <input type="email" id="email" name="email" required>
-                                    <div id="email_error" class="error-message"></div>
-                                </div>
-                                <div class="checkout__input">
-                                    <p>House<span>*</span></p>
-                                    <input type="text" id="house" name="house" required>
-                                    <div id="house_error" class="error-message"></div>
-                                </div>
-                                <div class="checkout__input">
-                                    <p>City<span>*</span></p>
-                                    <input type="text" id="city" name="city" required>
-                                    <div id="city_error" class="error-message"></div>
-                                </div>
-                                <div class="checkout__input">
-                                    <p>State<span>*</span></p>
-                                    <input type="text" id="state" name="state" required>
-                                    <div id="state_error" class="error-message"></div>
-                                </div>
-                                <div class="checkout__input">
-                                    <p>Country<span>*</span></p>
-                                    <input type="text" id="country" name="country" required>
-                                    <div id="country_error" class="error-message"></div>
-                                </div>
-                                <div class="checkout__input">
-                                    <p>Postcode / ZIP<span>*</span></p>
-                                    <input type="text" id="pin_code" name="pin_code" required>
-                                    <div id="pin_code_error" class="error-message"></div>
-                                </div>
-                                <div class="checkout__input">
-                                    <p>Phone<span>*</span></p>
-                                    <input type="text" id="mobile_number" name="mobile_number" required>
-                                    <div id="mobile_number_error" class="error-message"></div>
-                                </div>
-                                <button type="submit" class="site-btn">ADD ADDRESS</button>
-                            </form>
-                        </div>
-                        <div class="col-lg-4 col-md-6">
-                            <div class="checkout__order">
-                                <h4 class="order__title">Your order</h4>
-                                <div class="checkout__order__products">Product <span></span></div>
-                                <ul class="checkout__total__products">
-                                    {% for cart_item in cart_items %}
-                                    <li>* {{ cart_item.product.product.product_name }} X {{ cart_item.quantity }} <span>{{ cart_item.product.price }}</span></li>
-                                    {% endfor %}
-                                </ul>
-                                <ul class="checkout__total__all">
-                                    <li>Subtotal <span>₹ {{ sub_total }}</span></li>
-                                    <li>Shipping fee <span>₹ {{ shipping_fee }}</span></li>
-                                    <li>Total <span>₹ {{ full_total }}</span></li>
-                                </ul>
-                                <div class="checkout__input__checkbox">
-                                    <label for="acc-or">
-                                        Create an account?
-                                        <input type="checkbox" id="acc-or">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                </div>
-                                <h4>Payment method:</h4>
-                                <br>
-                                <div class="checkout__input__checkbox">
-                                    <label for="payment1">
-                                        Cash on delivery
-                                        <input type="radio" id="payment1" name="payment_method" value="cod">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                </div>
-                                <div class="checkout__input__checkbox">
-                                    <label for="payment2">
-                                        Check Payment
-                                        <input type="radio" id="payment2" name="payment_method" value="check">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                </div>
-                                <div class="checkout__input__checkbox">
-                                    <label for="paypal">
-                                        Paypal
-                                        <input type="radio" id="paypal" name="payment_method" value="paypal">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                </div>
-                                <button type="submit" class="site-btn">PLACE ORDER</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    {% endif %}
+    
     <script>
         document.getElementById('show-coupon-form').addEventListener('click', function(event) {
             event.preventDefault();

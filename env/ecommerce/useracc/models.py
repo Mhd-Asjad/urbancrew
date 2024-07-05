@@ -18,7 +18,7 @@ class Address(models.Model) :
     is_deleted = models.BooleanField(default=False, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
-
+    
 class register(models.Model):
 
     Gender_Choice = [
@@ -29,9 +29,12 @@ class register(models.Model):
     ]
 
     mobile = models.CharField(max_length=12, unique=True, null=True, blank=True)
-    user = models.OneToOneField(User, on_delete=models.CASCADE,blank=True , null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE,blank=True , null=True)
     dob = models.DateField(blank=True,null=True)
     gender = models.CharField(max_length=10, choices = Gender_Choice,blank=True)
+
+    def __str__(self):
+        return f'{ self.user.username }'
 
 
 @receiver(post_save,sender=User)

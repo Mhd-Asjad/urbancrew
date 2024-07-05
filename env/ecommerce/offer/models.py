@@ -23,7 +23,7 @@ class Offer(models.Model) :
     def __str__(self):
 
         if self.offer_type == self.CATEGORY and self.categorys :
-            return f'{self.categorys.name} - {self.percentage}% DISCOUNT TO {self.end_date} '
+            return f'{self.categorys.name} - {self.percentage}% DISCOUNT TO {self.end_date}'
         elif  self.offer_type == self.PRODUCT and self.product :
 
             return f'{self.product.product_name} - {self.percentage}% DISCOUT TO {self.end_date}'

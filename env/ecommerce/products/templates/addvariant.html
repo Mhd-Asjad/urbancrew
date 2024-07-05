@@ -127,47 +127,30 @@
                     </div>
                     <br>
                     <br>
+                    <div id="image-fields-container" class="d-flex justify-content-center">
+                        <div class="row">
+                            <div class="col-md-4 form-group">
+                                <label for="image1" class="form-label"><b>Image 1:</b></label>
+                                <input type="file" id="image1" name="image1" accept="image/*" class="form-control-file" style="width: 250px; border-radius: 20px; background-color: #f7f4f4;" onchange="previewImage(this, 'preview1')">
+                                <img id="preview1" src="#" alt="Image Preview" style="display: none; width: 250px; margin-top: 10px; border-radius: 10px; ">
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <label for="image2" class="form-label"><b>Image 2:</b></label>
+                                <input type="file" id="image2" name="image2" accept="image/*" class="form-control-file" style="width: 250px; border-radius: 20px; background-color: #f7f4f4;" onchange="previewImage(this, 'preview2')">
+                                <img id="preview2" src="#" alt="Image Preview" style="display: none; width: 250px; margin-top: 10px; border-radius: 10px; ">
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <label for="image3" class="form-label"><b>Image 3:</b></label>
+                                <input type="file" id="image3" name="image3" accept="image/*" class="form-control-file" style="width: 250px; border-radius: 20px; background-color: #f7f4f4;" onchange="previewImage(this, 'preview3')">
+                                <img id="preview3" src="#" alt="Image Preview" style="display: none; width: 250px; margin-top: 10px; border-radius: 10px;">
+                            </div>
+                        </div>
+                    </div>
     
-                    <div class="d-flex justify-content-between">
 
-                        <div class="form-group ">
-                        <label for="image1" class="form-label"><b>Image 1 :</b></label>
-                        
-                        <input type="file" id="image1" name="image1" accept="image/*" class="form-control-file" style="width: 250px;  border-radius: 20px; background-color: #f7f4f4;  ">
-                        
-                    </div>
-        
-        
-                    <div class="form-group ">
-        
-                        <label for="image2" class="form-label"><b>Image 2</b>:</label>
-                        <input type="file" id="image2" name="image2" accept="image/*" class="form-control-file" style="width: 250px;  border-radius: 20px; background-color: #f7f4f4;  " >
-                        
-                    </div>
-        
-                    <div class="form-group ">
-                        <label for="image3" class="form-label"><b>Image 3</b>:</label>
-                        <input type="file" id="image3" name="image3" accept="image/*" class="form-control-file" style="width: 250px; border-radius: 20px; background-color: #f7f4f4;  " >
-        
-                    </div>
-        
-                    </div>
-        
-                    <div class="image-preview-container d-flex justify-content-between">
-        
-                       <button class="btn btn-success" type="button" onmouseover="preveiw('image1')">
-                        preveiw
-                       </button>
-                       <button class="btn btn-success" type="button" onmouseover="preveiw('image2')">
-                        preveiw
-                       </button>
-                       <button class="btn btn-success" type="button" onmouseover="preveiw('image3')">
-                        preveiw
-                       </button>
-                       
-                    </div>
                     <br>
                     <br>
+
                     <div class="form-group">
 
                         <label for="color" class="form-label"><b>stock for small:</b></label>
@@ -177,7 +160,6 @@
                     <br>
                     <br>
                     <div class="form-group">
-
                         <label for="color" class="form-label"><b>stock for medium:</b></label>
                         <input type="text" id="color" name="smedium" class="form-control" style="width:400px" >
 
@@ -194,6 +176,9 @@
                         <input type="text" id="color" name="sxlarge" class="form-control" style="width:400px" >
 
                     </div>
+                    <br>
+                    <button type="button" id="add-image-btn" class="btn btn-secondary">Add More Images</button>
+
     
                     <button type="submit" class="btn btn-primary">Add Product</button>
                 </form>
@@ -221,31 +206,45 @@
 
 </script>
 <script>
+    function addImageField() {
+        const container = document.getElementById('image-fields-container');
+        const rowDivs = container.getElementsByClassName('row');
+        const totalFields = container.getElementsByClassName('form-group').length;
+        const newImageNumber = totalFields + 1;
 
-        function previewImage(input, previewElementId) {
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
+        const newDiv = document.createElement('div');
+        newDiv.className = 'col-md-4 form-group';
+        newDiv.innerHTML = `
+            <label for="image${newImageNumber}" class="form-label"><b>Image ${newImageNumber}:</b></label>
+            <input type="file" id="image${newImageNumber}" name="additional_images" accept="image/*" class="form-control-file" style="width: 250px; border-radius: 20px; background-color: #f7f4f4;" onchange="previewImage(this, 'preview${newImageNumber}')">
+            <img id="preview${newImageNumber}" src="#" alt="Image Preview" style="display: none; width: 250px; margin-top: 10px;">
+        `;
 
-                reader.onload = function (e) {
-                    // previewElement.src = e.target.result;
-                    console.log('this is working');
-                    Swal.fire({
-                        imageUrl: `${e.target.result}`,
-                        imageWidth: 400,
-                        imageHeight: 400,
-                        imageAlt: "Custom image"
-                    });
-                    
-                };
-
-                reader.readAsDataURL(input.files[0]);
-            }
+        // Append new field to a new row if the last row has 3 fields
+        if (rowDivs.length === 0 || rowDivs[rowDivs.length - 1].children.length >= 3) {
+            const newRow = document.createElement('div');
+            newRow.className = 'row';
+            newRow.appendChild(newDiv);
+            container.appendChild(newRow);
+        } else {
+            rowDivs[rowDivs.length - 1].appendChild(newDiv);
         }
+    }
 
-        function preveiw (name) {
-            let input = document.getElementById(name)
-            previewImage(input,'previewImage1')
+    function previewImage(input, previewElementId) {
+        const previewElement = document.getElementById(previewElementId);
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                previewElement.src = e.target.result;
+                previewElement.style.display = 'block';
+            };
+            reader.readAsDataURL(input.files[0]);
         }
+    }
+
+    document.getElementById('add-image-btn').addEventListener('click', addImageField);
+    
 
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

@@ -3,108 +3,179 @@
 
 {% block body %}
 
-<style>
-
-    body{
-
-        background-color: #f4f7f4;
-    }
-    
-    .container {
-        margin-top: 50px;
-      }
-    
-      .table-responsive {
-        border: 1px solid #dee2e6;
-        border-radius: 8px;
-        overflow-x: auto;
-      }
-    
-      .table {
-        width: 100%;
-        color: #212529;
-        background-color: #fff;
-        border-collapse: collapse;
-        font-size: 20px;
-
-
-      }
-    
-      .table th,
-      .table td {
-        padding: 0.75rem;
-        vertical-align: top;
-        border-top: 1px solid #dee2e6;
-      }
-    
-      .table thead th {
-        vertical-align: bottom;
-        border-bottom: 2px solid #dee2e6;
-      }
-    
-      .table tbody + tbody {
-        border-top: 2px solid #dee2e6;
-      }
-    
-      .table .table {
-        background-color: #fff;
-      }
-    
-      .table-bordered {
-        border: 1px solid #dee2e6;
-      }
-    
-      .table-bordered th,
-      .table-bordered td {
-        border: 1px solid #dee2e6;
-      }
-    
-      .table-bordered thead th,
-      .table-bordered thead td {
-        border-bottom-width: 2px;
-      }
-    
-      .text-center {
-        text-align: center;
-      }
-    
-      .text-dark {
-        color: #4274a6 !important;
-      }
-      
-      
-</style>
-<div class="container">
-    <div class="card mb-3">
-    <div class="card-header">
-        <h2 class="mb-4">Orders List</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders List</title>
+    <style>
+        body {
+            background-color: #f4f7f4;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .table-responsive {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        .table {
+            width: 100%;
+            color: #212529;
+            background-color: #fff;
+            border-collapse: collapse;
+            font-size: 20px;
+        }
+        .table th, .table td {
+            padding: 0.75rem;
+            vertical-align: top;
+            border-top: 1px solid #dee2e6;
+        }
+        .table thead th {
+            vertical-align: bottom;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .table tbody + tbody {
+            border-top: 2px solid #dee2e6;
+        }
+        .table .table {
+            background-color: #fff;
+        }
+        .table-bordered {
+            border: 1px solid #dee2e6;
+        }
+        .table-bordered th, .table-bordered td {
+            border: 1px solid #dee2e6;
+        }
+        .table-bordered thead th, .table-bordered thead td {
+            border-bottom-width: 2px;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .text-dark {
+            color: #4274a6 !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h2 class="mb-4">Orders List</h2>
+            </div>
+            <div class="card-body">
+                <div class="form-outline mb-4" data-mdb-input-init>
+                    <input type="search" class="form-control" id="datatable-search-input">
+                    <label class="form-label" for="datatable-search-input">Search</label>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th class="text-center">Tracking ID</th>
+                                <th class="text-center">Username</th>
+                                <th class="text-center">Total Item Price</th>
+                                <th class="text-center">Payment Method</th>
+                            </tr>
+                        </thead>
+                        <tbody id="datatable-body">
+                            <!-- Orders will be inserted here dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+                <br>
+                <br>
+                <nav>
+                    <ul class="pagination justify-content-center" id="pagination-controls">
+                        <!-- Pagination controls will be inserted here dynamically -->
+                    </ul>
+                </nav>
+            </div>
+        </div>
     </div>
 
 
-     <div class="card-body">
-        <table class="table table-bordered">
-          <tr>
-            <th class="text-center">Tracking ID</th>
-            <th class="text-center">Username</th>
-            <th class="text-center">Total Item Price</th>
-            <th class="text-center">Payment Method</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for order in orders %}
-          <tr>
-            <td class="text-center"><a href="{% url 'ordered_item' order.id %}" class="text-dark">{{ order.tracking_id }}</a></td>
-            <td class="text-center">{{ order.register.user.username }}</td>
-            <td class="text-center">₹{{ order.total }}</td>
-            <td class="text-center">{{ order.payment_method }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      </div>
-    </div>
-  </div>
-</div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            function fetchOrders(searchQuery = '', page = 1) {
+                $.ajax({
+                    url: '/fetch_orders/',
+                    data: {
+                        search: searchQuery,
+                        page: page
+                    },
+                    success: function(response) {
+                        let orders = response.orders;
+                        let numPages = response.num_pages;
+                        let currentPage = response.current_page;
+
+                        // Clear the table body
+                        $('#datatable-body').empty();
+
+                        // Populate the table with fetched orders
+                        orders.forEach(order => {
+                            $('#datatable-body').append(`
+                                <tr>
+                                    <td class="text-center"><a href="${order.detail_url}" class="text-dark">${order.tracking_id}</a></td>
+                                    <td class="text-center">${order.username}</td>
+                                    <td class="text-center">₹${order.total}</td>
+                                    <td class="text-center">${order.payment_method}</td>
+                                </tr>
+                            `);
+                        });
+
+                        // Clear and populate pagination controls
+                        $('#pagination-controls').empty();
+                        for (let i = 1; i <= numPages; i++) {
+                            $('#pagination-controls').append(`
+                                <li class="page-item ${i === currentPage ? 'active' : ''}">
+                                    <a class="page-link" href="#" data-page="${i}">${i}</a>
+                                </li>
+                            `);
+                        }
+                    }
+                });
+            }
+
+            // Fetch orders on initial load
+            fetchOrders();
+
+            // Fetch orders on search input
+            $('#datatable-search-input').on('input', function() {
+                fetchOrders($(this).val());
+            });
+
+            // Handle pagination click
+            $(document).on('click', '.page-link', function(e) {
+                e.preventDefault();
+                let page = $(this).data('page');
+                let searchQuery = $('#datatable-search-input').val();
+                fetchOrders(searchQuery, page);
+            });
+        });
+    </script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+    <script>
+        {% if messages %}
+        {% for message in messages %}
+        {% if message.tags == 'error' %}
+        swal("Error!", "{{ message }}", "error"); // Display error message with a warning icon
+        {% elif message.tags == 'success' %}
+        swal("Success!", "{{ message }}", "success"); // Display success message with a success icon
+        {% else %}
+        swal("Message", "{{ message }}"); // Display general message
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+    </script>
+</body>
+</html>
+
 {% endblock body %}
 
 

@@ -22,11 +22,21 @@ urlpatterns = [
     path("trash_remove/<int:category_id>/", views.trash_remove, name="trash_remove"),
     path("logout/", views.log_out, name="logout"),
     path('order_view/',views.order_view,name='order_view'),
+    path('fetch_orders/', views.fetch_orders, name='fetch_orders'),
+    path('sales_report/',views.sales_report,name='sales_report'),
+    path('download_sales_report/',views.generate_report,name='download_sales_report'),
+
     path('ordered_item/<int:order_id>/',views.ordered_item,name='ordered_item'),
     path('update_order_status/<int:order_id>',views.update_order_status,name='update_order_status'),
     path('confirm_return_order_item/<int:item_id>/',views.confirm_return_order_item,name='confirm_return_order_item'),
+
+    path('return_refund/<int:return_id>/',views.return_refund,name='return_refund'),
+    path('sales_report/', views.sales_report, name='sales_report'),
+    path('generate_report/', views.generate_report, name='generate_report'),
+
     path('view_coupon/',views.view_coupon,name="view_coupon"),
     path('add_coupon/',views.add_coupon,name='add_coupon'),
     path('edit_coupon/<int:coupon_id>/',views.edit_coupon,name='edit_coupon'),
     path('delete_coupon/<int:coupon_id>/',views.del_coupon,name='delete_coupon'),
+
 ]

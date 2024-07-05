@@ -1,0 +1,88 @@
+{% extends 'bases.html' %}
+{% block content %}
+    
+<style>
+    .center-form {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 20vh; /* Adjust as needed */
+    }
+    .btn-custom {
+        background-color: #007bff; /* Customize as needed */
+        border-color: #007bff;
+        color: white;
+    }
+    .btn-custom:hover {
+        background-color: #0056b3; /* Darker shade on hover */
+        border-color: #0056b3;
+    }
+</style>
+<div class="container mt-5">
+<h2 class="text-center mb-4">Enter OTP</h2>
+<p class="text-center mb-4">Please enter the OTP sent to your email address.</p>
+
+<!-- Center the form -->
+<div class="center-form">
+    <form method="post" action="{% url 'reset_password_otp_form' %}" class="mx-auto col-md-6">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="otp" class="form-label">OTP:</label>
+            <input type="text" class="form-control" id="otp" name="otp" maxlength="4" placeholder="Enter OTP" required>
+        </div>
+        <button type="submit" class="btn btn-custom w-100">Verify OTP</button>
+    </form>
+</div>
+<div class="d-flex justify-content-center">
+
+    <span id="countdownTimer" class="text-center mt-3">Time Remaining: 02:00</span>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var countdownElement = document.getElementById('countdownTimer');
+        var timeLeft = 120; // Time left in seconds (2 minutes)
+    
+        function updateCountdown() {
+            var minutes = Math.floor(timeLeft / 60);
+            var seconds = timeLeft % 60;
+            countdownElement.textContent = "Time Remaining: " + String(minutes).padStart(2, '0') + ":" + String(seconds).padStart(2, '0');
+    
+            if (timeLeft <= 0) {
+                clearInterval(countDownTimer);
+                countdownElement.textContent = "Expired";
+            } else {
+                timeLeft--;
+            }
+        }
+    
+        var countDownTimer = setInterval(updateCountdown, 1000);
+    
+        // Reset the timer every 2 minutes
+        setTimeout(function() {
+            clearInterval(countDownTimer);
+            timeLeft = 120; // Reset to 2 minutes
+            countDownTimer = setInterval(updateCountdown, 1000);
+        }, 120000);
+    });
+</script>
+<br>
+<br><br>
+    
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+    <script>
+        {% if messages %}
+        {% for message in messages %}
+        {% if message.tags == 'error' %}
+        swal("Error!", "{{ message }}", "error"); // Display error message with a warning icon
+        {% elif message.tags == 'success' %}
+        swal("Success!", "{{ message }}", "success"); // Display success message with a success icon
+        {% else %}
+        swal("Message", "{{ message }}"); // Display general message
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+    </script>
+</div>
+{% endblock content %}

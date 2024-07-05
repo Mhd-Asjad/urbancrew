@@ -21,41 +21,60 @@
         </div>
     </div>
 </div>
-<br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br>
+
+  <form id="payment-form" action="{% url 'payment_success' %}" method="post" >
+
+    {% csrf_token %}
+    <input type="hidden" name="razorpay_order_id" id="razorpay_order_id">
+    <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+    <input type="hidden" name="razorpay_signature" id="razorpay_signature">
+    <input type="hidden" name="payment_error" id="payment_error">
+
+
+
+  </form>
 
 {% endblock content %}
 
-<form action="{% url 'payment_success' %}"method="post">
-  <input type="hidden" name="order_id" value="{{ order_id }}">
   
   {% block js %}
   {{ block.super }}
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script>
       var options = {
-        "key": "rzp_test_L5qNNRXVbhmnhr",
-        "amount": "{{ amount }}",
+      "key": "rzp_test_L5qNNRXVbhmnhr",
+      "amount": "{{ amount }}",
       "currency": "INR",
-    "name": "Urban Crew",
-    "description": "Test Transaction",
-    "order_id": "{{ order_id }}",
-    "prefill": {
+      "name": "Urban Crew",
+      "description": "Test Transaction",
+      "order_id": "{{ order_id }}",
+      "prefill": {
       "name": "{{request.user.name}}",
-    "email": "{{request.user.email}}",
+      "email": "{{request.user.email}}",
+
     },
     "theme": {
       "color": "#2BA977"
     },
-    "handler": function (response){
-      // Capture the details of the successful payment
-    console.log(response.razorpay_payment_id);
-    console.log(response.razorpay_order_id);
-    console.log(response.razorpay_signature);
-
-    // Redirect to the payment_success view
-    window.location.href = "/payment_success/";
+    "handler": function (response) {
+            document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
+            document.getElementById('razorpay_order_id').value = response.razorpay_order_id;
+            document.getElementById('razorpay_signature').value = response.razorpay_signature;
+            document.getElementById('payment-form').submit();
+    },
+    "modal": {
+      "ondismiss": function() {
+          if (!confirm("Are you sure you want to cancel the payment?")) {
+              // Reopen the payment modal if the user cancels the confirmation
+              rzp1.open();
+          } else {
+              document.getElementById('payment_error').value = "Payment was not completed.";
+              document.getElementById('payment-form').submit();
+          }
+      }
     }
-    };
+  };
 
     var rzp1 = new Razorpay(options);
     document.getElementById('rzp-button1').onclick = function (e) {
@@ -63,7 +82,22 @@
     e.preventDefault();
     }
   </script>
-</form>
+
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+    <script>
+        {% if messages %}
+        {% for message in messages %}
+        {% if message.tags == 'error' %}
+        swal("Error!", "{{ message }}", "error"); // Display error message with a warning icon
+        {% elif message.tags == 'success' %}
+        swal("Success!", "{{ message }}", "success"); // Display success message with a success icon
+        {% else %}
+        swal("Message", "{{ message }}"); // Display general message
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+    </script>
 
     
 {% endblock js %}

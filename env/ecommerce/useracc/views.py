@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect ,get_object_or_404
 from django.urls import reverse
-from django.http import HttpResponse ,JsonResponse
+from django.http import HttpResponse ,JsonResponse, HttpResponseNotFound
 from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 from django.contrib.auth.models import User
 from django.views.decorators.cache import never_cache
 from django.contrib.auth import login, logout, authenticate
@@ -10,7 +11,7 @@ import random
 from django.core.mail import send_mail
 from django.conf import settings
 from datetime import datetime
-from .models import register
+from .models import register 
 from django.utils import timezone
 from datetime import datetime, timedelta
 from django.core.exceptions import ValidationError
@@ -23,7 +24,8 @@ from products.models import *
 from cart.models import *
 from django.db.models import *
 
-def base(req):
+
+def base(req) :
     cat1 = category.objects.all()
     print(cat1)
     context = {"cat1": cat1}
@@ -54,11 +56,7 @@ def home(
 
 
 @never_cache
-@login_required
 def reg(request):
-    if request.user.is_authenticated:
-        return redirect("home")
-
     if request.method == "POST":
         errors = {}
 
@@ -68,45 +66,38 @@ def reg(request):
         password = request.POST.get("password")
         confirmpassword = request.POST.get("confirmpassword")
 
-        # Check for missing fields
         if not all([username, mobile, email, password, confirmpassword]):
-            messages.error(request, "All fields are required.")
-            return redirect("register")
+            errors['general'] = "All fields are required."
 
-        # Validate password length
         if len(password) < 6:
             messages.error(request, "Password must be at least 6 characters long.")
             return redirect("register")
 
-        # Check for empty trimmed values
         if username.strip() == "" or password.strip() == "":
             errors['username'] = 'Username must not be empty.'
             errors['password'] = 'Password must not be empty.'
 
-        # Validate mobile number length
+        if User.objects.filter(username__iexact = username).exists():
+            messages.error(request,'username already existsss')
+            return redirect('register')
+
         if len(mobile) < 10:
             messages.error(request, "Mobile number must be at least 10 digits long.")
             return redirect("register")
 
-        # Validate password and confirmation match
         if password != confirmpassword:
             messages.error(request, "Passwords do not match.")
             return redirect("register")
 
-        # Check if username already exists
-        if User.objects.filter(username=username).exists():
-            messages.error(request, "Username already exists.")
-            return redirect("register")
 
-        # Check if email already exists
+        if User.objects.filter(username=username).exists():
+            errors['username'] = 'username already existss'
         if User.objects.filter(email=email).exists():
             errors['email'] = "Email already exists."
-            return redirect("register")
 
-        # Password strength checks
         if not any(char.isupper() for char in password):
-            print('validd3')
-            messages.error(request, "Password must contain at least one uppercase letter.")
+            print('validd')
+            messages.error(request, "Password must contain at least one uppercase letter")
             return redirect("register")
 
         if not any(char.islower() for char in password):
@@ -121,7 +112,7 @@ def reg(request):
 
         # If any errors found
         if errors:
-            return JsonResponse({'errors': errors})
+            return JsonResponse({'errors': errors} , status=400)
 
         # Send OTP and save user data in session
         otp, otp_generated_at = otp_send_to_email(email=email)
@@ -132,20 +123,19 @@ def reg(request):
 
     return render(request, "register.html")
 
-def checkMail(request):
-    if request.method == 'POST':
-        email = request.POST.get('email')
-        print('evide nd',email)
+# def checkMail(request):
+#     if request.method == 'POST':
+#         email = request.POST.get('email')
+#         print('evide nd',email)
 
-    email_exists = User.objects.filter(email=email).exists()
-    if email_exists :
-        print(email_exists,"igiuyguyfgiyfiyfvihgvfiyfv")
-        return JsonResponse({'exist':True})
-    else:
+#     email_exists = User.objects.filter(email=email).exists()
+#     if email_exists :
+#         print(email_exists,"igiuyguyfgiyfiyfvihgvfiyfv")
+#         return JsonResponse({'exist':True})
+#     else:
 
-        print("nott taked this one before ")
-        return JsonResponse({'exist':False})
-    
+#         print("nott taked this one before ")
+#         return JsonResponse({'exist':False})
 
 def otp_send_to_email(email):
     otp = random.randint(1000, 9999)
@@ -172,55 +162,55 @@ def session_for_userdata(request, username, mobile, email, password, otp, otp_ge
         "otp_generated_at": otp_generated_at,
     }
 
-@never_cache
+
 def otp_form(request):
-    if request.user.is_authenticated:
-        return redirect("home")
-
     if request.method == "POST":
-
         otp1 = request.POST.get("otp1")
         otp2 = request.POST.get("otp2")
         otp3 = request.POST.get("otp3")
         otp4 = request.POST.get("otp4")
 
         full_otp = otp1 + otp2 + otp3 + otp4
-        entered_otp = int("".join(full_otp))
 
-        stored_otp = request.session.get("userlist", {}).get("otp")
-        user_data = request.session.get("userlist", {})
-        otp_generated_at_str = user_data.get("otp_generated_at", "")
+        if full_otp.isdigit():
+            entered_otp = int(full_otp)
 
-        if otp_generated_at_str:
-            last_otp_generated = datetime.fromisoformat(otp_generated_at_str)
-            current_time = datetime.now()
+            user_data = request.session.get("userlist", {})
+            stored_otp = user_data.get("otp")
+            otp_generated_at_str = user_data.get("otp_generated_at")
 
-            if current_time > last_otp_generated + timedelta(minutes=2):
-                messages.error(request, "OTP expired, try again!")
-                return redirect("otpvalidation")
+            if otp_generated_at_str:
+                last_otp_generated = datetime.fromisoformat(otp_generated_at_str)
+                current_time = datetime.now()
 
-            print(f"Stored OTP: {stored_otp} ==== Entered OTP: {entered_otp}")
+                if current_time > last_otp_generated + timedelta(minutes=2):
+                    messages.error(request, "OTP expired, try again!")
+                    return redirect("otpvalidation")
 
-            if str(stored_otp) == str(entered_otp):
-                Userotp = User.objects.create_user(
-                    username=user_data["username"],
-                    email=user_data["email"],
-                    password=user_data["password"],
-                )   
+                if str(stored_otp) == str(entered_otp):
+                    Userotp = User.objects.create_user(
+                        username=user_data["username"],
+                        email=user_data["email"],
+                        password=user_data["password"],
+                    )
+                    Userotp.save()
 
-                Userotp.save()
-                del request.session["userlist"]
-                reg = register.objects.create(user=Userotp, mobile=user_data["mobile"])
-                reg.save()
-                messages.success(request, "User created successfully")
-                return redirect("user_login")
-            
+                    phone = user_data["mobile"]
+                    reg = register(user=Userotp, mobile=str(phone))
+                    reg.save()
+
+                    messages.success(request, "User created successfully")
+                    return redirect("user_login")
+                else:
+                    messages.error(request, "Incorrect OTP")
             else:
-                messages.error(request, "Incorrect OTP")
+                messages.error(request, "OTP data not found. Request a new OTP")
         else:
-            messages.error(request, "OTP data not found. Request a new OTP")
+            messages.error(request, 'Invalid OTP. Please enter a valid 4-digit OTP.')
+            return redirect('otpvalidation')
 
     return render(request, "otpvalidation.html")
+
 
 
 def resend_otp(request):
@@ -255,7 +245,6 @@ def resend_otp(request):
     print(otp_new)
     return redirect(otp_form)
 
-
 @never_cache
 def user_login(request):
 
@@ -271,8 +260,10 @@ def user_login(request):
 
         user = authenticate(request, username=username, password=password)
 
-        if user is not None:
-            auth.login(request, user)
+        if user is not None and not user.is_superuser :
+            if 'is_admin' in request.session:
+                del request.session['is_admin']
+            login(request, user)
             print("passed authentication")
             return redirect("home")
 
@@ -284,74 +275,202 @@ def user_login(request):
         return render(request, "login.html")
 
 
-def reset_pass_email(req):
-    return render(req, "Resetpass/reset_pass_email.html")
+def reset_pass_email(request):
+    if request.method == "POST":
+        email = request.POST.get("email")
+        try:
+            user = User.objects.get(email=email)
+            otp = random.randint(1000, 9999)
+            otp_generated_at = datetime.now().isoformat()
+            print(otp, 'new one')
+            request.session["reset_password_otp"] = {
+                "otp": otp,
+                "otp_generated_at": otp_generated_at,
+                "user_id": user.id ,
+                'email' : email
 
+            }
+            
+            send_mail(
+                subject="Password Reset OTP",
+                message=f"Your OTP for password reset is: {otp}",
+                from_email="urbancrew144@gmail.com",
+                recipient_list=[email],
+                fail_silently=False,
+            )
+            
+            messages.success(request, "OTP sent to your email address.")
+            return redirect('reset_password_otp_form')
+        
+        except User.DoesNotExist:
+            messages.error(request, "Email address not registered.")
+    
+    return render(request,"Resetpass/reset_pass_email.html")
+
+def reset_password(request) :
+    if request.method == "POST":
+        password = request.POST.get("password")
+        password_confirm = request.POST.get("password_confirm")
+        if password and password == password_confirm:
+            user_id = request.session.get("user_id_for_reset")
+            if user_id :
+                user = get_object_or_404(User, id=user_id)
+                user.set_password(password)
+                user.save()
+                update_session_auth_hash(request, user)
+                messages.success(request, "Password reset successful. Please log in with your new password.")
+                return redirect("user_login")
+            else:
+                messages.error(request, "Password reset failed. Please try again.")
+                return redirect("password")
+        else:
+            messages.error(request, "Passwords do not match.")
+    
+    return render(request, "Resetpass/reset_password.html")
+
+from django.utils.timezone import make_aware
+
+@never_cache
+def reset_password_otp_form(request):
+    if request.method == "POST":
+        otp = request.POST.get("otp")
+        if otp.isdigit():
+            user_data = request.session.get("reset_password_otp", {})
+            stored_otp = user_data.get("otp")
+            otp_generated_at_str = user_data.get("otp_generated_at")
+
+            if otp_generated_at_str:
+                last_otp_generated = datetime.fromisoformat(otp_generated_at_str)
+                last_otp_generated = make_aware(last_otp_generated)
+                current_time = timezone.now()
+
+                if current_time > last_otp_generated + timedelta(minutes=2):
+                    messages.error(request, "OTP expired, try again!")
+                    return redirect("reset_pass_email")
+
+                if str(stored_otp) == str(otp):
+                    request.session["user_id_for_reset"] = user_data.get("user_id")
+                    return redirect("password")
+                else:
+                    messages.error(request, "Incorrect OTP")
+            else:
+                messages.error(request, "OTP data not found. Request a new OTP")
+        else:
+            messages.error(request, 'Invalid OTP. Please enter a valid 4-digit OTP.')
+    
+    return render(request, "Resetpass/otpform.html")
 
 def log_out(request):
     logout(request)
     return redirect("home")
 
-
-# def shop(request):
-
-#     is_authenticated = request.user.is_authenticated
-#     # categorys = Product.objects.select_related('categorys').values_list('categorys__name',flat=True).distinct()
-#     # print(categorys)
-
-#     return render(request,"shop.html",{"is_authenticated": is_authenticated, "products": products})
-
+from django.core.paginator import Paginator
 
 def product_list(request):
-    categorys = category.objects.filter(is_listed = True )
+    categorys = category.objects.filter(is_listed=True)
     is_authenticated = request.user.is_authenticated
+
+    search_query = request.GET.get('query')
     sort_option = request.GET.get('sort')
     category_id = request.GET.get('category')
-    min_price = request.GET.get('min', 500)
+    color = request.GET.get('color')
+    min_price = request.GET.get('min', 0)
     max_price = request.GET.get('max', 50000)
 
-    products_query = AddImages.objects.all().order_by('id')
+    products_query = AddImages.objects.filter(is_active=True).order_by('id')
+    colors = AddImages.objects.values_list('color', flat=True).distinct()
+    print(colors)
 
-    if category_id :
-        products_query = products_query.filter(product__categorys_id=category_id)
 
-    products_query = products_query.filter(product__price__gte = min_price , product__price__lte = max_price)
+    if search_query :
+        products_query = products_query.filter(product__product_name__icontains = search_query)
 
+    if category_id:
+        products_query = products_query.filter(product__categorys__id=category_id)
+
+    if color :
+        products_query = products_query.filter(color = color)
+    if min_price and max_price :
+        products_query = products_query.filter(
+            Q(product__offer_price__gte=min_price, product__offer_price__lte=max_price) | Q(product__price__gte=min_price, product__price__lte=max_price))
+        
     if sort_option == 'low_to_high':
-        products_query = products_query.order_by('product__price','product_id')
+        products_query = products_query.order_by('product__offer_price')
     elif sort_option == 'high_to_low':
-        products_query = products_query.order_by('-product__price','product_id')
+        products_query = products_query.order_by('-product__offer_price')
     elif sort_option == 'A-Z':
-        products_query = products_query.order_by('product__product_name','product_id')
-    elif sort_option == 'z-a':
-        products_query = products_query.order_by('-product__product_name','product_id')
+        products_query = products_query.order_by('product__product_name')
+    elif sort_option == 'Z-A':
+        products_query = products_query.order_by('-product__product_name')
+
+    paginator = Paginator(products_query, 9)
+    page_number = request.GET.get('page')
+    products_page = paginator.get_page(page_number)
+
+    now = timezone.now()
+    category_offers = Offer.objects.filter(offer_type = Offer.CATEGORY,categorys__in = categorys , is_active = True , end_date__gt = now)
+    product_offers = Offer.objects.filter(
+        offer_type=Offer.PRODUCT,
+        product__in=[p.product for p in products_query],
+        is_active=True,
+        end_date__gt=now
+    )
+    
+    offers = {}
+    for offer in category_offers :
+        offers[f"category_{offer.categorys.id}"] = offer
+    for offer in product_offers :
+        offers[f"product_{offer.product.id}"] = offer
+
+    print(offers,'sdjfdiosaufoisdfjosj')
 
 
-    prod_sum = products_query.aggregate( count = Count('product'))
-    tot_count = prod_sum['count']
+    print(f"Current page: {products_page.number}")
+    print(f"Page range: {list(products_page.paginator.page_range)}")  
 
-    return render(request, "shop.html", {"is_authenticated" : is_authenticated, "products": products_query , 'categorys':categorys , 'tot_count' : tot_count})
+    return render(request, "shop.html", {
+        "is_authenticated": is_authenticated,
+        "products": products_page,
+        "categorys": categorys,
+        "tot_count": paginator.count,
+        "prods" : products_query , 
+        'colors' : colors,
+        'offers' : offers
+    })
 
 def shop_details(req, prod_id):
-    print('this is ID',prod_id)
-    product = AddImages.objects.get(id = prod_id )
+    today = timezone.now()
+    
+    try :
+        product = get_object_or_404(AddImages,id = prod_id )
+
+    except AddImages.DoesNotExist : 
+
+        return HttpResponseNotFound("Product not found")
+    images = product.image1 ,product.image1 , product.image3
+    print(images,'required imagessssssssssssss')
+    additional_images = product.additional_images if product.additional_images else []
+    print(additional_images , 'new images')
+    print(additional_images , 'hfedfkjasdhfh')
     product_offers = Offer.objects.filter(product = product.product,is_active = True)
     variants = AddImages.objects.filter(product__id = product.product.id)
     out_of_stock = [ variant for variant in variants if variant.product.is_available == False]
     sizes = ProductSize.objects.filter(image = product)
     total_stock = sizes.aggregate(total_stock=Sum('stock'))['total_stock'] or 0
     related_products = AddImages.objects.filter(product__categorys = product.product.categorys).exclude(id=prod_id)[:4]
-    print(related_products)
+    valid_offers = Offer.objects.filter(product = product.product , end_date__lte = today , is_active = True)
 
     context = {
-        
+
         "product": product ,
         'sizes' : sizes ,
         'variants' : variants,
         'total_stock' : total_stock ,
         'product_offers' : product_offers,
         'related_prods' : related_products,
-        'out_of_stock' : out_of_stock
+        'out_of_stock' : out_of_stock ,
+        'valid_offers' : valid_offers,
+        'additional_images' : additional_images
 
     }
 
@@ -379,15 +498,14 @@ def user_profile (request , tab = None) :
             about = None
 
     addresses = Address.objects.filter(user=about.user) if about else []
-    orders = Order.objects.filter(register__user = user).prefetch_related('order').order_by('-id')
-
-    print(' ordered itemmsss',orders)
+    orders = Order.objects.filter(register__user = user).prefetch_related('order_items').order_by('-id')
+    orders = [order for order in orders if order.status != 'Pending' or order.order_items.exists()]
 
     context = {
         'about' : about ,
         'addresses' : addresses,
         'orders' : orders ,
-        'tab' : tab or 'v-pills-message' or 'v-pills-profile' ,
+        'tab' : tab or 'v-pills-home',
     }
     return render(request,'profile.html' , context)
 
@@ -457,7 +575,6 @@ def update_profile(request):
         return redirect('user_profile')
     return render(request,'profile.html', {'about': about})
 
-
 @login_required
 def change_pass(req, pass_id):
     if req.user.is_authenticated:
@@ -493,10 +610,6 @@ def change_pass(req, pass_id):
             update_session_auth_hash(req, user)
             messages.success(req, "Your password was successfully updated!")
             return redirect("user_profile")
-
-        # customer = register.objects.get(user=user)
-        # context = {'user': user, 'customer': customer}
-        # return render(req, 'change_password.html', context)
     return redirect('user_login')
 
 def add_address(req) :
@@ -608,17 +721,19 @@ def delete_address(request, address_id):
         address = Address.objects.get(id=address_id)
         address.is_deleted = True
         address.save()
-        return JsonResponse({'status': 'success'}, status=200)
+        return redirect('user_profile_with_tab' , tab = 'v-pills-message')
     return JsonResponse({'status': 'error'}, status=400)
-
 #--------------------------------------------------- profile section ends ------------------------------------------------------------
-def order_success(request):
+
+@never_cache
+def order_success(request,tab=None):
     if request.user.is_authenticated :
 
-        context = {}
+        context = {
+
+            'tab' : tab or 'v-pills-profile'
+        }
         return render(request,'order_success.html' , context)
         # return redirect(reverse('user_profile_with_tab', kwargs={'tab': 'v-pills-profile'}))
     else:
         return redirect('login')
-    
-    

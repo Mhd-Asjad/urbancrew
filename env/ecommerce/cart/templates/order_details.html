@@ -13,42 +13,125 @@
     .active .step.active {
         color: green;
     }
-
+    .modal-dialog-centered {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }     
+    
 </style>
 <div class="container py-2 ">
     <div class="card">
         <header class="card-header"> My Orders / Tracking </header>
             <h6><strong>Tracking ID :</strong> {{ order.tracking_id }}  </h6>
             <br>
+            
+            
             <article class="card">
                 <div class="card-body row">
-                    <div class="col"> <strong>Shipping address :</strong> <br> {{ order.address.first_name }} {{ order.address.last_name }}<br>  <i class="fa fa-phone"></i> {{ order.address.mobile_number }}
-                    <br>{{ order.address.email }} <br> {{ order.address.house }} , {{ order.address.city }} , {{ order.address.state }} - {{ order.address.pin_code }}</div>
-                    <div class="col"> <strong>offer appled :</strong> <br>{{ order.status }}
-                    <br><p>Paid: {% if order.paid %}Yes{% else %}No{% endif %}</p>
+                    <div class="col"> <strong>Shipping address :</strong> <br> {{ shipping.first_name }} {{ shipping.last_name }}<br>  <i class="fa fa-phone"></i> {{ shipping.mobile_number }}
+                    <br>{{ shipping.email }} <br> {{ shipping.house }} , {{ shipping.city }} , {{ shipping.state }} - {{ shipping.pin_code }}
+                    <br>
+                    <br>
+                    
+                    <button type="button" data-toggle="modal" data-target="#addressModal">
+                        Change Address
+                    </button>
+
+                      
+                </div> 
+                    
+                    
+                    <div class="col"> <strong>offer applied :</strong> <br>{% if order.coupon_appliyed %}
+                      coupon name : <b style="color:green;"> {{ order.applied_coupen.coupon_name }} {{ order.applied_coupen.discount_percentage }}%</b>
+                      you saved <b>₹{{ order.discount_amount }}</b> from this order !!
+                        
+                        
+                        
+                    {% else %}
+                    <strong style="color:red;">
+                        No coupon applied</strong>
+                    {% endif %}
+    
+                    <br>
                     </div>
                     <div class="col" ><strong> order summary </strong>
                         <div class="card" style="width:300px;" >
 
                             <div class="card-body">
-                                <h5 class="card-title">Order Date: {{ order.created_at|date:"Y-m-d" }}</h5>
-                                <p class="card-text">Payment Method: {{ order.payment_method }}</p>
-                                <p class="card-text">Order Status: {{ order.status }}</p>
-                                <p class="card-text">Total Amount:  {{ order.total }}</p>
+
+                                <h5 class="card-title">Order Date : {{ order.created_at|date:"Y-m-d" }}</h5>
+                                <p class="card-text">Payment Method : {{ order.payment_method }} </p>
+                                <p class="card-text">Order Status : {{ order.status }}</p>
+                                <p class="card-text">Shipping Charge: {% if order.shipping_charge > 0 %}₹{{ order.shipping_charge }}{% else %}free{% endif %}</p>
+                                <p>Paid: {% if order.paid %}yes{% else %}No{% endif %}</p>
+                                <p class="card-text">Total Amount : ₹ {{ order.total }}</p>
+
                             </div>
                         </div>
                     </div>
 
-                    <div class="col"> <strong>#more action :</strong> <br><br><br> <a href="{% url 'invoice' order.id %}" class="btn btn-outline-primary">download invoice</a> </div>
-                </div> 
+                {% if status == 'Pending' %}
+                    <div class="col"> 
+                        <br>
+                        <strong>More action :</strong> <br><br><a class="btn btn-warning" id="payNowBtn" style="color:#fff;">Pay Now</a>
+                    </div>
+                    {% else %}
+                    <div class="col"> 
+
+                        <strong>#more action :</strong> <br><br><br> <a href="{% url 'invoice' order.id %}" class="btn btn-outline-primary">download invoice</a> 
+                        
+                    </div>
+                <div>
+
+                </div>
+                {% endif %}
+                </div>
+
             </div>
-    <br>    
+    <br>
+
+    <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form id="addressForm" method="POST" action="{% url 'change_shipping_address' order.id %}">
+                {% csrf_token %}
+                {% for address in user_addresses %}
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="address_id" id="address{{ address.id }}" value="{{ address.id }}">
+                    <label class="form-check-label" style="color:black;" for="address{{ address.id }}">
+                      {{ address.first_name }} {{ address.last_name }}<br>
+                      {{ address.house }}, {{ address.city }}, {{ address.state }}<br>
+                      {{ address.pin_code }}, {{ address.country }}<br>
+                      <i class="fa fa-phone"></i> {{ address.mobile_number }}
+                    </label>
+                  </div>
+                  <br>
+                  <br>  
+                {% endfor %}
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+              </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% if order_items %}
-            
 <div class="card mb-5 bg-gradient" style="border-radius:25px;" >
         {% for item in order_items %}
-        <div class="card-body">
-            <table class="table text-dark">
+            <div class="card-body">
+                
+                <table class="table text-dark">
+
+
                 <h5 style="color:brown;" >{{ forloop.counter }} - {{ item.product.product.product_name }} - {{ item.product.color }}</h5>
                     
                 <thead>
@@ -58,7 +141,6 @@
                         <th>Quantity</th>
                         <th>Status</th>
                         <th>Action</th>
-
                     </tr>
                 </thead>
                 <tbody>
@@ -68,33 +150,43 @@
                         
                             <td class="d-flex justify-content-center">
                                 <img src="{{ item.product.image1.url }}" alt="img" style="width: 100px; height: 100px; border-radius:1px; margin: 20px;" >
-                                {% comment %} {{ item.product.product.product_name }} {% endcomment %}
                                 <br>
                                  size : {{ item.size }}
                             </td>
-
-                            <td>$ {{ item.price }}</td>
-
+                        {% if item.product.product.offer_price %}
+                            
+                            <td>₹ {{ item.product.product.offer_price }}</td>
+                        {% else %}
+                            <td>
+                                ₹{{ item.product.product.price}}
+                            </td>
+                        {% endif %}
                             <td>{{ item.qnty }}</td>
 
                             <td>{{ item.status }}</td>
+
                         <td>
+
+                {% if item.status != 'Payment Failed' %}
+                    
                     {% if not item.request_return %}
                             
-                        {% if item.cancel == False and item.status != 'Delivered' %}
+                        {% if item.cancel == False and item.status != 'Delivered' and item.status != 'Out for Delivery' %}
 
-                        <a class="btn btn-danger" id="cancelOrderBtn{{ item.id }}" href="" >
+                        <a class="btn btn-danger" id="cancelOrderBtn{{ item.id }}" hrer="#">
                             CANCEL
                             
                             </a>
                         {% elif item.status == 'Delivered' %}
 
+                        {% elif item.status == 'Out for Delivery' %}
+                    <br>
+                        <h6 class="text-warning">it reached nearby your place</h6>
+
                         {% else %}
-                            <a class="btn btn-danger" disabled>
                                 
-                                CANCELLED
+                               <h6 style="color:red;">Cancelled Successfully</h6>
                                 
-                                </a>
                         {% endif %}
 
                     {% elif item.status == 'Returned' %}
@@ -102,8 +194,23 @@
                         <div class="d-flex justify-content-center" >
                             <p class="text-success" >item will return after 5 days </p>
                         </div>
+                    {% elif item.status == 'Refunded' %}
+                    <div class="d-flex justify-content-between">
+                        <p class="text-success" >item refunded <br> updated on you wallet transactions!! </p>
+                    </div>
 
+                    {% elif item.order.payment.Failed %}
+                    <div class="d-flex justify-content-between">
+                        <p style="font-family: Georgia, 'Times New Roman', Times, serif;" class="text-danger" >Transaction is not proccesed! </p>
+                    </div>
                     {% endif %}
+
+                    {% comment %} {% if item.status == 'Cancelled' and not item.refund_processed  %}
+                        {% if item.order.payment_method == 'razorpay' or item.order.payment_method == 'Wallet' %}
+                            
+                        <a href="{% url 'cancel_refund' item.id %}" class="btn btn-success" >Refund</a>
+                        {% endif %}
+                    {% endif %} {% endcomment %}
 
                             {% if item.status == "Delivered" %}
                             {% if item.request_return and item.status == 'Delivered' %}
@@ -127,111 +234,74 @@
                             
                             {% endif %}
 
+                        {% endif %}
                         </td>
                         
                         </tr>
-                {% endfor %}
+            {% endfor %}
+
+        {% else %}
+
+                <div class="d-flex justify-content-center" >
+                    this order items not found some problem happened
+                </div>
 
             {% endif %}
 
                 </tbody>
             </table>
+
         </div>
     </div>
 
-    <div class="progress">
-
-        <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-      </div>
-<!-- <div class="container">
-        <article class="card">
-            <header class="card-header"> My Orders / Tracking </header>
-            <div class="card-body">
-                <h6><strong>Tracking ID :</strong> {{ order.tracking_id }}</h6>
-                <br>
-                <article class="card">
-                    <div class="card-body row">
-                        <div class="col"> <strong>Shipping address :</strong> <br> {{ order.address.first_name }} {{ order.address.last_name }}<br>  <i class="fa fa-phone"></i> {{ order.address.mobile_number }}
-                        <br>{{ order.address.email }} <br> {{ order.address.house }} , {{ order.address.city }} , {{ order.address.state }} - {{ order.address.pin_code }}</div>
-                        <div class="col"> <strong>offer appled :</strong> <br>{{ order.status }}
-                        <br><p>Paid: {% if order.paid %}Yes{% else %}No{% endif %}</p>
-                        </div>
-                        <div class="col" ><strong> order summary </strong>
-                            <div class="card" style="width:300px;" >
- 
-                                <div class="card-body">
-                                    <h5 class="card-title">Order Date: {{ order.created_at|date:"Y-m-d" }}</h5>
-                                    <p class="card-text">Payment Method: {{ order.payment_method }}</p>
-                                    <p class="card-text">Order Status: {{ order.status }}</p>
-                                    <p class="card-text">Total Amount: $ {{ order.total }}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col"> <strong>Tracking #:</strong> <br> BD045903594059 </div>
-                    </div>
-                </article>
-                
-                <hr>
-                <ul class="row">
-                    {% for item in order_items %}
-                        
-                    <li class="col-md-4">
-                        <figure class="itemside mb-3">
-                            <div class="aside"><img src="{{ item.product.image1.url }}" style="width: 100px; height: 100px; border-radius:1px; margin: 20px;" class="img-sm border">
-                            </div>
-                            <figcaption class="info align-self-center">
-                                <p class="title">{{ item.product.product.product_name }}<br>color : {{ item.product.color }}<br> size : {{ item.size }} </p> <span class="text-muted">₹ {{ item.product.product.price }}</span>
-                            </figcaption>
-                        </figure>
-                    </li>
-
-                    <div class="track">
-                        <div class="step active"> <span class="icon"> <i class="fa fa-check"></i> </span> <span class="text">Order confirmed</span> </div>
-                        <div class="step active"> <span class="icon"> <i class="fa fa-user"></i> </span> <span class="text"> Picked by courier</span> </div>
-                        <div class="step"> <span class="icon"> <i class="fa fa-truck"></i> </span> <span class="text"> On the way </span> </div>
-                        <div class="step"> <span class="icon"> <i class="fa fa-box"></i> </span> <span class="text">Ready for pickup</span> </div>
-                    </div>
-
-                    <li>
-
-
-                        <div class="container" >
-                            {% if  item.cancel == False %}
-                            <a class="btn btn-danger" style="margin-left: 72px;" href="{% url 'request_cancel_order_item' item.id %}">
-                                CANCEL
-                            </a>
-                            {% else %}
-
-                            <a class="btn btn-danger" disabled>
-                                
-                                CANCELLED
-
-                            </a>
-                            {% endif %}
-                        </div>
-
-
-
-                    </li>
-
-                    {% endfor %}
-
-
-                </ul>
-                <hr>
-                <a href="#" class="btn btn-warning" data-abc="true"> <i class="fa fa-chevron-left"></i> Back to orders</a>
-            </div>
-        </article>
-    </div> -->
-
-    <!-- Payment Status -->
-
-    
-    <!-- Products in the Order -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        document.getElementById('payNowBtn').onclick = function(e){
+            e.preventDefault();
+            var options = {
+                "key": "rzp_test_L5qNNRXVbhmnhr",
+                "amount": "{{ amount_in_paisa }}",
+                "currency": "INR",
+                "name": "{{ order.register.user.username }}",
+                "description": "Retry Payment",
+                "order_id": "{{ order.razorpay_order_id }}", // This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+                "handler": function (response){
+                    // AJAX call to confirm payment
+                    $.ajax({
+                        type: "POST",
+                        url: "{% url 'payment_confirmation' %}",
+                        data: {
+                            'payment_id': response.razorpay_payment_id,
+                            'order_id': response.razorpay_order_id,
+                            'csrfmiddlewaretoken': '{{ csrf_token }}'
+                        },
+                        success: function(data) {
+                            if(data.status == 'success') {
+                                alert('Payment Successful!');
+                                location.reload(); 
+                            } else {
+                                alert('Payment Failed. Please try again.');
+                            }
+                        },
+                        error: function(error) {
+                            alert('Something went wrong. Please try again.');
+                        }
+                    });
+                },
+                "prefill": {
+                    "name": "{{ order.register.user.username }}",
+                    "email": "{{ order.register.user.email }}",
+                },
+                "theme": {
+                    "color": "#3399cc"
+                }
+            };
+            var rzp1 = new Razorpay(options);
+            rzp1.open();
+        }
+    </script>
 
 </div>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 {% for item in order_items %}
 <script>
     $(document).ready(function() {
@@ -247,13 +317,15 @@
                 confirmButtonText: 'Yes, cancel it!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = "{% url 'request_cancel_order_item' item.id %}"; // Redirect to the cancel order URL
+                    window.location.href = "{% url 'cancel_order_item' item.id %}"; 
                 }
             });
         });
     });
 </script>
 {% endfor %}
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     {% if messages %}
     {% for message in messages %}
@@ -262,11 +334,10 @@
     {% elif message.tags == 'success' %}
     swal("Success!", "{{ message }}", "success"); // Display success message with a success icon
     {% else %}
-    swal("Message", "{{ message }}"); // Display general message
+    swal("Message", "{{ message }}"); 
     {% endif %}
     {% endfor %}
     {% endif %}
 </script>
-    <br />
 
 {% endblock %}

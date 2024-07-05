@@ -116,7 +116,7 @@
               </td>
               <td>
                   
-                  <a href="" class="btn btn-outline-primary" style="color: black !important;" type="button" data-toggle="modal" data-target="#editSizeModal{{item.id}}">
+                  <a href="" class="btn btn-outline-primary" style="color: black !important; display: inline;" type="button" data-toggle="modal" data-target="#editSizeModal{{item.id}}">
                       Variant stocks
                   </a>
                   <div class="modal fade" id="editSizeModal{{ item.id }}" tabindex="-1" role="dialog" aria-labelledby="editSizeModal{{item.id}}" aria-hidden="true">
@@ -138,7 +138,7 @@
                                                 <input type="hidden" value="{{ size.id }}" name="size_{{ size.id }}">
                                                 <label>Stock</label>
                                                 <input type="text" class="form-control stock-input" value="{{ size.stock }}" name="size_{{ size.id }}" required min="0">
-                                                <div class="invalid-feedback text-danger" style="display:none; font-size:15px;">Please enter a valid non-negative number.</div>
+                                                <div class="invalid-feedback text-danger" style="display:none; font-size:15px;">Please enter a valid non-negative number</div>
 
                                             </div>
                                         {% endif %}
@@ -151,7 +151,7 @@
                 </div>
                 
                   <div >
-                    <br >
+                    <br class="btn-group" role="group" aria-label="Basic example">
                     <a href="{% url 'editvariant' item.id %}" class="btn btn-secondary btn-sm">
 
                       <i class="fas fa-edit" style="font-size: 16px;"></i>
@@ -163,15 +163,14 @@
 
                     </a>
                     {% if item.is_active %}
-                <a href="{% url 'deactivate' item.id %}" class="btn" style="color:red; font-size:18px;" >deactive</a>
+                <a href="{% url 'deactivate' item.id %}" class="btn" style="color:red; font-size:18px; margin-left: 15px; " >deactive</a>
 
                 {% else %}
 
-                <a href="{% url 'active' item.id %}" class="btn-outline" style="color:green; font-size:18px;" >active</a>
+                <a href="{% url 'active' item.id %}" class="btn-outline" style="color:green; font-size:18px; margin-left: 15px;" >active</a>
 
-              {% endif %}
-                    {% comment %} <input id="checkboxInput" type="checkbox">
-                    <label class="toggleSwitch" for="checkboxInput"></label> {% endcomment %}
+                {% endif %}
+
                   </div>
               </td>
 

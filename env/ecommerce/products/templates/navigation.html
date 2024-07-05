@@ -22,6 +22,7 @@
   <link rel="stylesheet" href="{% static 'js/select.dataTables.min.css' %}">
   <!-- End plugin css for this page -->
   <!-- inject:css -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.3.0/dist/chart.min.js"></script>
   <link rel="stylesheet" href="{% static 'css/vertical-layout-light/style.css' %}">
   <!-- endinject -->
   <link rel="shortcut icon" href="{% static 'images/favicon.png' %}" />
@@ -51,6 +52,7 @@
         text-align: left;
       }
     }
+
   </style>
 </head>
 
@@ -208,11 +210,10 @@
               </ul>
             </div>
           </li>
-          <li class="nav-item nav-category">Help</li>
+          <li class="nav-item nav-category">sales report</li>
           <li class="nav-item">
-            <a class="nav-link" href="http://bootstrapdash.com/demo/star-admin2-free/docs/documentation.html">
-              <i class="menu-icon mdi mdi-file-document"></i>
-              <span class="menu-title">Documentation</span>
+            <a class="nav-link" href="{% url 'sales_report' %}" style="color:black;" >
+              <i class="menu-icon mdi mdi-file-document"></i>documentation
             </a>
           </li>
         </ul>

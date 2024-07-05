@@ -2369,13 +2369,6 @@ ol {
 	font-size: 16px;
 }
 
-.shopping__cart__table table tbody tr td.quantity__item .quantity .pro-qty-2 .qtybtn {
-	font-size: 16px;
-	color: #888888;
-	width: 10px;
-	cursor: pointer;
-}
-
 .shopping__cart__table table tbody tr td.cart__price {
 	color: #111111;
 	font-size: 18px;
@@ -2392,16 +2385,6 @@ ol {
 	border-radius: 50%;
 	line-height: 40px;
 	text-align: center;
-}
-
-.continue__btn.update__btn {
-	text-align: right;
-}
-
-.continue__btn.update__btn a {
-	color: #ffffff;
-	background: #111111;
-	border-color: #111111;
 }
 
 .continue__btn.update__btn a i {

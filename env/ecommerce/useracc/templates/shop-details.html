@@ -10,6 +10,7 @@
     .h4{
             color: red;
     }
+
     </style>
 </head>
 
@@ -60,6 +61,18 @@
                                         </div>
                                     </a>
                                 </li>
+                            {% if additional_images %}
+                                
+                            {% for i in product.additional_images %}
+                                <li class="nav-item">
+                                    <p>{{ i.url }}</p>
+                                    <a class="nav-link" data-toggle="tab" href="#tabs-add-{{ forloop.counter }}" role="tab">
+                                        <div class="product__thumb__pic set-bg" data-setbg="{{ i.url }}">
+                                        </div>
+                                    </a>
+                                </li>
+                            {% endfor %}
+                            {% endif %}
                             </ul>
                         </div>
                         
@@ -100,27 +113,34 @@
                     <i class="fa fa-star-o"></i>
                     <span> - 5 Reviews</span>
                 </div>
-                {% if product.product.price > product.product.offer_price %}
+            {% if product.product.price > product.product.offer_price %}
 
                     
                 <h3>₹ {{product.product.offer_price|floatformat:0 }} <span>{{ product.product.price }}</span></h3>
+
                 {% if product_offers %}
                     
-                {% for offer in product_offers %}
-                <ul >
+                    {% for offer in product_offers %}
+                        
+                    <ul >
 
                         <li class="text-success" style="list-style-type: none;" >{{ offer.percentage }}% Discount Until {{ offer.end_date }}</li>
-                    {% endfor %}
+                        
+                    </ul>
+                    
 
-                </ul>
+
+                    {% endfor %}                
+
+
                 {% endif %}
-                {% else %}
+                
+            {% else %}
                     
                 <h3>₹{{ product.product.price }}</h3>
 
-                    {% endif %}
+            {% endif %}
 
-                <br>
                 <form id="add-cart-form" action="{% url 'add_cart' %}" method="post">
                     {% csrf_token %}
 
@@ -128,30 +148,37 @@
                     <div class="product__details__option">
 
                         <div class="product__details__option__size mb-3">
+                        {% if product.product.is_available and product.is_active %}
                             
                             {% for size in sizes %}
                             <label class="size-option" style="border-radius: 30px; margin-bottom:3px;">
-                                    
-                                {{ size.size }} 
+                            {% if size.stock %}
+                                <div class="size-box" style="display: inline-block;" >{{ size.size }}</div>
+                            {% else %}
+                                <div class="size-box disabled" style="color: #e60000; cursor: not-allowed; text-decoration: line-through; " disabled >{{ size.size }}</div>
+                            {% endif %}
                                 {% if size.stock <= 0 %}
                                 <input class="text-danger" type="radio" name="size" value="{{ size.id }}" data-stock="no stock is left">
                                 {% endif %}
                                 <input type="radio" name="size" value="{{ size.id }}" data-stock="{{ size.stock }}"  >
                             </label>
                             
-                            {% empty %}
-                            <ul>
-                                <li class="text-danger" >sold out</li>
-                            </ul>
-                                <p><p>
+    
                             {% endfor %}
-                            
+                        {% else %}
+
+                            <h5>Sold out !</h5>
+                        {% endif %}
+
                         </div>
-                            
+                        {% if product.product.is_available and product.is_active  %}
+                        
                         <div class='stock mb-3'>
-                            <p style="font-size: 17px;">stock left : <span id="stock"></span>
+                            <p style="font-size: 17px;">{% if sizes %}stock left : <span id="stock"></span>{% else %}
+                                select a size : {% endif %}
                             </p>
                         </div>
+                        {% endif %}
                     </div>
 
                     <div class="product__details__option__color">
@@ -170,7 +197,7 @@
                     <div class="product__details__cart__option">
                         <div class="quantity">
                     </div>
-                    {% if total_stock > 0 and product.product.is_available == True %}
+                    {% if total_stock > 0 and product.product.is_available == True and product.is_active %}
                     
                     <input type="text" hidden value="{{product.id}}" name="product_id" >
                     <button type="submit" class="primary-btn">
@@ -178,7 +205,7 @@
                         ADD TO CART
                     </button>
 
-                    {% elif out_of_stock %}
+                    {% else %}
 
                     <a href="#" type="submit" disabled class="primary-btn btn-danger">Out of Stock</a>
 
@@ -349,11 +376,19 @@
             {% for prod in related_prods %}
             <div class="col-lg-3 col-md-6 col-sm-6 col-sm-6">
                 <div class="product__item">
+                {% if prod.is_active or product.product.is_available %}
+                    
                     <div class="product__item__pic set-bg" data-setbg="">
                             
                         <a href="{% url 'shop_details' prod.id %}"><img style='width: 300px; height:270px;' src="{{ prod.image1.url }}" alt=""></a>
-
+                        {% if prod.is_active == True %}
                         <span class="label">New</span>
+                        {% else %}
+                        <span class="label bg-warning" style="border-radius:5px;" >sold out</span>
+                            
+                        {% endif %}
+
+
                         <ul class="product__hover">
 
                             <li><a href="{% url 'add_to_wishlist' prod.id %}"><img src="{% static 'img/icon/heart.png' %}" alt=""></a></li>
@@ -361,10 +396,20 @@
                         </ul>
                     </div>
                     <div class="product__item__text">
-                        <h6>{{ prod.product.product_name }}</h6>                      
+                        <h6>{{ prod.product.product_name }}</h6> 
+                        {% if prod.product.offer_price %}
+                            
                         <h5>₹ {{ prod.product.offer_price|floatformat:0 }}</h5>
+
+                        {% else %}
+                        <h6>₹{{ prod.product.price }}</h6>
+                        {% endif %}                     
                         
                     </div>
+
+                    
+                    {% endif %}
+
                 </div>
             </div>
             {% endfor %}

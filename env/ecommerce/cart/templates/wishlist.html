@@ -58,11 +58,11 @@
         <div class="row">
             <div class="col-lg-12">
 
-                {% if wishlist %}
-            <h5>My wishlist ({{ wishlist.count}})</h5>
+            {% if wishlist_items %}
+                <h5>My wishlist ({{ wishlist_items.count}})</h5>
                 <br>
                 <div class="wishlist-table">
-                    {% for item in wishlist %}
+                    {% for item in wishlist_items %}
                     <div class="wishlist-item col-sm-10">
                         <img src="{{ item.product.image1.url }}" alt="{{ item.product.product.product_name }}">
                         <div class="wishlist-item-details">
@@ -74,6 +74,12 @@
                                 <i class="fa fa-star-o"></i>
                                 <i class="fa fa-star-o"></i>
                             </div>
+                            {% if item.product.product.offer_price %}
+                                <h4> ₹{{ item.product.product.offer_price|floatformat:1 }}</h4>
+                            {% else %}
+                                <h3>₹{{ item.product.product.price }}</h3>
+                            {% endif %}
+
                             <h5>₹{{ item.product.product.price }}</h5>
                             {% if item.size %}
                             <h6>Size: {{ item.size.size }}</h6>

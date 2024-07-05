@@ -84,24 +84,62 @@
                                 size: {{ item.size }}
                             </div>
                         </td>
-                        <td>$ {{ item.price }}</td>
+                        {% if item.product.product.offer_price %}
+                            
+                        <td>₹ {{ item.product.product.offer_price }}</td>
+                        {% else %}
+                        <td>
+                            ₹{{ item.product.product.price}}
+                        </td>
+                        {% endif %}
                         <td>{{ item.qnty }}</td>
                         <td>{{ item.status }}</td>
                         <td>
 
-                            {% if item.request_return == True %}
-                                <a class="btn btn-success" href="{% url 'confirm_return_order_item' item.id %}">Confirm Return</a>
-                            {% elif item.cancel == True %}
+
+                            {% if item.request_return and item.status != 'Returned' and item.status != 'Refunded' %}
+                                    
+                                <a class="btn btn-warning" href="{% url 'confirm_return_order_item' item.id %}" >Confirm Return</a>
+                                <br>
+                                <br>
+
+                            {% elif item.status == 'Returned' and not item.refund_processed and item.order.payment_method != 'COD' %}
+                            
+                                <a href="{% url 'return_refund' item.id %}" class="btn btn-success">Refund Return</a>
+                                <br>
+                                <br>
+                           {% elif item.cancel == True %}
                             <h4> Reason to Cancel</h4>
                                 <p style="color:red;" ><b> {{ item.cancel_reason }}</b></p>
-                            {% else %}
-                            <select name="status_{{ item.id }}" class="form-select"{% if item.status == 'Returned' %}text-success{% endif %} onchange="updateStatus({{ item.id }}, this.value)">
-                                {% for choice in item.STATUS_CHOICES %}
-                                <option value="{{ choice.0 }}" {% if item.status == choice.0 %}selected{% endif %}>{{ choice.1 }}</option>
-                                {% endfor %}
-                            </select>
-                            
+
                             {% endif %}
+
+                            
+                            {% if item.status == 'Delivered' or item.request_return or item.status == 'Cancelled' or item.status == 'Returned' or item.status == 'Refunded' %}
+
+                        <select name="status_{{ item.id }}" class="form-select" disabled>
+                            {% for choice in item.STATUS_CHOICES %}
+                                {% if choice.0 != 'Cancelled' or item.cancel %}
+                                    
+                                <option value="{{ choice.0 }}" {% if item.status == choice.0 %}selected{% endif %}>{{ choice.1 }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+
+
+                        {% else %}
+                        <select name="status_{{ item.id }}" class="form-select" onchange="updateStatus({{ item.id }}, this.value)">
+                            {% for choice in item.STATUS_CHOICES %}
+
+                                {% if choice.0 != 'Cancelled' or item.cancel %}
+
+                                <option value="{{ choice.0 }}" {% if item.status == choice.0 %}selected{% endif %}>{{ choice.1 }}</option>
+                                {% endif %}
+                                
+                            {% endfor %}
+                        </select>
+                        
+                        {% endif %}
                             
                         </td>
                         
@@ -134,6 +172,23 @@
 
 
 </div>
+
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+    <script>
+        {% if messages %}
+        {% for message in messages %}
+        {% if message.tags == 'error' %}
+        swal("Error!", "{{ message }}", "error"); // Display error message with a warning icon
+        {% elif message.tags == 'success' %}
+        swal("Success!", "{{ message }}", "success"); // Display success message with a success icon
+        {% else %}
+        swal("Message", "{{ message }}"); // Display general message
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+    </script>
+
 <script>
     function updateStatus(itemId, newStatus) {
         fetch(`/update_order_status/${itemId}/`, {

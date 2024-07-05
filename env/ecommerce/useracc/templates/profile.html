@@ -55,11 +55,6 @@
                         <i class="fa fa-star mr-2"></i>
                         <span class="font-weight-bold small text-uppercase">Address</span>
                     </a>
-
-                    <a class="nav-link mb-3 p-3 shadow" id="v-pills-settings-tab"  {% if tab == 'v-pills-settings-tab' %}active{% endif %} data-toggle="pill" href="#v-pills-settings" role="tab" aria-controls="v-pills-settings" aria-selected="false">
-                        <i class="fa fa-check mr-2"></i>
-                        <span class="font-weight-bold small text-uppercase">Confirm booking</span>
-                    </a>
                 </div>
             </div>  
 
@@ -101,20 +96,29 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    
                                     {% for order in orders %}
+
+
                                         <tr>
                                             <td>{{ order.tracking_id }}</td>
                                             <td>{{ order.created_at|date:"Y-m-d" }}</td>
-                                            <td>$ {{ order.total }}</td>
+                                            <td>₹ {{ order.total }}</td>
                                             <td>{{ order.payment_method }}</td>
+
+                                                
                                             <td> {{ order.status }}</td>
 
                                             <div>
 
                                                 <td>{{ item.status }}</td>
+
                                                 <td>
+
                                                     <a href="{% url 'order_details' order.id %}" class="btn btn-primary">View Details</a>
+
                                                 </td>
+
                                             </div>
                                         </tr>
 
@@ -137,77 +141,85 @@
                         </div>
 
                         <div id="add-address-form" style="display: none;">
-                            <form method="post" action="{% url 'add_address' %}">
+                            <form id="addAddressForm" method="post" action="{% url 'add_address' %}" onsubmit="return validateForm()">
                                 {% csrf_token %}
                                 <div class="row">
                                     <div class="col-12 col-md-6">
-                                      <div class="form-group">
-                                        <label class="form-label" for="firstName">First Name *</label>
-                                        <input class="form-control" id="firstName" name="first_name" type="text" placeholder="First Name" required>
-                                      </div>
+                                        <div class="form-group">
+                                            <label class="form-label" for="first_name">First Name *</label>
+                                            <input class="form-control" id="first_name" name="first_name" type="text" placeholder="First Name" required>
+                                            <small id="first_name_error" class="text-danger"></small>
+                                        </div>
                                     </div>
                                     <div class="col-12 col-md-6">
-                                      <div class="form-group">
-                                        <label class="form-label" for="lastName">Last Name *</label>
-                                        <input class="form-control" id="lastName" name="last_name" type="text" placeholder="Last Name" required>
-                                      </div>
-                                    </div>
-                                    <div class="col-12">
-                                      <div class="form-group">
-                                        <label class="form-label" for="emailAddress">Email Address *</label>
-                                        <input class="form-control" id="emailAddress" name="email" type="email" placeholder="Email Address" required>
-                                      </div>
-                                    </div>
-                                    <div class="col-12">
-                                      <div class="form-group">
-                                        <label class="form-label" for="companyName">house *</label>
-                                        <input class="form-control" id="companyName" name="house" type="text" placeholder="house Name" required>
-                                      </div>
-                                    </div>
-                                    <div class="col-12">
-                                      <div class="form-group">
-                                        <label class="form-label" for="country">Town / City  *</label>
-                                        <input class="form-control" id="country" name="city" type="text" placeholder="place" required>
-                                      </div>
-                                    </div>
-                                    <div class="col-12">
-                                      <div class="form-group">
-                                        <label class="form-label" for="addressLineOne">State *</label>
-                                        <input class="form-control" id="addressLineOne" name="state" type="text" placeholder="state" required>
-                                      </div>
+                                        <div class="form-group">
+                                            <label class="form-label" for="last_name">Last Name *</label>
+                                            <input class="form-control" id="last_name" name="last_name" type="text" placeholder="Last Name" required>
+                                            <small id="last_name_error" class="text-danger"></small>
+                                        </div>
                                     </div>
                                     <div class="col-12">
                                         <div class="form-group">
-                                          <label class="form-label" for="addressLineOne">country *</label>
-                                          <input class="form-control" id="addressLineOne" name="country" type="text" placeholder="country" required>
+                                            <label class="form-label" for="email">Email Address *</label>
+                                            <input class="form-control" id="email" name="email" type="email" placeholder="Email Address" required>
+                                            <small id="email_error" class="text-danger"></small>
                                         </div>
-                                      </div>
-
-                                    <div class="col-12 col-md-6">
-                                      <div class="form-group">
-                                        <label class="form-label" for="zipPostcode">ZIP / Postcode *</label>
-                                        <input class="form-control" id="zipPostcode" name="pin_code" type="text" placeholder="ZIP / Postcode" required>
-                                      </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label" for="house">House *</label>
+                                            <input class="form-control" id="house" name="house" type="text" placeholder="House Name" required>
+                                            <small id="house_error" class="text-danger"></small>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label" for="city">Town / City *</label>
+                                            <input class="form-control" id="city" name="city" type="text" placeholder="Place" required>
+                                            <small id="city_error" class="text-danger"></small>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label" for="state">State *</label>
+                                            <input class="form-control" id="state" name="state" type="text" placeholder="State" required>
+                                            <small id="state_error" class="text-danger"></small>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label" for="country">Country *</label>
+                                            <input class="form-control" id="country" name="country" type="text" placeholder="Country" required>
+                                            <small id="country_error" class="text-danger"></small>
+                                        </div>
                                     </div>
                                     <div class="col-12 col-md-6">
-                                      <div class="form-group">
-                                        <label class="form-label" for="mobilePhone">Mobile Phone *</label>
-                                        <input class="form-control" id="mobilePhone" name="mobile_number" type="tel" placeholder="Mobile Phone" required>
-                                      </div>
+                                        <div class="form-group">
+                                            <label class="form-label" for="zipPostcode">ZIP / Postcode *</label>
+                                            <input class="form-control" id="zipPostcode" name="pin_code" type="text" placeholder="ZIP / Postcode" required>
+                                            <small id="pin_code_error" class="text-danger"></small>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label" for="mobile_number">Mobile Phone *</label>
+                                            <input class="form-control" id="mobile_number" name="mobile_number" type="tel" placeholder="Mobile Phone" required>
+                                            <small id="mobile_number_error" class="text-danger"></small>
+                                        </div>
                                     </div>
                                     <div class="col-12">
                                         <div class="form-check mb-0">
-                                          <input type="checkbox" class="form-check-input" id="defaultShippingAddress">
-                                          <label class="form-check-label" for="defaultShippingAddress">Default shipping address</label>
+                                            <input type="checkbox" class="form-check-input" id="defaultShippingAddress">
+                                            <label class="form-check-label" for="defaultShippingAddress">Default shipping address</label>
                                         </div>
-                                      </div>
-                                    </div>
-                                    <br>
-                                    <div class="d-flex justify-content-center">
-                                        <button type="submit" class="btn btn-success ">save</button>
                                     </div>
                                 </div>
+                                <br>
+                                <div class="d-flex justify-content-center">
+                                    <button type="submit" id="saveButton" class="btn btn-success">Save</button>
+                                </div>
                             </form>
+                        </div>                    
 
                             <br>
                             {% if not address %}
@@ -256,15 +268,10 @@
                             {% endif %}
                         </div>
                     </div>
-                        
-                  
+                          
                     
                 </div>
 
-                {% comment %} <div class="tab-pane fade shadow rounded bg-dark p-5"  {% if tab == 'v-pills-settings' %}show active{% endif %} id="v-pills-settings" role="tabpanel" aria-labelledby="v-pills-settings-tab">
-                    <h4 class="font-italic mb-4">Confirm Booking</h4>
-                    <p class="font-italic text-muted mb-2">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-                </div> {% endcomment %}
                 
             </div>
         </div>
@@ -400,17 +407,6 @@
     });
 </script>
 
-<script>
-    function toggleAddAddressForm() {
-        var form = document.getElementById('add-address-form');
-        if (form.style.display === 'none' || form.style.display === '') {
-            form.style.display = 'block';
-        } else {
-            form.style.display = 'none';
-        }
-    }
-</script>
-
     
     <script>
 
@@ -467,7 +463,149 @@
             {% endfor %}
         {% endif %}
     </script>
+
+    <script>
+        function validateForm() {
+            let isValid = true;
     
+            // Regular expression pattern for 6-digit number
+            let pinCodePattern = /^\d{6}$/;
+    
+            let pinCodeInput = document.getElementById("zipPostcode");
+            let pinCodeError = document.getElementById("pin_code_error");
+    
+            if (!pinCodePattern.test(pinCodeInput.value.trim())) {
+                pinCodeError.innerText = "PIN / Postcode must contain exactly 6 digits.";
+                isValid = false;
+            } else {
+                pinCodeError.innerText = ""; // Clear error message if valid
+            }
+    
+            toggleButtonState(isValid);
+    
+            return isValid;
+        }
+    
+        function toggleButtonState(isValid) {
+            let saveButton = document.getElementById("saveButton");
+            saveButton.disabled = !isValid;
+        }
+    
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("addAddressForm");
+            form.addEventListener("input", validateForm);
+        });
+    </script>
+    
+    <script>
+        // Regular expressions for validation
+        const namePattern = /^[a-zA-Z]+(?:\s[a-zA-Z]+)*$/;
+        const locationPattern = /^[a-zA-Z\s]+$/;
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const mobilePattern = /^\d{10,12}$/;
+    
+        // Function to toggle between form and address list
+        function toggleAddAddressForm() {
+            var form = document.getElementById('add-address-form');
+            var addressList = document.getElementById('address-list');
+            if (form.style.display === 'none') {
+                form.style.display = 'block';
+                addressList.style.display = 'none';
+            } else {
+                form.style.display = 'none';
+                addressList.style.display = 'block';
+            }
+        }
+    
+        // Function to validate form fields
+        function validateForm() {
+            let isValid = true;
+    
+            // Reset all error messages
+            document.querySelectorAll('.text-danger').forEach(function (el) {
+                el.innerText = '';
+            });
+    
+            // Validate First Name
+            let firstNameInput = document.getElementById("first_name");
+            let firstNameError = document.getElementById("first_name_error");
+            if (!namePattern.test(firstNameInput.value.trim())) {
+                firstNameError.innerText = "First name must contain only letters and spaces.";
+                isValid = false;
+            }
+    
+            // Validate Last Name
+            let lastNameInput = document.getElementById("last_name");
+            let lastNameError = document.getElementById("last_name_error");
+            if (!namePattern.test(lastNameInput.value.trim())) {
+                lastNameError.innerText = "Last name must contain only letters and spaces.";
+                isValid = false;
+            }
+    
+            // Validate Email Address
+            let emailInput = document.getElementById("email");
+            let emailError = document.getElementById("email_error");
+            if (!emailPattern.test(emailInput.value.trim())) {
+                emailError.innerText = "Email address is not valid.";
+                isValid = false;
+            }
+    
+            // Validate House
+            let houseInput = document.getElementById("house");
+            let houseError = document.getElementById("house_error");
+            if (!locationPattern.test(houseInput.value.trim())) {
+                houseError.innerText = "House name must contain only letters and spaces.";
+                isValid = false;
+            }
+    
+            // Validate City
+            let cityInput = document.getElementById("city");
+            let cityError = document.getElementById("city_error");
+            if (!locationPattern.test(cityInput.value.trim())) {
+                cityError.innerText = "City name must contain only letters and spaces.";
+                isValid = false;
+            }
+    
+            // Validate State
+            let stateInput = document.getElementById("state");
+            let stateError = document.getElementById("state_error");
+            if (!locationPattern.test(stateInput.value.trim())) {
+                stateError.innerText = "State name must contain only letters and spaces.";
+                isValid = false;
+            }
+    
+            // Validate Country
+            let countryInput = document.getElementById("country");
+            let countryError = document.getElementById("country_error");
+            if (!locationPattern.test(countryInput.value.trim())) {
+                countryError.innerText = "Country name must contain only letters and spaces.";
+                isValid = false;
+            }
+    
+            // Validate Mobile Number
+            let mobileNumberInput = document.getElementById("mobile_number");
+            let mobileNumberError = document.getElementById("mobile_number_error");
+            if (!mobilePattern.test(mobileNumberInput.value.trim())) {
+                mobileNumberError.innerText = "Mobile number is not valid.";
+                isValid = false;
+            }
+    
+            // Enable/disable save button based on validity
+            const saveButton = document.getElementById("saveButton");
+            saveButton.disabled = !isValid;
+    
+            // Return validity status
+            return isValid;
+        }
+    
+        // Add event listeners for form input and initial state
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("addAddressForm");
+            form.addEventListener("input", validateForm);
+        });
+
+    </script>
+
     <script>
 
 document.addEventListener('DOMContentLoaded', function() {

@@ -75,7 +75,6 @@
             {% for item in order_items %}
 
             <tr class="heading">
-
                 <tr class="heading">
                 <td>Product</td>
                 <td>Quantity</td>
@@ -84,11 +83,31 @@
                 <td>Status</td>
             </tr>
             <tr class="item">
-                <td>{{ item.product.product.product_name }}</td>
+                <td>{{ forloop.counter }} - {{ item.product.product.product_name }}
+                    <br> size : {{ item.size }}
+                </td>
                 <td>{{ item.qnty }}</td>
                 <td>{{ item.order.payment_method }}</td>
-                <td>₹{{ item.product.product.offer_price }}</td>
+                {% if item.product.product.offer_price %}
+                <td> ₹{{ item.product.product.offer_price }} </td>
+                {% else %}
+                <td> ₹{{ item.product.product.price }} </td>
+                {% endif %}
                 <td>{{ item.status }}</td>
+            </tr>
+
+            {% endfor %}
+
+            <tr>
+                <td colspan="5">
+                    <div style="border: 1px solid #ddd; padding: 10px; margin: 20px 0; border-radius: 5px; background-color: #f9f9f9;">
+                        <h3 style="margin: 0 0 10px 0; font-size: 1.2em;">Coupon Summary</h3>
+                        <p style="margin: 0;"><strong>Coupon Code:</strong> {{ coupon.code }}</p>
+                        <p style="margin: 0;"><strong>Discount:</strong> ₹{{ coupon.discount }}</p>
+                        <p style="margin: 0;"><strong>Shipping fee:</strong> ₹{{ shipping_charge }}</p>
+
+                    </div>
+                </td>
             </tr>
 
             <tr class="total">
@@ -96,7 +115,6 @@
                 <td>Grand Total: ₹{{ total }}</td>
             </tr>
 
-        {% endfor %}
         </table>
     </div>
 </body>

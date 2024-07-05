@@ -3,60 +3,110 @@
 {% block content %}
 
 <div class="container mt-5">
-
-    <div class="d-flex justify-content-center" >
-
-        <h3> Edit Address</h3>
+    <div class="d-flex justify-content-center">
+        <h3>Edit Address</h3>
     </div>
-    <form method="post" action="{% url 'edit_address' address.id %}">
-        {% csrf_token %}
 
+    <form id="edit_address_form" method="post" action="{% url 'edit_address' address.id %}">
+        {% csrf_token %}
         <input type="hidden" name="address_id" value="{{ address.id }}" id="editAddressId">
 
         <div class="form-group">
             <label for="editFirstName">First Name *</label>
             <input class="form-control" value="{{ address.first_name }}" id="editFirstName" name="first_name" type="text" required>
+            <span id="editFirstName_error" class="text-danger"></span>
         </div>
         <div class="form-group">
             <label for="editLastName">Last Name *</label>
             <input class="form-control" value="{{ address.last_name }}" id="editLastName" name="last_name" type="text" required>
+            <span id="editLastName_error" class="text-danger"></span>
         </div>
         <div class="form-group">
             <label for="editEmailAddress">Email Address *</label>
             <input class="form-control" value="{{ address.email }}" id="editEmailAddress" name="email" type="email" required>
+            <span id="editEmailAddress_error" class="text-danger"></span>
         </div>
         <div class="form-group">
             <label for="editHouse">House *</label>
             <input class="form-control" value="{{ address.house }}" id="editHouse" name="house" type="text" required>
+            <span id="editHouse_error" class="text-danger"></span>
         </div>
         <div class="form-group">
             <label for="editCity">Town / City *</label>
             <input class="form-control" value="{{ address.city }}" id="editCity" name="city" type="text" required>
+            <span id="editCity_error" class="text-danger"></span>
         </div>
         <div class="form-group">
             <label for="editState">State *</label>
             <input class="form-control" value="{{ address.state }}" id="editState" name="state" type="text" required>
+            <span id="editState_error" class="text-danger"></span>
         </div>
         <div class="form-group">
             <label for="editCountry">Country *</label>
             <input class="form-control" value="{{ address.country }}" id="editCountry" name="country" type="text" required>
+            <span id="editCountry_error" class="text-danger"></span>
         </div>
         <div class="form-group">
             <label for="editPinCode">ZIP / Postcode *</label>
             <input class="form-control" value="{{ address.pin_code }}" id="editPinCode" name="pin_code" type="text" required>
+            <span id="editPinCode_error" class="text-danger"></span>
         </div>
         <div class="form-group">
             <label for="editMobileNumber">Mobile Phone *</label>
             <input class="form-control" value="{{ address.mobile_number }}" id="editMobileNumber" name="mobile_number" type="tel" required>
+            <span id="editMobileNumber_error" class="text-danger"></span>
         </div>
         
         <br>
         <div class="d-flex justify-content-center">
-            <button type="submit" class="btn btn-success">Save</button>
+            <button type="submit" id="saveButton" class="btn btn-success">Save</button>
         </div>
         <br>
     </form>
-
 </div>
+
+<script>
+    function validateForm() {
+        let isValid = true;
+        
+        let mobileNumber = document.getElementById("editMobileNumber").value;
+        if (mobileNumber.length < 10 || mobileNumber.length > 12) {
+            document.getElementById("editMobileNumber_error").innerText = "Mobile number is not valid.";
+            isValid = false;
+        } else {
+            document.getElementById("editMobileNumber_error").innerText = "";
+        }
+
+        let requiredFields = [
+            "editFirstName", "editLastName", "editEmailAddress", 
+            "editHouse", "editCity", "editState", 
+            "editCountry", "editPinCode", "editMobileNumber"
+        ];
+        requiredFields.forEach(field => {
+            if (document.getElementById(field).value.trim() === "") {
+                document.getElementById(field + "_error").innerText = "This field is required.";
+                isValid = false;
+            } else {
+                document.getElementById(field + "_error").innerText = "";
+            }
+        });
+
+        return isValid;
+    }
+
+    function toggleButtonState() {
+        const saveButton = document.getElementById("saveButton");
+        if (validateForm()) {
+            saveButton.disabled = false;
+        } else {
+            saveButton.disabled = true;
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById("edit_address_form").addEventListener("input", toggleButtonState);
+        toggleButtonState();
+    });
+</script>
 
 {% endblock content %}

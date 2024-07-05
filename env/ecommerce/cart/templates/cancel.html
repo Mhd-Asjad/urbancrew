@@ -11,7 +11,7 @@
                         <h2 class="text-center">Cancel Order</h2>
                     </div>
                     <div class="card-body">
-                        <form method="post" action="{% url 'request_cancel_order_item' order_item.id %}">
+                        <form method="post" action="{% url 'cancel_order_item' order_item.id %}">
                             {% csrf_token %}
                             <div class="form-group">
                                 <label for="cancel_reason">Cancellation Reason:</label>

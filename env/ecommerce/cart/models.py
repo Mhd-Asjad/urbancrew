@@ -8,7 +8,6 @@ from django.conf import settings
 
 # Create your models here.
 
-
 class Cart(models.Model) :
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     added_date = models.DateField(auto_now_add=True)
@@ -61,6 +60,7 @@ class Order(models.Model) :
     payment = models.OneToOneField('cart.Payment',on_delete=models.CASCADE,null = True)
     coupon_appliyed = models.BooleanField(null=True)
     discount_amount = models.IntegerField(default = 0)
+    payment_success = models.BooleanField(default=False)
 
     def __str__(self):
 
@@ -86,7 +86,7 @@ class Order(models.Model) :
             raise
 
 class Order_items(models.Model):
-    order = models.ForeignKey(Order,on_delete=models.CASCADE,related_name='order')
+    order = models.ForeignKey(Order,on_delete=models.CASCADE,related_name='order_items')
     STATUS_CHOICES = (
         ("Order Placed", "Order Placed"),
         ("Pending", "Pending"),
@@ -107,10 +107,27 @@ class Order_items(models.Model):
     cancel_reason = models.TextField(blank=True,null=True)
     cancel = models.BooleanField(default=False)
     request_return = models.BooleanField(default=False)
+    refund_processed = models.BooleanField(default=False)
 
     def __str__(self):
         return f" {self.product.product.product_name} {self.size} qnty : {self.qnty}  orders:{self.status}"
     
+
+class Shipping_address(models.Model) :
+    order = models.ForeignKey(Order,on_delete=models.CASCADE)
+    first_name = models.CharField(max_length=200, default=None)
+    last_name = models.CharField(max_length=100, default=None)
+    email = models.EmailField(default="user@gmail.com")
+    house = models.CharField(max_length=100)
+    city = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+    pin_code = models.CharField(max_length=20)
+    country = models.CharField(max_length=200)
+    mobile_number = models.CharField(max_length=12)
+
+    def __str__(self) :
+        return f" Order Id :{self.order.tracking_id} {self.order.register.user} "
+
 class Payment(models.Model):
     amount = models.DecimalField(max_digits=10,decimal_places=2)
     transaction_id = models.CharField(max_length=100,null=True,blank=True)
@@ -132,7 +149,7 @@ class Payment(models.Model):
         if self.failed:
             status += "failed"
 
-        return f' {status} payment ' 
+        return f' {status} payment' 
 
 class Wishlist(models.Model) :
     user = models.ForeignKey(User,on_delete=models.CASCADE)
@@ -141,4 +158,9 @@ class Wishlist(models.Model) :
     added_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) :
-        return f'user : {self.user.username } product = {self.product.product_name}'
+        return f'user : {self.user.username } product = {self.product.product.product_name}'
+
+
+    
+
+

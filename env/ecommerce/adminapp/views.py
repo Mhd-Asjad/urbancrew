@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
-from django.http import JsonResponse
+from django.http import JsonResponse , HttpResponse
 import json
 from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
@@ -11,13 +11,105 @@ from datetime import datetime
 from django.utils import timezone
 from django.views.decorators.cache import never_cache
 from cart.models import *
+from wallet.models import *
+from django.utils.crypto import get_random_string
+from django.db.models import *
+from decimal import Decimal
+from django.core.paginator import Paginator
+from django.db.models import Q
+from datetime import timedelta
+import calendar
+from io import BytesIO
+import xlsxwriter
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib import colors
+from reportlab.lib.units import inch
+from django.contrib.auth.decorators import user_passes_test
+from django.shortcuts import render, redirect, get_object_or_404
 
 
 @never_cache
+@login_required(login_url="adminlog")
 def dash_view(request):
+    product = AddImages.objects.all()
     if request.user.is_superuser:
-        return render(request, "dashboard.html")
+        selected_month = request.GET.get('month')
+        selected_year = request.GET.get('year')
+
+
+        orders = Order_items.objects.filter(status="Delivered").select_related('order', 'product').order_by('order__created_at')
+        this_year = timezone.now().year
+        this_month = timezone.now().month
+        monthly_orders = orders.filter(order__created_at__month=this_month)
+        month_revenue = monthly_orders.aggregate(month_revenue=Sum(F('price') * F('qnty'), output_field=DecimalField()))['month_revenue']
+        
+        top_category_month = monthly_orders.values('product__product__categorys__name').annotate(
+            total_quantity=Sum('qnty')
+        ).order_by('-total_quantity')[:5]
+
+        yearly_orders = orders.filter(order__created_at__year=this_year)
+        year_revenue = yearly_orders.aggregate(year_revenue=Sum(F('price') * F('qnty'), output_field=DecimalField()))['year_revenue']
+        
+        top_category_year = yearly_orders.values('product__product__categorys__name').annotate(
+            total_quantity=Sum('qnty')
+        ).order_by('-total_quantity')[:5]
+
+        top_category = yearly_orders.values('product__product__categorys__name').annotate(
+            total_quantity=Sum('qnty')
+        ).order_by('-total_quantity').first()
+
+        top_categories = [{'category': cat['product__product__categorys__name'] , 'total_quantity': cat['total_quantity']} for cat in top_category_year]
+
+        if selected_month :
+            year, month = map(int, selected_month.split('-'))
+            orders = orders.filter(order__created_at__year=year, order__created_at__month=month)
+        elif selected_year:
+            year = int(selected_year)
+            orders = orders.filter(order__created_at__year=year)
+
+        delivered_orders_per_day = orders.values('order__created_at__date').annotate(
+            total_orders=Sum('qnty'),
+            total_revenue=Sum(F('price') * F('qnty')),
+            product_sold=Count('product__product__product_name')
+        ).order_by('order__created_at__date')
+
+        top_five_products = orders.values('product__product__product_name').annotate(
+        total_sold=Sum('qnty')
+        ).order_by('-total_sold')[:5]
+
+        # If the request is AJAX, return JSON data
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            data = {
+                'labels': [order['order__created_at__date'].strftime('%Y-%m-%d') for order in delivered_orders_per_day],
+                'total_orders': [order['total_orders'] for order in delivered_orders_per_day],
+                'total_revenue': [order['total_revenue'] for order in delivered_orders_per_day],
+                'product_sold': [order['product_sold'] for order in delivered_orders_per_day],
+                'top_five_products_labels': [product['product__product__product_name'] for product in top_five_products],
+                'top_five_products_data': [product['total_sold'] for product in top_five_products],
+            }
+            return JsonResponse(data)
+
+        context = {
+            'product': product,
+            'month_revenue': month_revenue,
+            'year_revenue': year_revenue,
+            'top_category_month': top_category_month,
+            'top_category_year': top_category_year,
+            'top_cats': top_categories,
+            'yearly_top' : top_category,
+            'selected_month' : selected_month ,
+            'selected_year' : selected_year,
+            'timezone': timezone,
+
+        }
+
+        return render(request, "dashboard.html", context)
+
     return redirect("adminlog")
+
+
 
 
 @never_cache
@@ -32,6 +124,7 @@ def adminlog(request):
         print(user)
 
         if user is not None and user.is_superuser:
+            request.session['is_admin'] = True
             login(request, user)
             return redirect("dashboard")
         else:
@@ -39,14 +132,16 @@ def adminlog(request):
             return redirect("adminlog")
 
     else:
-
         return render(request, "adminlog.html")
 
 
 @login_required(login_url="adminlog")
 def customer_view(request):
-    users = User.objects.all().order_by("id")
-    return render(request, "customer.html", {"users": users})
+    if request.user.is_superuser :
+        users = User.objects.all().order_by("-id")
+        return render(request, "customer.html", {"users": users})
+    else:
+        return redirect('adminlog')
 
 
 def user_block(request, user_id):
@@ -144,19 +239,26 @@ def edit_category(request, category_id):
 
 
 def list_category(request, category_id):
+    if request.user.is_superuser :
 
-    is_list = category.objects.get(id=category_id)
-    is_list.is_listed = True
-    is_list.save()
-    return redirect("category")
+        is_list = category.objects.get(id=category_id)
+        is_list.is_listed = True
+        is_list.save()
+        return redirect("category")
+    
+    return redirect('adminlog')
 
 
 def unlist_category(request, category_id):
 
-    is_unlist = category.objects.get(id=category_id)
-    is_unlist.is_listed = False
-    is_unlist.save()
-    return redirect("category")
+    if request.user.is_superuser :
+
+
+        is_unlist = category.objects.get(id=category_id)
+        is_unlist.is_listed = False
+        is_unlist.save()
+        return redirect("category")
+    return redirect('adminlog')
 
 
 @login_required(login_url="adminlog")
@@ -208,45 +310,71 @@ def greet_based_on_time(request):
 
     return render(request, "nav.html", {"message": message})
 
-def order_view(request) :
+def order_view(request):
+    if request.user.is_superuser:
+        return render(request, 'order/order_view.html')
+    else:
+        messages.error(request, 'Admin can only access this')
+        return redirect('adminlog')
     
-    orders = Order.objects.all().order_by("-id")
+def fetch_orders(request):
+    if request.user.is_superuser:
+        search_query = request.GET.get('search', '')
+        page_number = request.GET.get('page', 1)
+        orders = Order.objects.filter(
+            Q(tracking_id__icontains=search_query) |
+            Q(register__user__username__icontains=search_query) |
+            Q(payment_method__icontains=search_query)
+        ).order_by("-id")
+        paginator = Paginator(orders, 10) 
+        page_obj = paginator.get_page(page_number)
 
+        orders_list = []
+        for order in page_obj:
+            orders_list.append({
+                'tracking_id': order.tracking_id,
+                'username': order.register.user.username ,
+                'total': order.total,
+                'payment_method': order.payment_method,
+                'detail_url': f"/ordered_item/{order.id}"  # Adjust URL pattern as needed
 
+            })
+
+        return JsonResponse({
+            'orders': orders_list,
+            'num_pages': paginator.num_pages,
+            'current_page': page_obj.number
+        })
+    else:
+        return JsonResponse({'error': 'Unauthorized'}, status=403)
+
+@user_passes_test(lambda u: u.is_superuser, login_url='adminlog')
+def ordered_item(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    order_items = Order_items.objects.filter(order=order).order_by('-id')
+
+    if not order_items.exists():
+        messages.error(request, 'Order does not exist or has no items.')
+        return redirect('order_view')  # Redirect to some admin log page or handle as needed
 
     context = {
-
-        'orders' : orders
+        'order': order,
+        'order_items': order_items,
     }
 
-    return render(request,'order/order_view.html',context)
+    return render(request, 'order/order_items.html', context)
 
 
-def ordered_item(request , order_id) :
-
-    order = Order.objects.get(id=order_id)
-
-    order_items = Order_items.objects.filter(order = order)
-
-    context = {
-        
-        'order' : order ,
-        'order_items' : order_items
-
-    }
-
-    
-
-    return render(request,'order/order_items.html',context)
-
-
-def update_order_status(request, order_id):
+def update_order_status(request,order_id):
     order = Order.objects.get(id = order_id)
-    if request.method == 'POST':
+    if request.method == 'POST'and request.user.is_superuser :
         data = json.loads(request.body)
         item_id = data.get('item_id')
+        item = Order_items.objects.get(id = item_id)
+
         new_status = data.get('status')
-    
+        if new_status == 'Cancelled' and not item.cancel :
+                return JsonResponse({'error': 'Cannot cancel this item without permission.'}, status=403)
         try:
             order_item = Order_items.objects.get(order = order , id = item_id )
 
@@ -258,9 +386,9 @@ def update_order_status(request, order_id):
 
             return JsonResponse({'success': True})
         except Order_items.DoesNotExist:
-            return JsonResponse({'success': False, 'error': 'Order item not found'})
+            return JsonResponse({'success': False, 'error': 'Order item not found'} , status =404)
         
-    return render(request,'order/order_items.html',{ 'order' : order })
+    return render(request,'order/order_items.html',{ 'order' : order },status=400)
         
 
 def confirm_return_order_item(request, item_id):
@@ -269,7 +397,7 @@ def confirm_return_order_item(request, item_id):
         order_item = Order_items.objects.get(id=item_id)
         
         # Check if a return request exists
-        if order_item.request_return:
+        if order_item.request_return :
             order_item.status = 'Returned'
             order_item.save()
             messages.success(request, 'Return request has been confirmed.')
@@ -279,21 +407,104 @@ def confirm_return_order_item(request, item_id):
         return redirect('ordered_item', order_id=order_item.order.id)
     except Order_items.DoesNotExist:
         messages.error(request, 'Order item not found.')
-        return redirect('orders')  
+        return redirect('orders')
+
+
+def return_refund(request,return_id) :
+    try :
+        return_item = Order_items.objects.get(id = return_id)
+        print(return_id)
+
+    except Order_items.DoesNotExist:
+        messages.error(request, "Order item does not exist.")
+        return redirect('ordered_item')
+    
+    order = return_item.order
+    if return_item.request_return == True and return_item.status == 'Returned' and return_item.order.payment_method != "COD" :
+
+        total_discount = order.discount_amount if order.coupon_appliyed else 0
+        total_amount = 0
+        total_amount = order.total
+        print(total_amount,'this is my total amount@@@@@@@')
+        print(total_discount, 'wallet offer pricee')
+        total_quantity = Order_items.objects.filter(order = order).aggregate(total_quantity = Sum('qnty'))['total_quantity']
+        discount_per_item = Decimal(total_discount) / Decimal(total_quantity)
+        print('discount forr per itemmm !!!' ,discount_per_item)
+        original_price = return_item.product.product.offer_price if return_item.product.product.offer_price else return_item.product.product.price
+        print('og pricee:',original_price)
+        refunt_amount = 0
+
+        discount_return_item =  discount_per_item * Decimal(return_item.qnty)
+        non_returned_items_count = Order_items.objects.filter(order=order).exclude(status__in=['Cancelled', 'Refunded']).count()
+
+        if non_returned_items_count > 1 :    
+            if original_price < order.total :
+                refunt_amount = (original_price - discount_return_item) * Decimal(return_item.qnty)
+                order.total -= refunt_amount
+
+        else :
+            refunt_amount = order.total
+        
+        print(order.total ,'after refund') 
+        print('refund amount with shipping fee :',refunt_amount)
+        print('count afterr!!',non_returned_items_count)
+        order.save()
+
+        product_size = ProductSize.objects.get(image = return_item.product , size = return_item.size)
+        product_size.stock += return_item.qnty
+        product_size.save()
+
+        user = order.register.user
+        wallet , created = Wallet.objects.get_or_create(user=user)
+        wallet.balance += refunt_amount
+        wallet.save()
+
+        tranc_id = "Re_" + get_random_string(6,'ABCPMOZ456789')
+        if Wallet_transactions.objects.filter(transaction_id = tranc_id).exists() :
+            tranc_id = "Re_" + get_random_string(6,'ABCPMOZ456789' )
+            print(tranc_id,'this is the second one')
+
+        Wallet_transactions.objects.create(
+
+            wallet = wallet,
+            type = 'Refund' ,
+            amount = refunt_amount,
+            transaction_id = tranc_id,
+            description = 'Rerturn refund',
+            time_stamp = timezone.now()
+        )
+
+        if return_item.request_return and not return_item.cancel :
+            return_item.refund_processed = True
+            return_item.status = 'Refunded'
+            return_item.order.status = 'Returned',
+            return_item.save()
+            messages.success(request,f'AMOUNT of ₹{refunt_amount} added to {return_item.order.register.user.username} wallet ')
+            return redirect('ordered_item', order_id = order.id)
+    else :  
+        messages.error(request, "alreadyy refundedd")
+        return redirect('ordered_item',order_id = order.id)
+    
+    
 
 
 #-----------------------------------------------------coupon management------------------------------------------------------------
-#manage coupon
+#view coupon
+login_required(login_url='adminlog')
 def view_coupon(request) :
-    cup = Coupon.objects.all()
+    if request.user.is_superuser :
+        cup = Coupon.objects.all()
 
-    context = {
+        context = {
 
-        'cup' : cup
+            'cup' : cup
 
-    }
-    return render(request,'coupon/coupon.html',context)
+        }
+        return render(request,'coupon/coupon.html',context)
+    else :
+        return redirect('adminlog')
 
+#add couponnnn
 def add_coupon(request):
     if request.user.is_superuser :
         today = timezone.now()
@@ -325,6 +536,7 @@ def add_coupon(request):
             min_amount = float(min_amount)
             max_amount = float(max_amount)
             if max_amount < min_amount :
+                
                 messages.error(request,'min values must be big value')
                 return redirect('add_coupon')
 
@@ -340,6 +552,7 @@ def add_coupon(request):
             elif str(expiry_date) == str(today) :
                 messages.error(request,'the expiry_date not set it today!!!!')
                 return redirect('add_coupon')
+            
             Coupon.objects.create(
                 coupon_code = code ,
                 coupon_name=name ,
@@ -350,7 +563,9 @@ def add_coupon(request):
             messages.success(request,'coupon created succesfully')
             return redirect('view_coupon')
     
-    return render(request,'coupon/add_coupon.html')
+        return render(request,'coupon/add_coupon.html')
+    else: 
+        return redirect('adminlog')
 
 def edit_coupon(request,coupon_id) :
     if request.user.is_superuser :
@@ -398,7 +613,7 @@ def edit_coupon(request,coupon_id) :
         return render(request,'coupon/edit_coupon.html',{ 'cpn' : cpn })
     else :
         messages.error(request,'super user only can access to this')
-        return redirect('adminlog')
+        return redirect('adminlogin')
 
 
 def del_coupon(request,coupon_id) :
@@ -409,3 +624,204 @@ def del_coupon(request,coupon_id) :
         return redirect('view_coupon')
     else :
         return redirect('user_login')
+
+
+def sales_report(request):
+    if request.user.is_superuser:
+        if request.method == 'GET':
+            from_date = request.GET.get("from")
+            to_date = request.GET.get("to")
+            month = request.GET.get("month")
+            year = request.GET.get("year")
+
+            order = Order_items.objects.filter(
+                cancel=False,
+                request_return=False,
+                status='Delivered'
+            ).order_by('order__created_at')
+
+            filters = {}
+
+            if from_date :
+                filters['from_date'] = from_date
+                order = order.filter(order__created_at__gte=from_date)
+
+            if to_date:
+                filters['to_date'] = to_date
+                order = order.filter(order__created_at__lte=to_date)
+
+            if month:
+                year, month = map(int, month.split("-"))
+                order = order.filter(order__created_at__year=year, order__created_at__month=month)
+
+            if year:
+                filters['year'] = year
+                order = order.filter(order__created_at__year=year)
+
+            request.session['filters'] = filters
+
+            print(request.session.get('filters'),'adffdsdataaaaaaaaaaaa')
+
+            count = order.count()
+            total = order.aggregate(total=Sum('order__total'))["total"]
+            total_discount = order.aggregate(total_discount=Sum('order__discount_amount'))['total_discount']
+
+            request.session['total_sale_count'] = count
+            request.session['overall_amount'] = total
+            request.session['total_discount_amount'] = total_discount
+
+
+
+            context = {
+                "order": order,
+                'count': count,
+                'total': total,
+                'total_discount': total_discount
+            }
+
+            return render(request, 'sales_report.html', context)
+        else:
+            messages.error(request, 'Invalid request method.')
+            return redirect('adminlog')
+    else:
+        messages.error(request, 'You have no permission to access this page.')
+        return redirect('adminlog')
+
+
+def generate_report(request):
+    if request.user.is_superuser:
+        filters = request.session.get("filters", {})
+        print(filters,'newwwwwwwwwwwwwwww datat')
+        sales_data = Order_items.objects.filter(
+            cancel=False,
+            request_return=False,
+            status="Delivered"
+        )
+
+        if "from_date" in filters:
+            sales_data = sales_data.filter(order__created_at__gte=filters["from_date"])
+        if "to_date" in filters:
+            sales_data = sales_data.filter(order__created_at__lte=filters["to_date"])
+        if "month" in filters:
+            year, month = map(int, filters["month"].split("-"))
+            sales_data = sales_data.filter(order__created_at__year=year, order__created_at__month=month)
+        if "year" in filters:
+            sales_data = sales_data.filter(order__created_at__year=filters["year"])
+
+        overall_sales_count = request.session.get("total_sale_count")
+        overall_order_amount = request.session.get("overall_amount")
+        overall_discount = request.session.get("total_discount_amount")
+
+        total_products = sales_data.aggregate(total_quantity=Count("product__product__product_name"))["total_quantity"] or 0
+        total_revenue = sales_data.aggregate(total_amount=Sum("order__total"))["total_amount"] or 0
+
+        if "format" in request.GET and request.GET["format"] == "pdf":
+            return generate_pdf_report(sales_data, overall_sales_count, overall_order_amount, overall_discount)
+
+        elif "format" in request.GET and request.GET["format"] == "excel":
+            return generate_excel_report(sales_data, total_products, total_revenue)
+
+        return redirect("sales_report")
+    else:
+        return redirect("admin_login")
+
+def generate_pdf_report(sales_data, overall_sales_count, overall_order_amount, overall_discount):
+    buffer = BytesIO()
+
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    styles = getSampleStyleSheet()
+    centered_style = ParagraphStyle(name="Centered", parent=styles["Heading1"], alignment=1)
+
+    today_date = datetime.now().strftime("%Y-%m-%d")
+    content = []
+
+    company_details = f"<b>URBAN CREW </b><br/>Email: urbancrew144@example.com<br/>Date: {today_date}"
+    content.append(Paragraph(company_details, styles["Normal"]))
+    content.append(Spacer(1, 0.5 * inch))
+
+    content.append(Paragraph("<b>SALES REPORT</b><hr>", centered_style))
+    content.append(Spacer(1, 0.5 * inch))
+
+    data = [["Order ID", "Product", "Quantity", "Total Price", "Date"]]
+    for sale in sales_data:
+        formatted_date = sale.order.created_at.strftime("%a, %d %b %Y")
+        data.append([
+            sale.order.tracking_id,
+            sale.product.product.product_name,
+            sale.qnty,
+            sale.product.product.offer_price,
+            formatted_date,
+        ])
+
+    table = Table(data, repeatRows=1)
+    table.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.black),
+        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("TOPPADDING", (0, 0), (-1, 0), 12),
+        ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
+        ("BACKGROUND", (0, 1), (-1, -1), colors.whitesmoke),
+        ("GRID", (0, 0), (-1, -1), 1, colors.black),
+    ]))
+
+    content.append(table)
+    content.append(Spacer(1, 0.5 * inch))
+
+    overall_sales_count_text = f"<b>Overall Sales Count:</b> {overall_sales_count}"
+    overall_order_amount_text = f"<b>Overall Order Amount:</b> {overall_order_amount}"
+    overall_discount_amount_text = f"<b>Overall Discount:</b> {overall_discount}"
+
+    content.append(Paragraph(overall_sales_count_text, styles["Normal"]))
+    content.append(Paragraph(overall_order_amount_text, styles["Normal"]))
+    content.append(Paragraph(overall_discount_amount_text, styles["Normal"]))
+
+    doc.build(content)
+
+    current_time = datetime.now().strftime("%Y-%m-%d %H-%M-%S")
+    file_name = f"Sales_Report_{current_time}.pdf"
+
+    response = HttpResponse(buffer.getvalue(), content_type="application/pdf")
+    response["Content-Disposition"] = f'attachment; filename="{file_name}"'
+
+    return response
+
+def generate_excel_report(sales_data, total_products, total_revenue):
+    output = BytesIO()
+    workbook = xlsxwriter.Workbook(output, {"in_memory": True})
+    worksheet = workbook.add_worksheet("Sales Report")
+
+    bold = workbook.add_format({'bold': True})
+    money_format = workbook.add_format({'num_format': '#,##0.00'})
+
+    headings = ["Order ID", "Billing Name", "Date", "Total", "Payment Method", "Product Name"]
+    header_format = workbook.add_format({"bold": True})
+    for col, heading in enumerate(headings):
+        worksheet.write(0, col, heading, bold)
+
+    row = 1
+    for item in sales_data:
+        worksheet.write(row, 0, item.order.tracking_id)
+        worksheet.write(row, 1, item.order.register.user.username)
+        worksheet.write(row, 2, item.order.created_at.strftime("%d-%m-%Y"))
+        worksheet.write(row, 3, item.order.total, money_format)
+        worksheet.write(row, 4, item.order.payment_method)
+        worksheet.write(row, 5, f"{item.product.product.product_name} ({item.product.color}) {item.size}")
+        row += 1
+
+    worksheet.write(row + 1, 0, "Total Products:", bold)
+    worksheet.write(row + 1, 1, total_products, bold)
+    worksheet.write(row + 2, 0, "Total Revenue:", bold)
+    worksheet.write(row + 2, 1, total_revenue, money_format)
+    workbook.close()
+
+    output.seek(0)
+    response = HttpResponse(
+        output.getvalue(),
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+    current_time = datetime.now().strftime("%Y-%m-%d %H-%M-%S")
+    file_name = f"Sales_Report_{current_time}.xlsx"
+    response["Content-Disposition"] = f'attachment; filename="{file_name}"'
+
+    return response

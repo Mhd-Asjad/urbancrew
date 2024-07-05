@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'bases.html' %}
 {% load static %}
 
 {% block content %}
@@ -18,25 +18,53 @@
 <body>
 
 <div class="container">
-    <h2>Forgot Password</h2>
-    <p>Please enter your email address below. We'll send you a link to reset your password.</p>
-    
-    <form method="post">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="id_email">Email address:</label>
-            <input type="email" class="form-control" id="id_email" name="email" placeholder="Enter email">
+    <br>
+    <div class="container mt-5">
+        <div class="d-flex justify-content-center">
+            <h4 style='color:green;' ><b>reset password</b></h4>
+
         </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
-</div>
+        <br><br><br>
+
+        <p>Please enter your email address below. We'll send you a link to reset your password.</p>
+        
+        <form method="post" action="{% url 'reset_password' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_email">Email address:</label>
+                <input style="width:530px;" type="email" class="form-control" id="id_email" name="email" placeholder="Enter email">
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+
+    </div>    
+
+<br>
+<br><br><br>
+<br>
+<br><br>
 
 <!-- Add your JavaScript scripts or link to a JavaScript framework -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <!-- Add any other necessary scripts -->
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
+    <script>
+        {% if messages %}
+        {% for message in messages %}
+        {% if message.tags == 'error' %}
+        swal("Error!", "{{ message }}", "error"); // Display error message with a warning icon
+        {% elif message.tags == 'success' %}
+        swal("Success!", "{{ message }}", "success"); // Display success message with a success icon
+        {% else %}
+        swal("Message", "{{ message }}"); // Display general message
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+    </script>
 </body>
 </html>
 

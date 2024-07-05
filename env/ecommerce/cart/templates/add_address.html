@@ -10,7 +10,7 @@
         <h3> Add Address</h3>
     </div>
 
-    <form action="{% url 'add_address_checkout' %}" method="post">
+    <form action="{% url 'new_address' %}" method="post">
         {% csrf_token %}
         <div class="checkout__input">
             <p>First Name<span>*</span></p>
@@ -39,9 +39,15 @@
         </div>
         <div class="checkout__input">
             <p>State<span>*</span></p>
-            <input type="text" id="state" name="state" required>
-            <div id="state_error" class="error-message"></div>
+            <select class="form-select" id="state" name="state" required>
+                <option value="">Select a state</option>
+                {% for state in states %}
+                <option value="{{ state }}">{{ state }}</option>
+                {% endfor %}
+            </select>
         </div>
+        <br>
+        <br>
         <div class="checkout__input">
             <p>Country<span>*</span></p>
             <input type="text" id="country" name="country" required>
@@ -63,6 +69,21 @@
 
 
 </div>
+
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+    {% if messages %}
+    {% for message in messages %}
+    {% if message.tags == 'error' %}
+    swal("Error!", "{{ message }}", "error");
+    {% elif message.tags == 'success' %}
+    swal("Success!", "{{ message }}", "success");
+    {% else %}    
+    swal("Message", "{{ message }}");
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+</script>
 <br>
 
 {% endblock content %}

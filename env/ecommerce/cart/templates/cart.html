@@ -50,6 +50,8 @@
         margin-left : 50px !important;
     }
 </style>
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'css/toastr.css' %}" media="all">
     <section class="breadcrumb-option">
         <div class="container">
             <div class="row">
@@ -179,7 +181,7 @@
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-6">
                             <div class="continue__btn update__btn">
-                                <a href="#"><i class="fa fa-spinner"></i> Update cart</a>
+                                <a href="{% url 'cart' %}"><i class="fa fa-spinner"></i> Update cart</a>
                             </div>
                         </div>
                     </div>
@@ -303,7 +305,7 @@
         }
     }
     function updateShippingFee(subtotal) {
-        var shippingfee = 0;
+        var shippingfee = 0 ;
         if (subtotal >= 5000) {
             shippingfee = 0 ;
         } else {
@@ -312,7 +314,6 @@
         $("#shipping_fee").html("₹" + shippingfee);
         return shippingfee;
     }
-    
     </script>
 
 {% endblock %}

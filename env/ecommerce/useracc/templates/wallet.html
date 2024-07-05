@@ -1,0 +1,136 @@
+{% extends 'bases.html' %}
+{% load static %}
+{% block content %}
+    
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallet</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <style>
+        body{
+            background-color: #f4f7f4;
+
+        }
+        .wallet-balance {
+
+            background: #f1f1f1;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            
+        }
+        .add-funds-form {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .transaction-history {
+            margin-bottom: 20px;
+        }
+        .special-offers {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .form-group label {
+            font-weight: bold;
+        }
+        .form-control.is-invalid {
+            border-color: #dc3545;
+        }
+        .invalid-feedback {
+            display: none;
+        }
+        .form-control.is-invalid + .invalid-feedback {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="mb-4">Money Wallet</h2>
+
+        <!-- Balance Section -->
+        <div class="wallet-balance bg-white">
+            <h4>Balance: ₹{{ wallet.balance }}</h4>
+
+        </div>
+
+        <!-- Add Funds Section -->
+    
+
+        <!-- Transaction History Section -->
+        <div class="card transaction-history">
+            <div class="card-body">
+                <h5 class="card-title">Transaction History</h5>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Transaction ID</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <td>description</td>
+                            <th>Date</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                            <tr>
+                                {% comment %} <td>{{ transaction.id }}</td> {% endcomment %}
+                                <td>{{ transaction.transaction_id }}</td>
+                                <td>{{ transaction.get_type_display }}</td>
+                                {% if transaction.type != 'withdrawal' %}
+                                    
+                                <td style="color:green; font-weight:800; font-size:14px;" >₹ {{ transaction.amount }} +</td>
+                                {% else %}
+                                <td style="color:red; font-weight:800; font-size:14px;" >₹ {{ transaction.amount }} -</td>
+                                {% endif %}
+                                <td>{{ transaction.description }}</td>
+                                <td>{{ transaction.time_stamp }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="4">No transactions found.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Special Events or Cashback Offers Section -->
+        {% comment %} <div class="special-offers">
+            <h5>Special Events & Cashbacks</h5>
+            <ul>
+                <li>Get 5% cashback on adding ₹1000 or more.</li>
+                <li>Exclusive offer: Add ₹5000 and get ₹500 extra!</li>
+                <li>Special discounts on your next purchase when you add funds today.</li>
+            </ul>
+        </div> {% endcomment %}
+    </div>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script>
+        document.getElementById('add-funds-form').addEventListener('submit', function(event) {
+            const amountInput = event.target.querySelector('input[name="amount"]');
+            const amountValue = parseFloat(amountInput.value);
+            const minAmount = parseFloat(amountInput.min);
+            const maxAmount = parseFloat(amountInput.max);
+            if (isNaN(amountValue) || amountValue < minAmount || amountValue > maxAmount) {
+                event.preventDefault();
+                amountInput.classList.add('is-invalid');
+            } else {
+                amountInput.classList.remove('is-invalid');
+            }
+        });
+    </script>
+</body>
+</html>
+<br><br>
+
+{% endblock content %}

@@ -1,296 +1,187 @@
 {% extends 'navigation.html' %}
-{% load static %}
 
 {% block body %}
-  <div id="right-sidebar" class="settings-panel">
-    <i class="settings-close ti-close"></i>
-    <ul class="nav nav-tabs border-top" id="setting-panel" role="tablist">
-      <li class="nav-item">
-        <a class="nav-link active" id="todo-tab" data-bs-toggle="tab" href="#todo-section" role="tab"
-          aria-controls="todo-section" aria-expanded="true">TO DO LIST</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" id="chats-tab" data-bs-toggle="tab" href="#chats-section" role="tab"
-          aria-controls="chats-section">CHATS</a>
-      </li>
-    </ul>
-    <div class="tab-content" id="setting-content">
-      <div class="tab-pane fade show active scroll-wrapper" id="todo-section" role="tabpanel"
-        aria-labelledby="todo-section">
-        <div class="add-items d-flex px-3 mb-0">
-          <form class="form w-100">
-            <div class="form-group d-flex">
-              <input type="text" class="form-control todo-list-input" placeholder="Add To-do">
-              <button type="submit" class="add btn btn-primary todo-list-add-btn" id="add-task">Add</button>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<div class="container-fluid">
+  <!-- Row 1 -->
+  <br>
+  <br><br>
+
+  <style>
+
+    .body {
+      background-color: #f4f5f7 !important;
+
+    }
+  </style>
+  <div class="row d-flex justify-content-center">
+    <div class="col-lg-8 d-flex align-items-stretch">
+        <div class="card w-100">
+            <div class="card-body">
+                <div class="d-sm-flex d-block align-items-center justify-content-between mb-9">
+                    <div class="mb-3 mb-sm-0">
+                        <h5 class="card-title fw-semibold">Sales Overview</h5>
+                    </div>
+                    <div>
+                        <select class="form-select" id="monthSelector">
+                            <option value="">Select Month</option>
+                            <option value="2024-03" {% if selected_month == '2024-03' %}selected{% endif %}>March 2024</option>
+                            <option value="2024-04" {% if selected_month == '2024-04' %}selected{% endif %}>April 2024</option>
+                            <option value="2024-05" {% if selected_month == '2024-05' %}selected{% endif %}>May 2024</option>
+                            <option value="2024-06" {% if selected_month == '2024-06' %}selected{% endif %}>June 2024</option>
+                            <option value="2024-07" {% if selected_month == '2024-07' %}selected{% endif %}>july 2024</option>
+                            <!-- Add more months as needed -->
+                        </select>
+                    </div>
+                </div>
+                <canvas id="myChart"></canvas>
+                <canvas id="topFiveProductsChart"></canvas>
+                <script>
+                    const ctx = document.getElementById('myChart').getContext('2d');
+                    const topFiveCtx = document.getElementById('topFiveProductsChart').getContext('2d');
+
+                    let myChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: [{% for item in delivered_orders_per_day %} '{{ item.order__created_at__date }}', {% endfor %}],
+                            datasets: [{
+                                label: 'Products Sold Per Day',
+                                data: [{% for item in delivered_orders_per_day %} {{ item.total_orders }}, {% endfor %}],
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                fill: false,
+                                tension: 0.1
+                            }, {
+                                label: 'Total Revenue Per Day',
+                                data: [{% for item in delivered_orders_per_day %} {{ item.total_revenue }}, {% endfor %}],
+                                borderColor: 'rgba(153, 102, 255, 1)',
+                                backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                                fill: false,
+                                tension: 0.1,
+                                borderWidth: 3 
+                            }, {
+                                label: 'Count of Different Products Sold',
+                                data: [{% for item in delivered_orders_per_day %} {{ item.product_sold }}, {% endfor %}],
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                fill: false,
+                                tension: 0.1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+
+                    let topFiveProductsChart = new Chart(topFiveCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: [{% for product in top_five_products %} '{{ product.product__product__product_name }}', {% endfor %}],
+                            datasets: [{
+                                label: 'Top 5 Sold Products',
+                                data: [{% for product in top_five_products %} {{ product.total_sold }}, {% endfor %}],
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+
+                    document.getElementById('monthSelector').addEventListener('change', function() {
+                        const selectedMonth = this.value;
+                        fetch(`/dashboard?month=${selectedMonth}`, {
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            myChart.data.labels = data.labels;
+                            myChart.data.datasets[0].data = data.total_orders;
+                            myChart.data.datasets[1].data = data.total_revenue;
+                            myChart.data.datasets[2].data = data.product_sold;
+                            myChart.update();
+
+                            topFiveProductsChart.data.labels = data.top_five_products_labels;
+                            topFiveProductsChart.data.datasets[0].data = data.top_five_products_data;
+                            topFiveProductsChart.update();
+                        })
+                        .catch(error => console.error('Error fetching data:', error));
+                    });
+                </script>
             </div>
-          </form>
+
         </div>
-        <div class="list-wrapper px-3">
-          <ul class="d-flex flex-column-reverse todo-list">
-            <li>
-              <div class="form-check">
-                <label class="form-check-label">
-                  <input class="checkbox" type="checkbox">
-                  Team review meeting at 3.00 PM
-                </label>
-              </div>
-              <i class="remove ti-close"></i>
-            </li>
-            <li>
-              <div class="form-check">
-                <label class="form-check-label">
-                  <input class="checkbox" type="checkbox">
-                  Prepare for presentation
-                </label>
-              </div>
-              <i class="remove ti-close"></i>
-            </li>
-            <li>
-              <div class="form-check">
-                <label class="form-check-label">
-                  <input class="checkbox" type="checkbox">
-                  Resolve all the low priority tickets due today
-                </label>
-              </div>
-              <i class="remove ti-close"></i>
-            </li>
-            <li class="completed">
-              <div class="form-check">
-                <label class="form-check-label">
-                  <input class="checkbox" type="checkbox" checked>
-                  Schedule meeting for next week
-                </label>
-              </div>
-              <i class="remove ti-close"></i>
-            </li>
-            <li class="completed">
-              <div class="form-check">
-                <label class="form-check-label">
-                  <input class="checkbox" type="checkbox" checked>
-                  Project review
-                </label>
-              </div>
-              <i class="remove ti-close"></i>
-            </li>
-          </ul>
-        </div>
-        <h4 class="px-3 text-muted mt-5 fw-light mb-0">Events</h4>
-        <div class="events pt-4 px-3">
-          <div class="wrapper d-flex mb-2">
-            <i class="ti-control-record text-primary me-2"></i>
-            <span>Feb 11 2018</span>
-          </div>
-          <p class="mb-0 font-weight-thin text-gray">Creating component page build a js</p>
-          <p class="text-gray mb-0">The total number of sessions</p>
-        </div>
-        <div class="events pt-4 px-3">
-          <div class="wrapper d-flex mb-2">
-            <i class="ti-control-record text-primary me-2"></i>
-            <span>Feb 7 2018</span>
-          </div>
-          <p class="mb-0 font-weight-thin text-gray">Meeting with Alisa</p>
-          <p class="text-gray mb-0 ">Call Sarah Graves</p>
-        </div>
-      </div>
-      <!-- To do section tab ends -->
-      <div class="tab-pane fade" id="chats-section" role="tabpanel" aria-labelledby="chats-section">
-        <div class="d-flex align-items-center justify-content-between border-bottom">
-          <p class="settings-heading border-top-0 mb-3 pl-3 pt-0 border-bottom-0 pb-0">Friends</p>
-          <small class="settings-heading border-top-0 mb-3 pt-0 border-bottom-0 pb-0 pr-3 fw-normal">See All</small>
-        </div>
-        <ul class="chat-list">
-          <li class="list active">
-            <div class="profile"><img src="images/faces/face1.jpg" alt="image"><span class="online"></span></div>
-            <div class="info">
-              <p>Thomas Douglas</p>
-              <p>Available</p>
-            </div>
-            <small class="text-muted my-auto">19 min</small>
-          </li>
-          <li class="list">
-            <div class="profile"><img src="images/faces/face2.jpg" alt="image"><span class="offline"></span></div>
-            <div class="info">
-              <div class="wrapper d-flex">
-                <p>Catherine</p>
-              </div>
-              <p>Away</p>
-            </div>
-            <div class="badge badge-success badge-pill my-auto mx-2">4</div>
-            <small class="text-muted my-auto">23 min</small>
-          </li>
-          <li class="list">
-            <div class="profile"><img src="images/faces/face3.jpg" alt="image"><span class="online"></span></div>
-            <div class="info">
-              <p>Daniel Russell</p>
-              <p>Available</p>
-            </div>
-            <small class="text-muted my-auto">14 min</small>
-          </li>
-          <li class="list">
-            <div class="profile"><img src="images/faces/face4.jpg" alt="image"><span class="offline"></span></div>
-            <div class="info">
-              <p>James Richardson</p>
-              <p>Away</p>
-            </div>
-            <small class="text-muted my-auto">2 min</small>
-          </li>
-          <li class="list">
-            <div class="profile"><img src="images/faces/face5.jpg" alt="image"><span class="online"></span></div>
-            <div class="info">
-              <p>Madeline Kennedy</p>
-              <p>Available</p>
-            </div>
-            <small class="text-muted my-auto">5 min</small>
-          </li>
-          <li class="list">
-            <div class="profile"><img src="images/faces/face6.jpg" alt="image"><span class="online"></span></div>
-            <div class="info">
-              <p>Sarah Graves</p>
-              <p>Available</p>
-            </div>
-            <small class="text-muted my-auto">47 min</small>
-          </li>
-        </ul>
-      </div>
-      <!-- chat tab ends -->
     </div>
   </div>
-  
-  <!-- partial -->
-  <div class="main-panel">
-    <div class="content-wrapper">
-      <div class="row">
-        <div class="col-sm-12">
-          <div class="home-tab">
-            <div class="d-sm-flex align-items-center justify-content-between border-bottom">
-              <ul class="nav nav-tabs" role="tablist">
-                <li class="nav-item">
-                  <a class="nav-link active ps-0" id="home-tab" data-bs-toggle="tab" href="#overview" role="tab"
-                    aria-controls="overview" aria-selected="true">Overview</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" id="profile-tab" data-bs-toggle="tab" href="#audiences" role="tab"
-                    aria-selected="false">Audiences</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" id="contact-tab" data-bs-toggle="tab" href="#demographics" role="tab"
-                    aria-selected="false">Demographics</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link border-0" id="more-tab" data-bs-toggle="tab" href="#more" role="tab"
-                    aria-selected="false">More</a>
-                </li>
-              </ul>
-              <div>
-              </div>
-            </div>
+</div>
 
-          </div>
-          <div class="row">
-            <div class="col-lg-8 d-flex flex-column">
-              <div class="row flex-grow">
-                <div class="col-12 col-lg-4 col-lg-12 grid-margin stretch-card">
-                  <div class="card card-rounded">
-                    <div class="card-body">
-                      <div class="d-sm-flex justify-content-between align-items-start">
-                        <div>
-                          <h4 class="card-title card-title-dash">Performance Line Chart</h4>
-                          <h5 class="card-subtitle card-subtitle-dash">Lorem Ipsum is simply dummy text of the printing
-                          </h5>
-                        </div>
-                        <div id="performance-line-legend"></div>
-                      </div>
-                      <div class="chartjs-wrapper mt-5">
-                        <canvas id="performaneLine"></canvas>
-                      </div>
-                    </div>
+<br><br>
+<br>
+                      
+
+<div class="col-lg-4">
+      <div class="row flex-grow">
+          <div class="col-md-6 col-lg-12 grid-margin stretch-card mt-5">
+              <div class="card card-rounded">
+                  <div class="card-body">
+                      <h4 class="card-title card-title-dash">Revenue and Top Categories</h4>
+                      <p>Monthly Revenue: {{ month_revenue }}</p>
+                      <p>Yearly Revenue: {{ year_revenue }}</p>
+
+                      <p>Top Category This Year : </p>
+                      {% for i in yearly_top %}
+                            <h1>{{ i.product__product__categorys__name }}</h1>
+                            
+                      {% endfor %}
                   </div>
-                </div>
               </div>
-            </div>
-            <div class="col-lg-4 d-flex flex-column">
-              <div class="row flex-grow">
-                <div class="col-md-6 col-lg-12 grid-margin stretch-card">
-                  <div class="card bg-primary card-rounded">
+          </div>
+      </div>
+      <div class="col-lg-10 d-flex flex-column">
+        <div class="row flex-grow">
+            <div class="col-md-6 col-lg-12 grid-margin stretch-card">
+                <div class="card bg-dark card-rounded">
                     <div class="card-body pb-0">
-                      <h4 class="card-title card-title-dash text-white mb-4">Status Summary</h4>
-                      <div class="row">
-                        <div class="col-sm-4">
-                          <p class="status-summary-ight-white mb-1">Closed Value</p>
-                          <h2 class="text-info">357</h2>
+                        <div class="row d-flex justify-content-center">
+                            <div class="col-sm-6">
+                                <h3 class="status-summary text-white mb-2">TOP</h3>
+                                <h2 class="text-info">5 CATEGORIES</h2>
+                                
+                            </div>
+                            <div class="col-sm-8">
+                                <div class="status-summary-chart-wrapper pb-4">
+                                    <canvas id="statusSummary"></canvas>
+                                    <ul class="list-group">
+                                      {% for category in top_cats %}
+                                          <li class="list-group-item d-flex justify-content-between align-items-center bg-dark text-white">
+                                             <h5>{{ forloop.counter }} </h5> {{ category.category }}
+                                              <span class="badge bg-info text-dark rounded-pill"><b>{{ category.total_quantity }}</b></span>
+                                          </li>
+                                      {% endfor %}
+                                  </ul>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-sm-8">
-                          <div class="status-summary-chart-wrapper pb-4">
-                            <canvas id="status-summary"></canvas>
-                          </div>
-                        </div>
-                      </div>
                     </div>
-                  </div>
                 </div>
-                <div class="col-md-6 col-lg-12 grid-margin stretch-card">
-                  <div class="card card-rounded">
-                    <div class="card-body">
-                      <div class="row">
-                        <div class="col-sm-6">
-                          <div class="d-flex justify-content-between align-items-center mb-2 mb-sm-0">
-                            <div class="circle-progress-width">
-                              <div id="totalVisitors" class="progressbar-js-circle pr-2"></div>
-                            </div>
-                            <div>
-                              <p class="text-small mb-2">Total Visitors</p>
-                              <h4 class="mb-0 fw-bold">26.80%</h4>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-sm-6">
-                          <div class="d-flex justify-content-between align-items-center">
-                            <div class="circle-progress-width">
-                              <div id="visitperday" class="progressbar-js-circle pr-2"></div>
-                            </div>
-                            <div>
-                              <p class="text-small mb-2">Visits per day</p>
-                              <h4 class="mb-0 fw-bold">9065</h4>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
-          </div>
-          <div class="row">
-            <div class="col-lg-8 d-flex flex-column">
-              <div class="row flex-grow">
-                <div class="col-12 grid-margin stretch-card">
-                  <div class="card card-rounded">
-                    <div class="card-body">
-                      <div class="d-sm-flex justify-content-between align-items-start">
-                        <div>
-                          <h4 class="card-title card-title-dash">Market Overview</h4>
-                          <p class="card-subtitle card-subtitle-dash">Lorem ipsum dolor sit amet consectetur adipisicing
-                            elit
-                          </p>
-                        </div>
-                        <div class="d-sm-flex align-items-center mt-1 justify-content-between">
-                        <div class="d-sm-flex align-items-center mt-4 justify-content-between">
-                          <h2 class="me-2 fw-bold">$36,2531.00</h2>
-                          <h4 class="me-2">USD</h4>
-                          <h4 class="text-success">(+1.37%)</h4>
-                        </div>
-                        <div class="me-3">
-                          <div id="marketing-overview-legend"></div>
-                        </div>
-                      </div>
-                      <div class="chartjs-bar-wrapper mt-3">
-                        <canvas id="marketingOverview"></canvas>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            <!-- content-wrapper ends -->
-
-            {% endblock body %}
+        </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
+{% endblock body %}

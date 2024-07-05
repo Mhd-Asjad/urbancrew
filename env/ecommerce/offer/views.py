@@ -18,14 +18,13 @@ from django.urls import reverse
 def view_offers(request) :
     if request.user.is_superuser :
         offers = Offer.objects.all()
-
         return render(request,'view_offer.html',{'offers':offers})
     
-
     else :
 
 
-        return render('admin_log')
+        return redirect('adminlog')
+    
 
 @never_cache
 def add_offer(request) :
@@ -77,11 +76,13 @@ def add_offer(request) :
                 if Offer.objects.filter(product__id = product_id).exists():
                     messages.error(request,'this alreaddy added!')
                     return redirect('add_offer')
-                end_date = timezone.datetime.strptime(end_date,"%Y-%m-%d").date()
+                
+                end_date = timezone.make_aware(timezone.datetime.strptime(end_date, "%Y-%m-%d"))
                 if str(end_date) < str(today) :
                     messages.error(request,'date cannot be in the past!!')
                     return redirect('add_offer')
                 
+                print(end_date)
                 prod = Product.objects.get(id = product_id)
                 Offer.objects.create(
                     offer_type = Offer.PRODUCT,
@@ -92,7 +93,7 @@ def add_offer(request) :
                 messages.success(request,'offer added successfully')
             return redirect('view_offer')
         
-    return render(request,'add_offers.html',{ 'products' : products , 'categories' : categories})
+        return render(request,'add_offers.html',{ 'products' : products , 'categories' : categories})
 
 def edit_offer(request ,offer_id) :
 
@@ -125,44 +126,54 @@ def edit_offer(request ,offer_id) :
 
             if offer_type == 'category':
                 
-                if Offer.objects.filter(categorys__id=category_id).exclude(id=offer_id).exists():
-                    messages.error(request, "Offer already exists for this category.")
-                    return HttpResponseRedirect(reverse('edit_offer', args=[offer_id]))
+                # if Offer.objects.filter(categorys__id=category_id).exclude(id=offer_id).exists():
+                #     messages.error(request, "Offer already exists for this category.")
+                #     return HttpResponseRedirect(reverse('edit_offer', args=[offer_id]))
                 category_instance = get_object_or_404(category, id=category_id)
                 offer.offer_type = Offer.CATEGORY
-                offer.category = category_instance
+                offer.categorys = category_instance
+                offer.percentage = discount_percentage
+                offer.save()
 
-            end_date = timezone.datetime.strptime(end_date,"%Y-%m-%d").date()
-            if str(end_date) < str(today) :
-                messages.error(request,'date cannot be in the past!!')
-                return HttpResponseRedirect(reverse('edit_offer', args=[offer_id]))
-
-            elif offer_type == 'product':
-            
+                messages.success(request,'editedd sucesfully!')
+                return redirect('view_offer')
+            if offer_type == 'product':
                 if Offer.objects.filter(product__id=product_id).exclude(id=offer_id).exists():
                     messages.error(request, "Offer already exists for this product.")
                     return HttpResponseRedirect(reverse('edit_offer', args=[offer_id])) 
-                product = Product.objects.get(pk=product_id)
+                product = get_object_or_404(Product, id=product_id)
                 offer.offer_type = Offer.PRODUCT
                 offer.product = product
-            
+
+            end_date = timezone.make_aware(datetime.strptime(end_date, "%Y-%m-%d"))
+            if end_date < today :
+                messages.error(request, 'End date cannot be in the past')
+                return HttpResponseRedirect(reverse('edit_offer', args=[offer_id]))
+            product = Product.objects.get(pk = product_id )
+
             offer.percentage = round(disc)
             offer.end_date = end_date
+            offer.product = product
             offer.save()
             messages.success(request, "Offer updated successfully.")
-            return redirect('view_offer')
-
         return render(request, 'edit_offer.html', {'offer': offer, 'products': products, 'categories': categories})
     else:
-         return redirect("adminlogin")        
+         return redirect("adminlogin")   
 
 def active_offers(request,id):
-    offer = get_object_or_404(Offer,pk = id)
-    if offer.is_active == False :
-        offer.is_active = True
-        offer.save()
+    if request.user.is_superuser :
+        try :
+            offer = get_object_or_404(Offer,pk = id)
+        except Offer.DoesNotExist :
+            messages.error(request,'no offer available')
+            
+        if offer.is_active == False :
+            offer.is_active = True
+            offer.save()
 
-    else :
-        offer.is_active = False
-        offer.save()
-    return redirect('view_offer')
+        else :
+            
+            offer.is_active = False
+            offer.save()
+        return redirect('view_offer')
+    return redirect('adminlog')

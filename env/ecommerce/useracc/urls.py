@@ -6,7 +6,10 @@ urlpatterns = [
     path("base/", views.base, name="base"),
     path("register/", views.reg, name="register"),
     path("user_login/", views.user_login, name="user_login"),
-    path("pass_email/", views.reset_pass_email, name="pass_email"),
+    path("resset_password/", views.reset_pass_email, name="reset_password"),
+    path("reset_password_otp_form/",views.reset_password_otp_form,name='reset_password_otp_form'),
+    path("password/",views.reset_password,name='password'),
+
     path("otpvalidation/", views.otp_form, name="otpvalidation"),
     path("resentotp/", views.resend_otp, name="resentotp"),
     path("logout/", views.log_out, name="logout"),

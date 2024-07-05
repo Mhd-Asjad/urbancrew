@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "cart",
     'offer',
     "adminapp",
+    'wallet',
 
 ]
 
@@ -85,7 +86,8 @@ TEMPLATES = [
             os.path.join(BASE_DIR, "useracc", "templates"),
             os.path.join(BASE_DIR, "adminapp", "templates"),
             os.path.join(BASE_DIR, "products", "templates"),
-            os.path.join(BASE_DIR, "offer" , "templates")
+            os.path.join(BASE_DIR, "offer" , "templates"),
+            os.path.join(BASE_DIR, "wallet", "templates")
 
         ],
         "APP_DIRS": True,

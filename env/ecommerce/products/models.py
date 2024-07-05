@@ -4,7 +4,9 @@ from django.db.models.signals import post_save , post_delete , pre_save
 from django.dispatch import receiver
 from offer.models import *
 from django.utils import timezone
-from django.shortcuts import render, redirect 
+from django.shortcuts import render, redirect
+from django.contrib.postgres.fields import ArrayField
+
 
 #productss models
 
@@ -30,6 +32,7 @@ class AddImages(models.Model):
     image1 = models.ImageField(upload_to="product_images/")
     image2 = models.ImageField(upload_to="product_images/")
     image3 = models.ImageField(upload_to="product_images/")
+    additional_images = ArrayField(models.ImageField(upload_to="product_images/"),blank=True,null=True)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
@@ -44,26 +47,36 @@ class ProductSize(models.Model):
     
     size = models.CharField(max_length=10,)
     stock = models.PositiveIntegerField(default=0)
+    previous_stock = models.PositiveIntegerField(default=0,editable=False)
     is_available = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.image.product.product_name}  - {self.size} "
 
 @receiver(post_save, sender=ProductSize)
-def check_product_stock(sender, instance, **kwargs) :
-    print("this was activated")
+@receiver(post_delete, sender=ProductSize)
+def check_product_stock(sender, instance, **kwargs):
     product = instance.product_id
-    all_sizes = ProductSize.objects.filter(product_id=product)
+    image = instance.image
+    
+    all_sizes = ProductSize.objects.filter(product_id=product, image=image)
     total_stock = sum(size.stock for size in all_sizes)
-    print(f"The total stock is {total_stock}")
+    print(total_stock , 'whole stock')
     
-    if total_stock == 0 :
-        product.is_available = False
+    if total_stock == 0:
+        image.is_active = False
     else:
-        product.is_available = True
+        image.is_active = True
+    image.save()
     
+    all_images = AddImages.objects.filter(product=product)
+    product_available = any(image.is_active for image in all_images)
+    
+    if product_available:
+        product.is_available = True
+    else:
+        product.is_available = False
     product.save()
-
 
 
 @receiver([post_save,post_delete,pre_save],sender = Offer)
@@ -71,14 +84,15 @@ def update_offer_price(sender,instance,**kwargs) :
     product = instance.product
     category = instance.categorys
     today = timezone.now()
+    print(today)
+
 
     if not instance.is_active and product :
         product.offer_price = 0
 
-
-    if product and instance.is_active == True :
-        product_offers = Offer.objects.filter(product= product , is_active = True)
-        Max_discound = 0 
+    if product and product.is_available == True :
+        product_offers = Offer.objects.filter(product = product , is_active = True)
+        Max_discound = 0
 
         for offer in product_offers :
             if offer.percentage > Max_discound :
@@ -89,11 +103,10 @@ def update_offer_price(sender,instance,**kwargs) :
             full_amount -= (full_amount * Max_discound / 100 )
 
         product.offer_price = round(full_amount)
-        print(product.offer_price)
+        print(product.offer_price ,'ytuytyutyutyt')
         product.save()
 
     elif instance.is_active and category :
-        print(category , '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@123')
         
         products_in_category = Product.objects.filter(categorys = category)
 
@@ -113,9 +126,7 @@ def update_offer_price(sender,instance,**kwargs) :
 
             category_offers = Offer.objects.filter(categorys=category)
             biggest_discount_in_category = max((offer.percentage for offer in category_offers ) , default=0)
-
             final_discount = max(biggest_discount,biggest_discount_in_category)
-
             final_price_in_cat  = product_in_category.price
             if final_discount > 0 :
                 final_price_in_cat -= (final_price_in_cat * final_discount / 100)
@@ -124,10 +135,66 @@ def update_offer_price(sender,instance,**kwargs) :
             product_in_category.offer_price = round(final_price_in_cat)
             product_in_category.save()
 
+def update_offer_price(self,**kwarg) :
+    now = timezone.now()
+    expired_offer = Offer.objects.get(end_date__lte = now , is_active = True)
+    if expired_offer:
 
-# def clear_offer_price(self,**kwarg) :
+        expired_offer.is_active = False
+    expired_offer.save()
+
+# @receiver(pre_save, sender=Product)
+# def prod_offer_price(sender, instance, **kwargs):
 #     now = timezone.now()
-#     expired_offer = Offer.objects.filter(end_date__lte = now , is_active = True)
-#     if expired_offer:
+#     if instance.pk :
+#     # Check for an active product-specific offer
 
-#         expired_offer.is_a
+#         product_offer = Offer.objects.filter(
+#             offer_type=Offer.PRODUCT,
+#             product=instance,
+#             is_active=True,
+#             end_date__gt=now
+#         ).first()
+
+#     if product_offer:
+#         discount = (product_offer.percentage / 100) * instance.price
+#         instance.price = instance.price - product_offer.discount_amount
+#         instance.offer_price = instance.price - discount
+#     else:
+#         # Check for an active category-specific offer
+#         category_offer = Offer.objects.filter(
+#             offer_type=Offer.CATEGORY ,
+#             categorys=instance.categorys,
+#             is_active=True,
+#             end_date__gt=now
+#         ).first()
+
+#     if category_offer:
+#         discount = (category_offer.percentage / 100) * instance.price
+#         instance.offer_price = instance.price - discount
+#     else:
+#         # No active offers, reset offer_price to the original price
+#         instance.offer_price = instance.price
+
+# @receiver([post_save, post_delete], sender=Offer)
+# def update_offer_price(sender, instance, **kwargs):
+#     today = timezone.now()
+
+#     if instance.product:
+#         update_product_offer(instance.product)
+#     elif instance.categorys:
+#         update_category_offer(instance.categorys)
+
+# def update_product_offer(product):
+#     offers = Offer.objects.filter(product=product, is_active=True, end_date__gte=timezone.now())
+#     if offers.exists():
+#         max_discount = max(offer.percentage for offer in offers)
+#         product.offer_price = product.price - (product.price * max_discount / 100)
+#     else:
+#         product.offer_price = None 
+#     product.save()
+
+# def update_category_offer(category):
+#     products = Product.objects.filter(categorys=category)
+#     for product in products:
+#         update_product_offer(product)

@@ -102,41 +102,51 @@
                 </div>
             </div>
         </div>
-<script>
-    function moveToNext(currentInput, nextInputName) {
-        if (currentInput.value.length === currentInput.maxLength) {
-            document.getElementsByName(nextInputName)[0].focus();
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        const otpTimerElement = document.getElementById('otp-timer');
-        const submitButton = document.querySelector('form button[type="submit"]');
-
-        // Replace with your actual OTP expiry time in seconds (e.g., 300 seconds for 5 minutes)
-        const expiryTime = 120;
-
-        let remainingSeconds = expiryTime;
-
-        const timerInterval = setInterval(() => {
-            remainingSeconds--;
-            const minutes = Math.floor(remainingSeconds / 60);
-            const seconds = remainingSeconds % 60;
-
-            otpTimerElement.textContent = `(Expires in ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')})`;
-
-            if (remainingSeconds <= 0) {
-                clearInterval(timerInterval);
-                otpTimerElement.textContent = '(Expired)';
-                submitButton.disabled = true;
-            } else {
-                submitButton.disabled = false;
+        <script>
+            function moveToNext(currentInput, nextInputName) {
+                if (currentInput.value.length === currentInput.maxLength) {
+                    document.getElementsByName(nextInputName)[0].focus();
+                }
             }
-        }, 1000);
-    });
-</script>
+        
+            document.addEventListener('DOMContentLoaded', function () {
+                const otpTimerElement = document.getElementById('otp-timer');
+                const submitButton = document.querySelector('form button[type="submit"]');
+                const expiryTime = 120; // OTP expiry time in seconds (2 minutes)
+                
+                // Check if the timer was already set in localStorage
+                let endTime = localStorage.getItem('otpEndTime');
+                
+                if (!endTime) {
+                    // If not, set a new timer and store it in localStorage
+                    endTime = Date.now() + expiryTime * 1000;
+                    localStorage.setItem('otpEndTime', endTime);
+                } else {
+                    // Parse the stored endTime
+                    endTime = parseInt(endTime, 10);
+                }
+        
+                function updateTimer() {
+                    const currentTime = Date.now();
+                    let remainingTime = (endTime - currentTime) / 1000;
+        
+                    if (remainingTime <= 0) {
+                        otpTimerElement.textContent = '(Expired)';
+                        submitButton.disabled = true;
+                        clearInterval(timerInterval);
+                        localStorage.removeItem('otpEndTime');
+                    } else {
+                        submitButton.disabled = false;
+                        const minutes = Math.floor(remainingTime / 60);
+                        const seconds = Math.floor(remainingTime % 60);
+                        otpTimerElement.textContent = `(Expires in ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')})`;
+                    }
+                }
+        
+                updateTimer(); // Initial call to update the timer display
+                const timerInterval = setInterval(updateTimer, 1000);
+            });
 
         <script src="{% static 'js/script.js' %}"></script>
-        <!--$%analytics%$-->
-    </body>
-    </html>
+</body>
+</html>

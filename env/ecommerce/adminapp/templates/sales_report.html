@@ -1,0 +1,268 @@
+{% extends 'navigation.html' %}
+{% load static %}
+
+{% block body %}
+    
+<head>
+    <script src="https://kit.fontawesome.com/83f31ed500.js" crossorigin="anonymous"></script>
+</head>
+
+<style>
+
+    .body {
+        background-color: #f4f5f7;
+    }
+    /* Table styling */
+    .table-responsive {
+        overflow-x: auto;
+    }
+    .table {
+        width: 100%;
+        margin-bottom: 1rem;
+        color: #212529;
+        background-color: transparent;
+        border-collapse: collapse;
+        border-spacing: 0;
+    }
+    .table th,
+    .table td {
+        padding: 0.75rem;
+        vertical-align: top;
+        border-top: 1px solid #dee2e6;
+    }
+    .table thead th {
+        vertical-align: bottom;
+        border-bottom: 2px solid #dee2e6;
+    }
+    .table tbody+tbody {
+        border-top: 2px solid #dee2e6;
+    }
+    .table-sm th,
+    .table-sm td {
+        padding: 0.3rem;
+    }
+    .table-bordered {
+        border: 1px solid #dee2e6;
+    }
+    .table-bordered th,
+.table-bordered td {
+    border: 1px solid #dee2e6;
+}
+.table-bordered thead th,
+.table-bordered thead td {
+    border-bottom-width: 2px;
+}
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+/* Form styling */
+.form-control {
+    display: inline-block;
+    width: auto;
+    vertical-align: middle;
+}
+
+/* Custom styling for the sorting dropdown */
+.custom-select {
+    width: 230px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 8px;
+    background-color: #fff;
+}
+
+/* Custom styling for the date inputs */
+.date-inputs {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.date-input {
+    flex: 1;
+    margin-right: 10px;
+}
+
+.date-input label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.date-input input[type="date"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.text-nowrap {
+    white-space: nowrap!important;
+        padding-top: 24px;
+    }
+    
+    input {
+        width: 100px;
+    }
+    
+    #images {
+        width: 50px;
+        border-radius: 7px;
+    }
+</style>
+
+<div class="container-fluid">
+    <!-- Row 1 -->
+    <div class="row ">
+        <div class="col-lg-12 ">
+            <div class=" mb-3 mt-3">
+
+            <form action="{% url 'sales_report' %}" method="get" id="salesReportForm">
+                    
+                    <!-- Report type selection -->
+                    <select name="report_type" onchange="updateReportType();" id="report-type"
+                    class="form-control custom-select">
+                    <option value="" disabled selected hidden>Select Report Type</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="yearly">Yearly</option>
+                    <option value="custom">Custom</option>
+                </select>
+                
+                <!-- Date inputs -->
+                <div class="date-inputs">
+
+                    <div class="date-input" id="from-date" style="display:none;">
+                        <label for="from">From</label>
+                        <input type="date" id="from" name="from" class="form-control">
+                    </div>
+
+                    <div class="date-input" id="to-date" style="display:none;">
+                        <label for="to">To</label>
+                        <input type="date" id="to" name="to" class="form-control">
+                    </div>
+
+                    <div class="date-input" id="month-year" style="display:none;">
+                        <label for="month">Month:</label>
+                        <input type="month" id="month" name="month" class="form-control">
+                    </div>
+                    <div class="date-input" id="yearly-year" style="display:none;">
+                        <label for="year">Year:</label>
+                        <input type="number" id="year" name="year" class="form-control" min="1900" max="9999" placeholder="YYYY">
+                    </div>
+                    <div class="date-input" id="custom-date" style="display:none;">
+                        <label for="from">From</label>
+                        <input type="date" id="from-custom" name="from" class="form-control">
+                        <label for="to">To</label>
+                        <input type="date" id="to-custom" name="to" class="form-control">
+                    </div>
+                </div><br>
+                    <div class="d-flex justify-content-start "><button type="submit"
+                        class="btn btn-primary">Filter</button></div>
+            </form>
+                
+                
+                <div class="d-flex justify-content-center">
+                    <h3>SALES REPORT</h3>
+                </div><hr>
+
+            </div>
+        </div>
+        <br>
+        <br>
+
+        <div class="table-responsive">
+            {% if order %}
+        
+            <table class="table table-striped table-bordered">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col" class="">ORDER ID</th>
+                        <th scope="col" class="">PRODUCT</th>
+                        <th scope="col" class="" >QUANTITY</th>
+                        <th scope="col">CUSTOMER INFORMATION</th>
+                        <th scope="col">APPLIED COUPON</th>
+                        <th scope="col">DISCOUNTED PRICE</th>
+                        <th scope="col">ORDER DATE</th>
+        
+                    </tr>
+                </thead>
+        <tbody>
+            {% for i in order %}
+            <tr>
+                <td> {{i.order.tracking_id}} </td>
+                <td> {{i.product.product.product__name}} ({{i.product.color}}) {{i.size}} </td>
+                <td><b>{{ i.qnty }}</b></td>
+                <td>{{i.order.register.user.username}} {{ i.order.register.user.last_name }}</td>
+                <td> 
+                    {% if i.order.applied_coupen %}
+                    {{i.order.applied_coupen.coupon_name }}
+                    {% else %}
+                    <p style="color: red;" >NO coupon applied</p>
+                    {% endif %}
+            
+                </td>
+                <td> {{i.order.discounted_amount }} </td>
+                <td> {{i.order.created_at|date:"Y-m-d H:i:s"}} </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        </table><br><br>
+
+        <div class="my-4">
+        <a href="{% url 'download_sales_report' %}?format=pdf" class="btn btn-danger">
+            <i class="fas fa-file-pdf"></i> Download PDF
+        </a>
+        <a href="{% url 'download_sales_report' %}?format=excel" class="btn btn-success">
+            <i class="fas fa-file-excel"></i> Download Excel
+        </a>
+    </div>
+    {% else %}
+    <h1>no data founddd</h1>
+    {% endif %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        function updateReportType() {
+            const reportType = document.getElementById('report-type').value;
+            const fromDate = document.getElementById('from-date');
+            const toDate = document.getElementById('to-date');
+            const monthYear = document.getElementById('month-year');
+            const yearlyYear = document.getElementById('yearly-year');
+            const customDate = document.getElementById('custom-date');
+    
+            // Hide all date input fields
+            fromDate.style.display = 'none';
+            toDate.style.display = 'none';
+            monthYear.style.display = 'none';
+            yearlyYear.style.display = 'none';
+            customDate.style.display = 'none';
+    
+            switch(reportType) {
+                case 'daily':
+                    // Daily report type - show all orders
+                    // Assuming you have a way to display all orders without date filters
+                    break;
+                case 'monthly':
+                    monthYear.style.display = 'block';
+                    break;
+                case 'yearly':
+                    yearlyYear.style.display = 'block';
+                    break;
+                case 'custom':
+                    fromDate.style.display = 'block';
+                    toDate.style.display = 'block';
+                    break;
+                default:
+                    break;
+            }
+        }
+    
+        updateReportType();
+    
+        document.getElementById('report-type').addEventListener('change', updateReportType);
+    });
+</script>
+
+    
+{% endblock body %}
