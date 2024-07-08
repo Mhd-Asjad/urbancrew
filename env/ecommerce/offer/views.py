@@ -94,7 +94,7 @@ def add_offer(request) :
             return redirect('view_offer')
         
         return render(request,'add_offers.html',{ 'products' : products , 'categories' : categories})
-
+@never_cache
 def edit_offer(request ,offer_id) :
 
     if request.user.is_authenticated and request.user.is_superuser:

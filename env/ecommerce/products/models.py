@@ -143,38 +143,37 @@ def update_offer_price(self,**kwarg) :
         expired_offer.is_active = False
     expired_offer.save()
 
-# @receiver(pre_save, sender=Product)
-# def prod_offer_price(sender, instance, **kwargs):
-#     now = timezone.now()
-#     if instance.pk :
-#     # Check for an active product-specific offer
+@receiver(pre_save, sender=Product)
+def prod_offer_price(sender, instance, **kwargs):
+    now = timezone.now()
+    if instance.pk :
+    # Check for an active product-specific offer
 
-#         product_offer = Offer.objects.filter(
-#             offer_type=Offer.PRODUCT,
-#             product=instance,
-#             is_active=True,
-#             end_date__gt=now
-#         ).first()
+        product_offer = Offer.objects.filter(
+            offer_type=Offer.PRODUCT,
+            product=instance,
+            is_active=True,
+            end_date__gt=now
+        ).first()
 
-#     if product_offer:
-#         discount = (product_offer.percentage / 100) * instance.price
-#         instance.price = instance.price - product_offer.discount_amount
-#         instance.offer_price = instance.price - discount
-#     else:
-#         # Check for an active category-specific offer
-#         category_offer = Offer.objects.filter(
-#             offer_type=Offer.CATEGORY ,
-#             categorys=instance.categorys,
-#             is_active=True,
-#             end_date__gt=now
-#         ).first()
+        if product_offer:
+            discount = (product_offer.percentage / 100) * instance.price
+            instance.offer_price = instance.price - discount
+        else:
+            # Check for an active category-specific offer
+            category_offer = Offer.objects.filter(
+                offer_type=Offer.CATEGORY ,
+                categorys=instance.categorys,
+                is_active=True,
+                end_date__gt=now
+            ).first()
 
-#     if category_offer:
-#         discount = (category_offer.percentage / 100) * instance.price
-#         instance.offer_price = instance.price - discount
-#     else:
-#         # No active offers, reset offer_price to the original price
-#         instance.offer_price = instance.price
+            if category_offer:
+                discount = (category_offer.percentage / 100) * instance.price
+                instance.offer_price = instance.price - discount
+            else:
+                # No active offers, reset offer_price to the original price
+                instance.offer_price = instance.price
 
 # @receiver([post_save, post_delete], sender=Offer)
 # def update_offer_price(sender, instance, **kwargs):

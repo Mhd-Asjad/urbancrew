@@ -84,6 +84,18 @@
         background-color: #038d8e;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
+    .product__item__pic {
+        overflow: hidden;
+        position: relative;
+    }
+
+    .product__item__pic img {
+        transition: transform 1s ease;
+    }
+
+    .product__item__pic[data-zoom="true"]:hover img {
+        transform: scale(1.1);
+    }
 </style>
 
 {% block content %}
@@ -222,7 +234,7 @@
                                 {% for product in prods.all %}
                                     <div class="col-lg-4 col-md-6 col-sm-6">
                                         <div class="product__item">
-                                            <div class="product__item__pic set-bg" data-setbg="">
+                                            <div class="product__item__pic set-bg zoom" data-setbg="" data-zoom="true" >
                                                 <a href="{% url 'shop_details' product.id %}">
                                                     <img style='width: 300px; height:270px;' src="{{ product.image1.url }}" alt="">
                                                 </a>
@@ -297,6 +309,24 @@
                 </div>
             </section>
             <!-- Shop Section End -->
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                const zoomElements = document.querySelectorAll('.product__item__pic[data-zoom="true"]');
+
+                    zoomElements.forEach(function (element) {
+                        element.addEventListener('mouseover', function () {
+                            const img = this.querySelector('img');
+                            img.style.transform = 'scale(1.1)';
+                        });
+
+                        element.addEventListener('mouseout', function () {
+                            const img = this.querySelector('img');
+                            img.style.transform = 'scale(1)';
+                        });
+                    });
+                });
+            </script>
             <script>
                 document.querySelectorAll('input[name="color"]').forEach(function(element) {
                     element.addEventListener('change', function(event) {

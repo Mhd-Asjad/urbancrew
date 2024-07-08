@@ -109,5 +109,20 @@
         }
     }
 </script>
+
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+    {% if messages %}
+    {% for message in messages %}
+    {% if message.tags == 'error' %}
+    swal("Error!", "{{ message }}", "error");
+    {% elif message.tags == 'success' %}
+    swal("Success!", "{{ message }}", "success");
+    {% else %}    
+    swal("Message", "{{ message }}");
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+</script> 
     
 {% endblock body %}

@@ -153,14 +153,9 @@
                                 <br>
                                  size : {{ item.size }}
                             </td>
-                        {% if item.product.product.offer_price %}
                             
-                            <td>₹ {{ item.product.product.offer_price }}</td>
-                        {% else %}
-                            <td>
-                                ₹{{ item.product.product.price}}
-                            </td>
-                        {% endif %}
+                            <td>₹ {{ item.price }}</td>
+                     
                             <td>{{ item.qnty }}</td>
 
                             <td>{{ item.status }}</td>

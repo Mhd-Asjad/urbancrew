@@ -199,18 +199,12 @@ def edit_variant(request, product_id):
             image1 = request.FILES.get('image1')
             image2 = request.FILES.get('image2')
             image3 = request.FILES.get('image3')
-            valid_extensions  = ['jpg', 'jpeg', 'png', 'gif' ,'avif', 'webp']
-            invalid_files = []
 
+            allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'avif', 'webp']
             for image in [image1, image2, image3]:
-                if image:
-                    ext = image.name.split('.')[-1].lower()
-                    if ext not in valid_extensions:
-                        invalid_files.append(image.name)
-
-            if invalid_files:
-                messages.error(request, f"Invalid file extension(s): {', '.join(invalid_files)}. Allowed extensions: {', '.join(valid_extensions)}.")
-                return redirect('edit_variant', product_id=product_id)
+                if image and not image.name.split('.')[-1].lower() in allowed_extensions:
+                    messages.error(request, 'Only image files are allowed (jpg, jpeg, png, gif, avif, webp).')
+                    return redirect('editvariant', product_id=product_id)
 
             variant.color = color
             if image1:
@@ -352,6 +346,7 @@ def edit_prod(request, product_id):
         products.categorys = category_obj
         if thumb_img:
             products.img = thumb_img
+        products.save()
        
         try :
             products.save()

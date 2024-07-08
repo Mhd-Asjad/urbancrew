@@ -75,12 +75,11 @@
                                 <i class="fa fa-star-o"></i>
                             </div>
                             {% if item.product.product.offer_price %}
-                                <h4> ₹{{ item.product.product.offer_price|floatformat:1 }}</h4>
+                            <h3>₹ {{ item.product.product.offer_price|floatformat:0 }} {% if item.product.product.offer_price < item.product.product.price %}<span style="text-decoration: line-through; font-size: 14px; color: grey;  " >{{ item.product.product.price }}</span>{% endif %}</h3>
                             {% else %}
                                 <h3>₹{{ item.product.product.price }}</h3>
                             {% endif %}
 
-                            <h5>₹{{ item.product.product.price }}</h5>
                             {% if item.size %}
                             <h6>Size: {{ item.size.size }}</h6>
                             {% endif %}
