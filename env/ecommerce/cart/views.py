@@ -1215,7 +1215,8 @@ def invoice(request, order_id) :
         }
 
         html_string = render_to_string("invoice.html",context)
-        config = pdfkit.configuration(wkhtmltopdf="C:\\Users\\Acer\\Desktop\\week9\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
+        config = pdfkit.configuration(wkhtmltopdf='/usr/bin/wkhtmltopdf')
+
 
         # generating pdf
 

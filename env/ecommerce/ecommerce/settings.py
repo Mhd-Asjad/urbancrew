@@ -12,13 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import os
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "django-insecure-xo)x1b0m#(t-w!ycm5eojlaqmmom#g$6q-rwl&w768*f9gv71c"
@@ -33,7 +27,8 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "urbancrew144@gmail.com"
 EMAIL_HOST_PASSWORD = "ynxn tmnu jzau ohzv"
 
-ALLOWED_HOSTS = []
+
+ALLOWED_HOSTS = ['urbancrew.site', 'www.urbancrew.site', '0.0.0.0']
 
 
 # Application definition
@@ -109,18 +104,17 @@ WSGI_APPLICATION = "ecommerce.wsgi.application"
 
 
 # Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "ecommerce",
-        "USER": "postgres",
-        "PASSWORD": "asjadk123",
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": "ecommerce_db",
+        "USER": "admin",
+        "PASSWORD": "1234",
         "HOST": "localhost",
         "PORT": "5432",
     }
 }
+
 
 
 # Password validation
@@ -157,17 +151,16 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = "static/"
+#MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+MEDIA_ROOT = '/home/ubuntu/Project_1/env/ecommerce/media'
 
+#new
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "useracc", "static"),
-    os.path.join(BASE_DIR, "adminapp", "static"),
-    os.path.join(BASE_DIR, "products", "static"),
+    os.path.join(BASE_DIR, 'static'),
 ]
-STATIC_ROOT = BASE_DIR / "staticfiles"
-MEDIA_URL = "/media/"
-
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
