@@ -4,54 +4,60 @@
 {% load static %}
 
 {% block content %}
+<head>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <!-- jQuery (required by Toastr) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        
+    <style>
+
+        .qty-btn {
+            background-color: #f8f9fa;
     
-<style>
-    .qty-btn {
-        background-color: #f8f9fa;
-
-        border-radius : 10px ;
-        color: #495057;
-        font-size: 16px;
-        padding: 5px 10px;
-        cursor: pointer;
-        outline: none;
-    }
-
-    .qty-btn:hover {
-        background-color: #e9ecef;
-    }
-
-    .qty-btn:active {
-        background-color: #dee2e6;
-    }
-
-    .pro-qty-2 {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .qty-btn-left {
-        margin-right: 5px;
-    }
-
-    .qty-btn-right {
-        margin-left: 5px;
-
-    }
-    .shopping__cart__table table tbody tr td.product__cart__item {
-        width: 335px;
-    }
+            border-radius : 10px ;
+            color: #495057;
+            font-size: 16px;
+            padding: 5px 10px;
+            cursor: pointer;
+            outline: none;
+        }
     
-    .ms-5 {
-        padding-right: 10px !important ;
-    }
-    .cart__total{
-        margin-left : 50px !important;
-    }
-</style>
-<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
-<link rel="stylesheet" type="text/css" href="{% static 'css/toastr.css' %}" media="all">
+        .qty-btn:hover {
+            background-color: #e9ecef;
+        }
+    
+        .qty-btn:active {
+            background-color: #dee2e6;
+        }
+    
+        .pro-qty-2 {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    
+        .qty-btn-left {
+            margin-right: 5px;
+        }
+    
+        .qty-btn-right {
+            margin-left: 5px;
+    
+        }
+        .shopping__cart__table table tbody tr td.product__cart__item {
+            width: 335px;
+        }
+        
+        .ms-5 {
+            padding-right: 10px !important ;
+        }
+        .cart__total{
+            margin-left : 50px !important;
+        }
+    </style>
+</head>
     <section class="breadcrumb-option">
         <div class="container">
             <div class="row">
@@ -71,22 +77,6 @@
     <!-- Breadcrumb Section End -->
 
     <!-- Shopping Cart Section Begin -->
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-
-    <script>
-        {% if messages %}
-        {% for message in messages %}
-        {% if message.tags == 'error' %}
-        swal("Error!", "{{ message }}", "error"); // Display error message with a warning icon
-        {% elif message.tags == 'success' %}
-        swal("Success!", "{{ message }}", "success"); // Display success message with a success icon
-        {% else %}
-        swal("Message", "{{ message }}"); // Display general message
-        {% endif %}
-        {% endfor %}
-        {% endif %}
-    </script>
-    <br />
         
     <section class="shopping-cart spad">
         <div class="container">
@@ -205,6 +195,43 @@
     </section>
     
     <!-- Shopping Cart Section End -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <script>
+        toastr.options = {
+            "closeButton": false,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-top-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        }
+
+        // Function to display Toastr messages
+        function displayMessages() {
+
+            {% if messages %}
+                {% for message in messages %}
+                    toastr["{{ message.tags }}"]("{{ message }}")
+                {% endfor %}
+            {% endif %}
+
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            displayMessages();
+        });
+    </script>
     <script>
        function updateQuantity(cartid, action) {
         var quantityInput = document.getElementById("qty-" + cartid);``

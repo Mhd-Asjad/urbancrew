@@ -1,5 +1,8 @@
     {% load static %}
     <!DOCTYPE html>
+    {% block content %}
+        
+    <!DOCTYPE html>
     <html lang="en">
     <head>
         <meta charset="utf-8">
@@ -17,11 +20,12 @@
                 justify-content: space-between;
                 margin-bottom: 20px;
             }
+    
             .justify-content-center {
                 justify-content: center !important;
-                margin: 13.6rem;
+                margin: 1rem;
             }
-
+    
             .otp-input {
                 width: 70px;
                 height: 40px;
@@ -29,40 +33,37 @@
                 font-size: 20px;
                 border: 1px solid #ccc;
                 border-radius: 5px;
-                margin-right: 5px;
-                padding: 5px;
             }
-
+    
             .otp-input:focus {
                 border-color: #007bff;
                 outline: none;
             }
-
+    
             .otp-input:disabled {
                 background-color: #f8f9fa;
             }
+    
             a:hover {
-                color: #0056b3; 
-              }
-            
-              a:visited {
-                color: #007bff; 
-              }
-          
+                color: #0056b3;
+            }
+    
+            a:visited {
+                color: #007bff;
+            }
         </style>
     </head>
     <body>
-    <main class="cd__main">
         <!-- Start DEMO HTML (Use the following code into your project)-->
         <body class="container-fluid bg-body-tertiary d-block">
-        <div class="row justify-content-center">
+        <div class="row d-flex justify-content-center">
             <div class="col-12 col-md-6 col-lg-4" style="min-width: 500px;">
                 <div class="card bg-white mb-5 mt-5 border-0"
                     style="box-shadow: 0 12px 15px rgba(0, 0, 0, 0.02);">
                     <div class="card-body p-5 text-center">
                         <h4>Verify</h4>
                         <p>Your code was sent to you via email</p>
-
+    
                         <form method="POST" action="{% url 'otpvalidation' %}">
                             {% csrf_token %}
                             <div class="otp-field mb-4">
@@ -71,30 +72,26 @@
                                 <input type="text" name="otp3" class="otp-input" maxlength='1' required />
                                 <input type="text" name="otp4" class="otp-input" maxlength='1' required />
                             </div>
-
+    
                             <button type="submit" class="btn btn-primary mb-4">
                                 Verify
                             </button>
-
+    
                             <br>
                             <br>
                             <h4 id="otp-timer">otp timer (2 : 00)</h4>
                             <br>
                             
-                            
-                            <div class="d-flexjustify-content-center">
+                            <div class="d-flex justify-content-center">
                                 {% for message in messages %}
-
-                                <b class="{% if message.tags == 'error' %}text-danger{% else %}text-success{% endif %}" >
-
+                                <b class="{% if message.tags == 'error' %}text-danger{% else %}text-success{% endif %}">
                                     {{ message }}
                                 </b>
-
                                 {% endfor %}
                             </div>                                
-
+    
                         </form>
-
+    
                         <p class="resend text-muted mb-0" id="resend-link">
                             Didn't receive code? <a href="{% url 'resentotp' %}">Request again</a>
                         </p>
@@ -103,38 +100,32 @@
             </div>
         </div>
         <script>
-            function moveToNext(currentInput, nextInputName) {
-                if (currentInput.value.length === currentInput.maxLength) {
-                    document.getElementsByName(nextInputName)[0].focus();
-                }
-            }
-        
             document.addEventListener('DOMContentLoaded', function () {
                 const otpTimerElement = document.getElementById('otp-timer');
                 const submitButton = document.querySelector('form button[type="submit"]');
+                const resendLink = document.getElementById('resend-link').querySelector('a');
                 const expiryTime = 120; // OTP expiry time in seconds (2 minutes)
                 
-                // Check if the timer was already set in localStorage
-                let endTime = localStorage.getItem('otpEndTime');
-                
-                if (!endTime) {
-                    // If not, set a new timer and store it in localStorage
-                    endTime = Date.now() + expiryTime * 1000;
+                // Function to start the OTP timer
+                function startOtpTimer() {
+                    let endTime = Date.now() + expiryTime * 1000;
                     localStorage.setItem('otpEndTime', endTime);
-                } else {
-                    // Parse the stored endTime
-                    endTime = parseInt(endTime, 10);
+                    updateTimer(endTime);
+                    const timerInterval = setInterval(() => updateTimer(endTime), 1000);
+                    localStorage.setItem('timerInterval', timerInterval);
                 }
-        
-                function updateTimer() {
+    
+                // Function to update the OTP timer display
+                function updateTimer(endTime) {
                     const currentTime = Date.now();
                     let remainingTime = (endTime - currentTime) / 1000;
-        
+    
                     if (remainingTime <= 0) {
                         otpTimerElement.textContent = '(Expired)';
                         submitButton.disabled = true;
-                        clearInterval(timerInterval);
+                        clearInterval(localStorage.getItem('timerInterval'));
                         localStorage.removeItem('otpEndTime');
+                        localStorage.removeItem('timerInterval');
                     } else {
                         submitButton.disabled = false;
                         const minutes = Math.floor(remainingTime / 60);
@@ -142,11 +133,52 @@
                         otpTimerElement.textContent = `(Expires in ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')})`;
                     }
                 }
-        
-                updateTimer(); // Initial call to update the timer display
-                const timerInterval = setInterval(updateTimer, 1000);
+    
+                // Check if the timer was already set in localStorage
+                let endTime = localStorage.getItem('otpEndTime');
+                if (endTime) {
+                    endTime = parseInt(endTime, 10);
+                    updateTimer(endTime);
+                    const timerInterval = setInterval(() => updateTimer(endTime), 1000);
+                    localStorage.setItem('timerInterval', timerInterval);
+                } else {
+                    startOtpTimer();
+                }
+    
+                // Handle the resend OTP link click event
+                resendLink.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    fetch(resendLink.href)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                startOtpTimer();
+                            } else {
+                                alert('Failed to resend OTP. Please try again.');
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
+                });
+    
+                // Move to next input when current is filled
+                const otpInputs = document.querySelectorAll('.otp-input');
+                otpInputs.forEach((input, index) => {
+                    input.addEventListener('input', (e) => {
+                        if (e.target.value.length === e.target.maxLength) {
+                            if (index < otpInputs.length - 1) {
+                                otpInputs[index + 1].focus();
+                            }
+                        }
+                    });
+                });
+    
+                // Auto-focus the first input on page load
+                otpInputs[0].focus();
             });
-
+        </script>
         <script src="{% static 'js/script.js' %}"></script>
-</body>
-</html>
+    </body>
+    </html>
+    
+
+{% endblock content %}

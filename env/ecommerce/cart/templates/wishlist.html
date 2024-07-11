@@ -2,6 +2,10 @@
 
 {% block content %}
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<!-- jQuery (required by Toastr) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <style>
     .wishlist-item {
         display: flex;
@@ -101,44 +105,41 @@
         </div>
     </div>
 </section>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 <script>
-    const Toast = Swal.mixin({
-    toast: true,
-    position: "top-end",
-    showConfirmButton: false,
-    timer: 2000,
-    timerProgressBar: true,
-    didOpen: (toast) => {
-        toast.onmouseenter = Swal.stopTimer;
-        toast.onmouseleave = Swal.resumeTimer;
+    toastr.options = {
+        "closeButton": false,
+        "debug": false,
+        "newestOnTop": false,
+        "progressBar": false,
+        "positionClass": "toast-top-right",
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "5000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
     }
+
+    // Function to display Toastr messages
+    function displayMessages() {
+
+        {% if messages %}
+            {% for message in messages %}
+                toastr["{{ message.tags }}"]("{{ message }}")
+            {% endfor %}
+        {% endif %}
+
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        displayMessages();
     });
-    // Handle error messages
-    {% if error_message %}
-        {% for msg in messages %}
-
-            Toast.fire({
-                icon: "error",
-                title: "{{ msg }}"
-            });
-
-        {% endfor %}
-    {% endif %}
-
-    // Handle success message
-    {% if messages %}  
-        {% for success_message in messages %}
-
-            Toast.fire({
-                icon: "success",
-                title: "{{ success_message }}"
-                    
-            });
-        {% endfor %}
-    {% endif %}
 </script>
     
 {% endblock content %}

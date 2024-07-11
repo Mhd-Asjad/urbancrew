@@ -46,15 +46,14 @@ def add_cart(request):
 
             if size.stock <= 0 :
 
-                messages.error(request, "There is no stock left.")
-                return redirect('shop_details', product_id)
+                messages.warning(request, "There is no stock left.")
 
             print(product_id,'this is prod id')
             print(size_id,'sizess')
 
 
             if Cart.objects.filter(user = request.user ,product = product ,sizes = size).exists():
-                messages.error(request,'this item already in the cart')
+                messages.warning(request,'this item already in the cart')
                 return redirect("shop_details", product_id)
 
             else :
@@ -196,7 +195,7 @@ def update_tot_price(request):
 
 def wishlist_view(request) :
     user = request.user
-    wishlist_items = Wishlist.objects.filter(user=user)
+    wishlist_items = Wishlist.objects.filter(user=user.id)
 
     context = {
 

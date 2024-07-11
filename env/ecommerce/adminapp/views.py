@@ -38,6 +38,10 @@ def dash_view(request):
         selected_month = request.GET.get('month')
         selected_year = request.GET.get('year')
 
+        if not selected_month :
+            current_date = datetime.now()
+            selected_month = f"{current_date.year}-{current_date.month:02d}"
+
 
         orders = Order_items.objects.filter(status="Delivered").select_related('order', 'product').order_by('order__created_at')
         this_year = timezone.now().year

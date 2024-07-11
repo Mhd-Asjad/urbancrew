@@ -195,16 +195,30 @@ def edit_variant(request, product_id):
     variant = get_object_or_404(AddImages, id=product_id)
     if request.user.is_superuser :
         if request.method == "POST":
+            
             color = request.POST.get('color')
             image1 = request.FILES.get('image1')
             image2 = request.FILES.get('image2')
             image3 = request.FILES.get('image3')
+
 
             allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'avif', 'webp']
             for image in [image1, image2, image3]:
                 if image and not image.name.split('.')[-1].lower() in allowed_extensions:
                     messages.error(request, 'Only image files are allowed (jpg, jpeg, png, gif, avif, webp).')
                     return redirect('editvariant', product_id=product_id)
+                
+            if 'remove_image1' in request.POST and request.POST['remove_image1'] == 'on':
+                variant.image1.delete()
+                variant.image1 = None
+            if 'remove_image2' in request.POST and request.POST['remove_image2'] == 'on':
+                variant.image2.delete()
+                variant.image2 = None
+            if 'remove_image3' in request.POST and request.POST['remove_image3'] == 'on':
+                variant.image3.delete()
+                variant.image3 = None
+
+
 
             variant.color = color
             if image1:

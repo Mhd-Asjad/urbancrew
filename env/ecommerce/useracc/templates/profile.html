@@ -1,13 +1,33 @@
 {% extends 'bases.html' %}
 {% load static %}
+
+
+{% block content %}
 <head>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.css">
     <link rel="stylesheet" href="{% static 'css/profile.css' %}" type="text/css" >
-
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <!-- jQuery (required by Toastr) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+<style>
+    .info-container {
+        max-width: 600px;
+        margin: auto;
+    }
+    
+    .info-item h5 {
+        font-size: 1rem;
+    }
+    
+    .info-item p {
+        margin-bottom: 0;
+        font-size: 0.9rem;
+    }
+</style>
 </head>
-{% block content %}
 <!-- Demo header-->
 <section class="breadcrumb-option">
     <div class="container">
@@ -63,19 +83,32 @@
                 <div class="tab-content" id="v-pills-tabContent">
                     <div class="tab-pane fade shadow rounded bg-gradient show active p-5" {% if tab == 'v-pills-home' %}show active{% endif %} id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">
                         <h4 class="font-italic mb-4">Personal information</h4>
-                        <div class="info text-white">                            
-                            <h5 style="color: black;" ><b>Username: {{ about.user.username }}</b></h5>
-                            <br>
-                            <h5  style="color: black;" ><b>Email: {{ about.user.email }}</b></h5>
-                            <br>
-                            <h5 style="color: black;"><b>Phone: {{ about.mobile }}</b></h5>
-                            <br>
-                            <h5  style="color: black;" ><b>Date of Birth: {{ about.dob }}</b></h5>
-                            <br>
-                            <h5 style="color: black;" ><b>Gender: {{ about.gender }}</b></h5>
-                            <div class="d-flex justify-content-end">
-                                <button class="btn btn-danger" data-toggle="modal" data-target="#editModal">Edit</button>
-                                <button class="btn btn-dark text-white" data-toggle="modal" data-target="#changePasswordModal">Change Password</button>
+                        <div class="user-info">
+                            <div class="info-item mb-3">
+                                <h5 class="mb-0"><strong>Username:</strong></h5>
+                                <p class="text-muted">{{ about.user.username }}</p>
+                            </div>
+                            <div class="info-item mb-3">
+                                <h5 class="mb-0"><strong>Email:</strong></h5>
+                                <p class="text-muted">{{ about.user.email }}</p>
+                            </div>
+                            <div class="info-item mb-3">
+                                <h5 class="mb-0"><strong>Phone:</strong></h5>
+                                <p class="text-muted">{% if about.mobile %}{{ about.mobile }}{% else %}empty{% endif %}</p>
+                            </div>
+                            <div class="info-item mb-3">
+                                <h5 class="mb-0"><strong>Date of Birth:</strong></h5>
+                                <p class="text-muted">{% if not about.dob %}empty{% else %}{{ about.dob }}{% endif %}</p>
+                            </div>
+                            <div class="info-item mb-3">
+                                <h5 class="mb-0"><strong>Gender:</strong></h5>
+                                <p class="text-muted">{% if not about.gender %}
+                                    empty
+                                {% endif %}{{ about.gender }}</p>
+                            </div>
+                            <div class="d-flex justify-content-end mt-4">
+                                <button class="btn btn-primary mr-2" data-toggle="modal" data-target="#editModal">Edit</button>
+                                <button class="btn btn-secondary" data-toggle="modal" data-target="#changePasswordModal">Change Password</button>
                             </div>
                         </div>
                     </div>
@@ -327,6 +360,7 @@
                         </select>
 
                     </div>
+                    <br>
                     <button type="submit" class="btn btn-primary">Save changes</button>
                 </form>
             </div>
@@ -336,37 +370,42 @@
 <!-- Password Change Modal -->
 <div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" action="{% url 'change_pass' user.id %}" id="changePasswordForm">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="current_password">Current Password</label>
+                        <input type="password" class="form-control" id="current_password" name="current_password" >
+                        <div class="invalid-feedback" id="current_password_error"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="new_password">New Password</label>
+                        <input type="password" class="form-control" id="new_password" name="new_password" >
+                        <div class="invalid-feedback" id="new_password_error"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm_password">Confirm New Password</label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" >
+                        <div class="invalid-feedback" id="confirm_password_error"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </form>
         </div>
-        <form method="post" action="{% url 'change_pass' user.id %}">
-          {% csrf_token %}
-          <div class="modal-body">
-            <div class="form-group">
-              <label for="current_password">Current Password</label>
-              <input type="password" class="form-control" id="current_password" name="current_password" required>
-            </div>
-            <div class="form-group">
-              <label for="new_password">New Password</label>
-              <input type="password" class="form-control" id="new_password" name="new_password" required>
-            </div>
-            <div class="form-group">
-              <label for="confirm_password">Confirm New Password</label>
-              <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary">Save changes</button>
-          </div>
-        </form>
-      </div>
     </div>
-  </div>
+</div>
+
+
 
 <!-- Delete Address Modal -->
 <div class="modal fade" id="deleteAddressModal" tabindex="-1" role="dialog" aria-labelledby="deleteAddressModalLabel" aria-hidden="true">
@@ -424,44 +463,41 @@
 
     </script>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
     <script>
-        const Toast = Swal.mixin({
-        toast: true,
-        position: "top-end",
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-            toast.onmouseenter = Swal.stopTimer;
-            toast.onmouseleave = Swal.resumeTimer;
+        toastr.options = {
+            "closeButton": false,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-top-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
         }
+
+        // Function to display Toastr messages
+        function displayMessages() {
+
+            {% if messages %}
+                {% for message in messages %}
+                    toastr["{{ message.tags }}"]("{{ message }}")
+                {% endfor %}
+            {% endif %}
+
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            displayMessages();
         });
-        // Handle error messages
-        {% if error_message %}
-            {% for field, msg in error_message.items %}
-
-                console.log("jdfl;kfjsdkfj")
-                Toast.fire({
-                    icon: "error",
-                    title: "{{ msg }}"
-                });
-            {% endfor %}
-        {% endif %}
-
-        // Handle success message
-        {% if messages %}  
-            {% for success_message in messages %}
-                console.log("dsjfkdhfkjhskhdfkljhdjhfgjhdgfjksgdfjy")
-                Toast.fire({
-                    icon: "success",
-                    title: "{{ success_message }}"
-                        
-                });
-            {% endfor %}
-        {% endif %}
     </script>
 
     <script>
@@ -605,8 +641,54 @@
         });
 
     </script>
-
     <script>
+        document.getElementById('changePasswordForm').addEventListener('submit', function(event) {
+            let form = this;
+            let currentPassword = document.getElementById('current_password');
+            let newPassword = document.getElementById('new_password');
+            let confirmPassword = document.getElementById('confirm_password');
+    
+            let currentPasswordError = document.getElementById('current_password_error');
+            let newPasswordError = document.getElementById('new_password_error');
+            let confirmPasswordError = document.getElementById('confirm_password_error');
+    
+            let valid = true;
+    
+            // Clear previous error messages
+            currentPassword.classList.remove('is-invalid');
+            newPassword.classList.remove('is-invalid');
+            confirmPassword.classList.remove('is-invalid');
+            currentPasswordError.textContent = '';
+            newPasswordError.textContent = '';
+            confirmPasswordError.textContent = '';
+    
+            // Validate current password
+            if (currentPassword.value.trim() === '') {
+                currentPassword.classList.add('is-invalid');
+                currentPasswordError.textContent = 'Current password is required.';
+                valid = false;
+            }
+    
+            // Validate new password
+            if (newPassword.value.length < 8) {
+                newPassword.classList.add('is-invalid');
+                newPasswordError.textContent = 'Password must be at least 8 characters long.';
+                valid = false;
+            }
+    
+            // Validate confirm password
+            if (newPassword.value !== confirmPassword.value) {
+                confirmPassword.classList.add('is-invalid');
+                confirmPasswordError.textContent = 'Passwords do not match.';
+                valid = false;
+            }
+    
+            if (!valid) {
+                event.preventDefault();
+            }
+        });
+    </script>
+<script>
 
 document.addEventListener('DOMContentLoaded', function() {
     const mobileInput = document.getElementById('mobile');
@@ -633,7 +715,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     });
-    </script>
+</script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var activeTab = "{{ tab }}";

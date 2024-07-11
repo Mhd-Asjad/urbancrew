@@ -39,6 +39,7 @@ ALLOWED_HOSTS = []
 # Application definition
 SITE_ID = 2
 INSTALLED_APPS = [
+    
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -83,6 +84,7 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
+            os.path.join(BASE_DIR, 'templates'),
             os.path.join(BASE_DIR, "useracc", "templates"),
             os.path.join(BASE_DIR, "adminapp", "templates"),
             os.path.join(BASE_DIR, "products", "templates"),

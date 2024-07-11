@@ -66,49 +66,49 @@ def reg(request):
         password = request.POST.get("password")
         confirmpassword = request.POST.get("confirmpassword")
 
-        if not all([username, mobile, email, password, confirmpassword]):
-            errors['general'] = "All fields are required."
+        # if not all([username, mobile, email, password, confirmpassword]):
+        #     errors['general'] = "All fields are required."
 
-        if len(password) < 6:
-            messages.error(request, "Password must be at least 6 characters long.")
-            return redirect("register")
+        # if len(password) < 6:
+        #     messages.error(request, "Password must be at least 6 characters long.")
+        #     return redirect("register")
 
-        if username.strip() == "" or password.strip() == "":
-            errors['username'] = 'Username must not be empty.'
-            errors['password'] = 'Password must not be empty.'
+        # if username.strip() == "" or password.strip() == "":
+        #     errors['username'] = 'Username must not be empty.'
+        #     errors['password'] = 'Password must not be empty.'
 
-        if User.objects.filter(username__iexact = username).exists():
-            messages.error(request,'username already existsss')
-            return redirect('register')
+        # if User.objects.filter(username__iexact = username).exists():
+        #     messages.error(request,'username already existsss')
+        #     return redirect('register')
 
-        if len(mobile) < 10:
-            messages.error(request, "Mobile number must be at least 10 digits long.")
-            return redirect("register")
+        # if len(mobile) < 10:
+        #     messages.error(request, "Mobile number must be at least 10 digits long.")
+        #     return redirect("register")
 
-        if password != confirmpassword:
-            messages.error(request, "Passwords do not match.")
-            return redirect("register")
+        # if password != confirmpassword:
+        #     messages.error(request, "Passwords do not match.")
+        #     return redirect("register")
 
 
-        if User.objects.filter(username=username).exists():
-            errors['username'] = 'username already existss'
-        if User.objects.filter(email=email).exists():
-            errors['email'] = "Email already exists."
+        # if User.objects.filter(username=username).exists():
+        #     errors['username'] = 'username already existss'
+        # if User.objects.filter(email=email).exists():
+        #     errors['email'] = "Email already exists."
 
-        if not any(char.isupper() for char in password):
-            print('validd')
-            messages.error(request, "Password must contain at least one uppercase letter")
-            return redirect("register")
+        # if not any(char.isupper() for char in password):
+        #     print('validd')
+        #     messages.error(request, "Password must contain at least one uppercase letter")
+        #     return redirect("register")
 
-        if not any(char.islower() for char in password):
-            messages.error(request, "Password must contain at least one lowercase letter.")
-            print('not a valid onee')
-            return redirect("register")
+        # if not any(char.islower() for char in password):
+        #     messages.error(request, "Password must contain at least one lowercase letter.")
+        #     print('not a valid onee')
+        #     return redirect("register")
 
-        if not any(char in '!@#$%^&*()_+' for char in password):
-            print('not a valid oonww2')
-            messages.error(request, "Password must contain at least one special character.")
-            return redirect("register")
+        # if not any(char in '!@#$%^&*()_+' for char in password):
+        #     print('not a valid oonww2')
+        #     messages.error(request, "Password must contain at least one special character.")
+        #     return redirect("register")
 
         # If any errors found
         if errors:
@@ -162,7 +162,7 @@ def session_for_userdata(request, username, mobile, email, password, otp, otp_ge
         "otp_generated_at": otp_generated_at,
     }
 
-
+@never_cache
 def otp_form(request):
     if request.method == "POST":
         otp1 = request.POST.get("otp1")
@@ -414,6 +414,7 @@ def product_list(request):
         product__in=[p.product for p in products_query],
         is_active=True,
         end_date__gt=now
+
     )
     
     offers = {}
@@ -540,7 +541,7 @@ def update_profile(request):
         if email :
             
             if User.objects.filter(email=email).exclude(username=user.username).exists():
-                error_message['email'] = 'Email already exists.'
+                messages.warning(request,'email already exists')
             else:
                 users.user.email = email
 
@@ -548,7 +549,8 @@ def update_profile(request):
             try:
                 dob_date = datetime.strptime(dob, '%Y-%m-%d').date()
                 if dob_date >= timezone.now().date():
-                    error_message['dob'] = 'update failed Date must be in the past.'
+                    messages.error(request,'date cannot be in the past')
+                    return redirect('user_profile')
                 else:
                     users.dob = dob
 
@@ -575,42 +577,35 @@ def update_profile(request):
         return redirect('user_profile')
     return render(request,'profile.html', {'about': about})
 
-@login_required
+@login_required(login_url='user_login')
 def change_pass(req, pass_id):
-    if req.user.is_authenticated:
-        user = User.objects.filter(id=pass_id).first()
-        if user is None:
-            messages.error(req, "User not found.")
-            return redirect("user_profile")
+    if req.user.id != pass_id :
+        messages.error(req, "You can only change your own password.")
+        return redirect("user_profile")
+    user = User.objects.filter(id=pass_id).first()
+    if user is None:
+        messages.error(req, "User not found.")
+        return redirect("user_profile")
 
-        if req.method == 'POST':
-            current_password = req.POST.get('current_password')
-            new_password = req.POST.get('new_password')
-            confirm_password = req.POST.get('confirm_password')
+    if req.method == 'POST':
+        current_password = req.POST.get('current_password')
+        new_password = req.POST.get('new_password')
+        confirm_password = req.POST.get('confirm_password')
 
-            error_message = {}
 
-            if not check_password(current_password, user.password):
-                error_message['current_password'] = 'Current password is incorrect.'
-                messages.error(req, error_message['current_password'])
-                return redirect('change_pass', pass_id=pass_id)
+        if not check_password(current_password, user.password) :
+            messages.warning(req,'Current password is incorrect.')
+            return redirect('change_pass', pass_id=pass_id)
 
-            if new_password != confirm_password:
-                error_message['confirm_password'] = 'Passwords do not match.'
-                messages.error(req, error_message['confirm_password'])
-                return redirect('change_pass', pass_id=pass_id)
+        if new_password != confirm_password:
+            messages.error('Passwords do not match.')
 
-            if len(new_password) < 8:
-                error_message['new_password'] = 'Password must be at least 8 characters long.'
-                messages.error(req, error_message['new_password'])
-                return redirect('change_pass', pass_id=pass_id)
-
-            user.set_password(new_password)
-            user.save()
-            update_session_auth_hash(req, user)
-            messages.success(req, "Your password was successfully updated!")
-            return redirect("user_profile")
-    return redirect('user_login')
+        user.set_password(new_password)
+        user.save()
+        update_session_auth_hash(req, user)
+        messages.success(req, "Your password was successfully updated!")
+        return redirect("user_profile")
+    return redirect('user_profile')
 
 def add_address(req) :
     if req.user.is_authenticated :
@@ -626,7 +621,7 @@ def add_address(req) :
             pin_code = req.POST.get('pin_code')
             country = req.POST.get('country')
             mobile_number = req.POST.get('mobile_number')
-            
+
             if not all([ first_name,last_name,email,house,city,state,pin_code,country,mobile_number ]) :
                 messages.error(req,'all fields are required')
                 return redirect('user_profile_with_tab',tab ='v-pills-messages')
@@ -737,3 +732,7 @@ def order_success(request,tab=None):
         # return redirect(reverse('user_profile_with_tab', kwargs={'tab': 'v-pills-profile'}))
     else:
         return redirect('login')
+    
+
+def custom_404(request, exception):
+    return render(request, 'templates/custom_404.html', status=404)

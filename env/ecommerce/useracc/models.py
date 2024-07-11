@@ -36,7 +36,6 @@ class register(models.Model):
     def __str__(self):
         return f'{ self.user.username }'
 
-
 @receiver(post_save,sender=User)
 def create_Customer(sender,instance,created,**kwargs) :
     if created :
