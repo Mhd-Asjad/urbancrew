@@ -131,7 +131,7 @@
 
                 
                 <div class="d-flex justify-content-center">
-                  <button class="btn btn-success btn-block rounded-pill text-white" onsubmit="submitForm()" >Register</button>
+                  <button id="registerBtn" class="btn btn-success btn-block rounded-pill text-white" onsubmit="submitForm()" >Register</button>
 
                 </div>
                 <br><br>
@@ -146,7 +146,16 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
 
   <script>
-
+    function checkFormValidity() {
+      let warnings = document.querySelectorAll('.invalid');
+      let registerBtn = document.getElementById('registerBtn');
+      if (warnings.length === 0) {
+        registerBtn.disabled = false;
+      } else {
+        registerBtn.disabled = true;
+      }
+    }
+  
     function username1(tag) {
       let warning = document.getElementById('warning1');
       let input = tag.value.trim();
@@ -159,7 +168,9 @@
         warning.classList.remove('invalid');
         warning.classList.add('valid');
       }
+      checkFormValidity();
     }
+  
     function mobile1(tag) {
       let input = tag.value.trim();
       let warning = document.getElementById('warning2');
@@ -173,7 +184,10 @@
         warning.classList.add('invalid');
         warning.classList.remove('valid');
       }
+      checkFormValidity();
     }
+  
+    function email1(tag) {
       let input = tag.value.trim();
       let warning = document.getElementById('warning3');
       let emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -186,7 +200,9 @@
         warning.classList.add('invalid');
         warning.classList.remove('valid');
       }
-    // }
+      checkFormValidity();
+    }
+  
     function password1(tag) {
       let input = tag.value.trim();
       let warning = document.getElementById('warning5');
@@ -200,7 +216,9 @@
         warning.classList.add('invalid');
         warning.classList.remove('valid');
       }
+      checkFormValidity();
     }
+  
     function confirmPassword1(tag) {
       let input = tag.value.trim();
       let password = document.getElementById('pass1').value.trim();
@@ -214,6 +232,7 @@
         warning.classList.add('invalid');
         warning.classList.remove('valid');
       }
+      checkFormValidity();
     }
   </script>
   {% endblock content %}
