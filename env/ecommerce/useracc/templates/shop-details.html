@@ -365,8 +365,11 @@
                     <div class="product__item__pic set-bg" data-setbg="">
                             
                         <a href="{% url 'shop_details' prod.id %}"><img style='width: 300px; height:270px;' src="{{ prod.image1.url }}" alt=""></a>
-                        {% if prod.is_active == True %}
+                        {% if prod.is_active %}
                         <span class="label">New</span>
+                        {% elif not product.product.is_available %}
+                        <span class="label bg-warning" style="border-radius:5px;" >sold out</span>
+
                         {% else %}
                         <span class="label bg-warning" style="border-radius:5px;" >sold out</span>
                             

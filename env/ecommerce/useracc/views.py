@@ -381,7 +381,6 @@ def product_list(request):
     colors = AddImages.objects.values_list('color', flat=True).distinct()
     print(colors)
 
-
     if search_query :
         products_query = products_query.filter(product__product_name__icontains = search_query)
 
@@ -443,6 +442,7 @@ def shop_details(req, prod_id):
     today = timezone.now()
     
     try :
+        
         product = get_object_or_404(AddImages,id = prod_id )
 
     except AddImages.DoesNotExist : 

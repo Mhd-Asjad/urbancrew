@@ -1045,7 +1045,6 @@ def cancel_order_item(req, item_id):
             return redirect('order_details',order_item.order.id)
         
         if order_item.order.payment_method in ['razorpay', 'Wallet']:
-            print('in iaammsadm')
             cancel_refund(req,item_id)
             
     return render(req,'cancel.html', {'order_item': order_item })

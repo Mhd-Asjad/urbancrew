@@ -61,21 +61,12 @@ def check_product_stock(sender, instance, **kwargs):
     
     all_sizes = ProductSize.objects.filter(product_id=product, image=image)
     total_stock = sum(size.stock for size in all_sizes)
-    print(total_stock , 'whole stock')
     
-    if total_stock == 0:
-        image.is_active = False
-    else:
-        image.is_active = True
+    image.is_active = total_stock > 0
     image.save()
     
     all_images = AddImages.objects.filter(product=product)
-    product_available = any(image.is_active for image in all_images)
-    
-    if product_available:
-        product.is_available = True
-    else:
-        product.is_available = False
+    product.is_available = any(image.is_active for image in all_images)
     product.save()
 
 
@@ -138,7 +129,7 @@ def update_offer_price(sender,instance,**kwargs) :
 def update_offer_price(self,**kwarg) :
     now = timezone.now()
     expired_offer = Offer.objects.get(end_date__lte = now , is_active = True)
-    if expired_offer:
+    if expired_offer:   
         expired_offer.is_active = False
     expired_offer.save()
 
