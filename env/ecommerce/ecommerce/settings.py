@@ -26,10 +26,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "urbancrew144@gmail.com"
 EMAIL_HOST_PASSWORD = "ynxn tmnu jzau ohzv"
-
-
 ALLOWED_HOSTS = []
-
 
 # Application definition
 SITE_ID = 2
@@ -117,7 +114,8 @@ DATABASES = {
 
 
 
-
+# Password validation
+# https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
