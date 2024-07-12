@@ -190,6 +190,7 @@ def edit_size(req, color_id):
         messages.error(req, "You do not have permission to edit sizes.")
         return redirect('admin_log')
 
+login_required(login_url='admin_log')
 def edit_variant(request, product_id):
     
     variant = get_object_or_404(AddImages, id=product_id)
@@ -209,16 +210,14 @@ def edit_variant(request, product_id):
                     return redirect('editvariant', product_id=product_id)
                 
             if 'remove_image1' in request.POST and request.POST['remove_image1'] == 'on':
-                variant.image1.delete()
+                variant.image1.delete(save=False)
                 variant.image1 = None
             if 'remove_image2' in request.POST and request.POST['remove_image2'] == 'on':
-                variant.image2.delete()
+                variant.image2.delete(save=False)
                 variant.image2 = None
             if 'remove_image3' in request.POST and request.POST['remove_image3'] == 'on':
-                variant.image3.delete()
+                variant.image3.delete(save=False)
                 variant.image3 = None
-
-
 
             variant.color = color
             if image1:
@@ -274,13 +273,14 @@ def deactivate(request,variant_id):
     
     messages.warning(request, 'You are not an admin!!')
     return redirect('adminlog')
+
+
 def del_variant(req, variant_id):
     add_image = AddImages.objects.get(id = variant_id)
     product = Product.objects.get(images__id = variant_id)
     add_image.delete()
     messages.success(req, "Variant deleted successfully.")
     return redirect('show_variants',product.id)
-
 
 def delete_prod(req, product_id):
 

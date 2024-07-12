@@ -1,20 +1,23 @@
 {% extends 'navigation.html' %}
-
 {% block body %}
+<body>
+    
+    <style>
+    
+      body {
+        background-color: #f4f5f7;
+    
+      }
+    </style>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
 <div class="container-fluid">
   <!-- Row 1 -->
   <br>
   <br><br>
 
-  <style>
-
-    .body {
-      background-color: #f4f5f7 !important;
-
-    }
-  </style>
   <div class="row d-flex justify-content-center">
     <div class="col-lg-8 d-flex align-items-stretch">
         <div class="card w-100">
@@ -133,23 +136,7 @@
                       
 
 <div class="col-lg-4">
-      <div class="row flex-grow">
-          <div class="col-md-6 col-lg-12 grid-margin stretch-card mt-5">
-              <div class="card card-rounded">
-                  <div class="card-body">
-                      <h4 class="card-title card-title-dash">Revenue and Top Categories</h4>
-                      <p>Monthly Revenue: {{ month_revenue }}</p>
-                      <p>Yearly Revenue: {{ year_revenue }}</p>
-
-                      <p>Top Category This Year : </p>
-                      {% for i in yearly_top %}
-                            <h1>{{ i.product__product__categorys__name }}</h1>
-                            
-                      {% endfor %}
-                  </div>
-              </div>
-          </div>
-      </div>
+      
       <div class="col-lg-10 d-flex flex-column">
         <div class="row flex-grow">
             <div class="col-md-6 col-lg-12 grid-margin stretch-card">

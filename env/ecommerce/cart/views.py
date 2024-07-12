@@ -47,6 +47,9 @@ def add_cart(request):
             if size.stock <= 0 :
 
                 messages.warning(request, "There is no stock left.")
+                return redirect("shop_details", product_id)
+
+
 
             print(product_id,'this is prod id')
             print(size_id,'sizess')
@@ -611,7 +614,7 @@ def place_order(request) :
 
             customer = User.objects.get(username = request.user.username)
             cart_items = Cart.objects.filter(user=customer)
-            register_user = register.objects.get(user=customer.id)
+            register_user = register.objects.filter(user=customer.id).first()
             print(register_user,'uesrsss')
             print(register_user)
             sub_total = sum(item.total for item in cart_items)
@@ -699,9 +702,6 @@ def place_order(request) :
             user_customer = customer
             print(user_customer)
             balance = Wallet.objects.get(user = user_customer)
-
-
-            
 
             sub_total = sum(item.total for item in cart_items)
 
@@ -1051,91 +1051,73 @@ def cancel_order_item(req, item_id):
     return render(req,'cancel.html', {'order_item': order_item })
 
 
+@login_required
 def cancel_refund(request, cancel_id):
-    if request.user.is_authenticated :
-        try:
-            cancel_item = Order_items.objects.get(id=cancel_id)
-        except Order_items.DoesNotExist:
-            messages.error(request, 'Invalid order item for cancellation.')
-            return redirect('ordered_item')
+    try:
+        cancel_item = get_object_or_404(Order_items, id=cancel_id)
+    except Order_items.DoesNotExist:
+        messages.error(request, 'Invalid order item for cancellation.')
+        return redirect('ordered_item')
+
+    order = cancel_item.order
+
+    if order.payment_method in ['razorpay', 'Wallet'] and not cancel_item.refund_processed:
+        coupon_amount = order.discount_amount if order.applied_coupen else 0
+        total_quantity = Order_items.objects.filter(order=order).aggregate(total_quantity=Sum('qnty'))['total_quantity'] or 1
+        discount_for_item = Decimal(coupon_amount) / Decimal(total_quantity)
+
+        offer_price = cancel_item.product.product.offer_price or cancel_item.product.product.price
+        item_total = (Decimal(offer_price) - discount_for_item) * Decimal(cancel_item.qnty)
+
+        non_returned_items_count = Order_items.objects.filter(order=order).exclude(status__in=['Cancelled', 'Refunded']).count()
         
-        order = cancel_item.order
-
-        if order.payment_method in ['razorpay','Wallet'] and not cancel_item.refund_processed :
-
-            coupon_amount = order.discount_amount if order.applied_coupen else 0
-            total_quantity = Order_items.objects.filter(order=order).aggregate(total_quantity=Sum('qnty'))['total_quantity'] or 1
-            discount_for_item = Decimal(coupon_amount) / Decimal(total_quantity)
-
-            offer_price = cancel_item.product.product.offer_price if cancel_item.product.product.offer_price else cancel_item.product.product.price
-            item_total = (Decimal(offer_price) - discount_for_item) * Decimal(cancel_item.qnty)
-
-            order_amount = Decimal(order.total)
-            refund_amount = 0
-
-            non_returned_items_count = Order_items.objects.filter(order=order).exclude(status__in=['Cancelled', 'Refunded']).count()
-            print(non_returned_items_count,'total count')
-            if non_returned_items_count > 1 :
-
-                refund_amount = (Decimal(offer_price) - discount_for_item) * Decimal(cancel_item.qnty)
-                order.total = refund_amount
-
-            else :
-
-                if order.applied_coupen:
-
-                    coupon = Coupon.objects.get(coupon_code = order.applied_coupen.coupon_code )
-
-                    if order_amount < coupon.minimum_amnt:
-
-                        order.applied_coupen = None
-                        refund_amount = item_total - order.discount_amount
-                        order_amount += order.discount_amount
-                        
-                    else :
-                        refund_amount = order.total
+        if non_returned_items_count > 1:
+            refund_amount = item_total
+        else:
+            refund_amount = item_total
+            if order.applied_coupen:
+                coupon = Coupon.objects.get(coupon_code=order.applied_coupen.coupon_code)
+                if order.total < coupon.minimum_amnt:
+                    order.applied_coupen = None
+                    refund_amount = item_total - order.discount_amount
+                    order.total += order.discount_amount
                 else:
                     refund_amount = order.total
 
-                for size in ProductSize.objects.filter(size=cancel_item.size, image=cancel_item.product):
-                    size.stock += cancel_item.qnty
-                    size.save()
+        order.total -= refund_amount
+        order.save()
 
-            if order_amount :
-                order.total -= order_amount
+        for size in ProductSize.objects.filter(size=cancel_item.size, image=cancel_item.product):
+            size.stock += cancel_item.qnty
+            size.save()
 
-            order.save()
+        user = order.register.user
+        wallet, created = Wallet.objects.get_or_create(user=user)
+        wallet.balance += refund_amount
+        wallet.save()
 
-            user = order.register.user
-            wallet, created = Wallet.objects.get_or_create(user=user)
-            wallet.balance += refund_amount
-            wallet.save()
-
+        transaction_id = "Ca_" + get_random_string(6, 'ABCPMOZ456789')
+        while Wallet_transactions.objects.filter(transaction_id=transaction_id).exists():
             transaction_id = "Ca_" + get_random_string(6, 'ABCPMOZ456789')
-            while Wallet_transactions.objects.filter(transaction_id=transaction_id).exists():
-                transaction_id = "Ca_" + get_random_string(6, 'ABCPMOZ456789')
 
-            Wallet_transactions.objects.create(
-                wallet=wallet,
-                type='Refund',
-                amount=refund_amount,
-                description='Cancel refund',
-                transaction_id=transaction_id,
-                time_stamp=timezone.now()
-            )
+        Wallet_transactions.objects.create(
+            wallet=wallet,
+            type='Refund',
+            amount=refund_amount,
+            description='Cancel refund',
+            transaction_id=transaction_id,
+            time_stamp=timezone.now()
+        )
 
-            cancel_item.refund_processed = True
-            cancel_item.save()
+        cancel_item.refund_processed = True
+        cancel_item.status = 'Cancelled'
+        cancel_item.save()
 
-            messages.success(request, f'Amount of ₹{refund_amount} has been added to {user.username}\'s wallet.')
-            return redirect('order_details', order_id=order.id)
-
-        messages.error(request, "Already tried for cancellation refund or not eligible.")
+        messages.success(request, f'Amount of ₹{refund_amount} has been added to {user.username}\'s wallet.')
         return redirect('order_details', order_id=order.id)
-    
-    else:
-        messages.error(request, 'You need to be logged in to cancel an order.')
-        return redirect('login')
+
+    messages.error(request, "Already tried for cancellation refund or not eligible.")
+    return redirect('order_details', order_id=order.id)
 
 
 def request_return_order_item(req , item_id) :
@@ -1171,7 +1153,7 @@ def request_return_order_item(req , item_id) :
 def invoice(request, order_id) :
 
     if request.user.is_authenticated :
-        customer = register.objects.get(user = request.user)
+        customer = register.objects.filter(user = request.user).first()
         print(customer)
         try :
             order_items = Order_items.objects.filter(order__id = order_id , order__register = customer)

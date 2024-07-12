@@ -66,49 +66,49 @@ def reg(request):
         password = request.POST.get("password")
         confirmpassword = request.POST.get("confirmpassword")
 
-        # if not all([username, mobile, email, password, confirmpassword]):
-        #     errors['general'] = "All fields are required."
+        if not all([username, mobile, email, password, confirmpassword]):
+            errors['general'] = "All fields are required."
 
-        # if len(password) < 6:
-        #     messages.error(request, "Password must be at least 6 characters long.")
-        #     return redirect("register")
+        if len(password) < 6:
+            messages.error(request, "Password must be at least 6 characters long.")
+            return redirect("register")
 
-        # if username.strip() == "" or password.strip() == "":
-        #     errors['username'] = 'Username must not be empty.'
-        #     errors['password'] = 'Password must not be empty.'
+        if username.strip() == "" or password.strip() == "":
+            errors['username'] = 'Username must not be empty.'
+            errors['password'] = 'Password must not be empty.'
 
-        # if User.objects.filter(username__iexact = username).exists():
-        #     messages.error(request,'username already existsss')
-        #     return redirect('register')
+        if User.objects.filter(username__iexact = username).exists():
+            messages.error(request,'username already existsss')
+            return redirect('register')
 
-        # if len(mobile) < 10:
-        #     messages.error(request, "Mobile number must be at least 10 digits long.")
-        #     return redirect("register")
+        if len(mobile) < 10:
+            messages.error(request, "Mobile number must be at least 10 digits long.")
+            return redirect("register")
 
-        # if password != confirmpassword:
-        #     messages.error(request, "Passwords do not match.")
-        #     return redirect("register")
+        if password != confirmpassword:
+            messages.error(request, "Passwords do not match.")
+            return redirect("register")
 
 
-        # if User.objects.filter(username=username).exists():
-        #     errors['username'] = 'username already existss'
-        # if User.objects.filter(email=email).exists():
-        #     errors['email'] = "Email already exists."
+        if User.objects.filter(username=username).exists():
+            errors['username'] = 'username already existss'
+        if User.objects.filter(email=email).exists():
+            errors['email'] = "Email already exists."
 
-        # if not any(char.isupper() for char in password):
-        #     print('validd')
-        #     messages.error(request, "Password must contain at least one uppercase letter")
-        #     return redirect("register")
+        if not any(char.isupper() for char in password):
+            print('validd')
+            messages.error(request, "Password must contain at least one uppercase letter")
+            return redirect("register")
 
-        # if not any(char.islower() for char in password):
-        #     messages.error(request, "Password must contain at least one lowercase letter.")
-        #     print('not a valid onee')
-        #     return redirect("register")
+        if not any(char.islower() for char in password):
+            messages.error(request, "Password must contain at least one lowercase letter.")
+            print('not a valid onee')
+            return redirect("register")
 
-        # if not any(char in '!@#$%^&*()_+' for char in password):
-        #     print('not a valid oonww2')
-        #     messages.error(request, "Password must contain at least one special character.")
-        #     return redirect("register")
+        if not any(char in '!@#$%^&*()_+' for char in password):
+            print('not a valid oonww2')
+            messages.error(request, "Password must contain at least one special character.")
+            return redirect("register")
 
         # If any errors found
         if errors:

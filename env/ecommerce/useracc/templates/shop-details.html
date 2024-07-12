@@ -4,11 +4,12 @@
 
 <head>
 
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <!-- jQuery (required by Toastr) -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
+        
     <style>
         
     .h4{
@@ -35,226 +36,197 @@
             </div>
         </div>
     </section>
-    <div class="row" style="width:100%;" >
-        <div class="col-lg-6">
-            <div class="product__details__pic">
-                <div class="container" >
-                  
-                    <div class="row " >
 
-                        <div class="col-lg-2 col-mt-5 ml-5 sm-4 mx-auto">
-                            <ul class="nav nav-tabs ml-4" role="tablist">
-                                {% if product.image1 %}
+    <div class="d-flex justify-content-end">
+        <div class="row no-gutters" style="width:87%;">
+            <div class="col-lg-6">
+                <div class="product__details__pic">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-2 col-mt-5 ml-5 sm-4 mx-auto">
+                                <ul class="nav nav-tabs ml-4" role="tablist">
+                                    {% if product.image1 %}
+                                        <li class="nav-item">
+                                            <a class="nav-link active" data-toggle="tab" href="#tabs-1" role="tab">
+                                                <div class="product__thumb__pic set-bg" data-setbg="{{ product.image1.url }}">
+                                                </div>
+                                            </a>
+                                        </li>
+                                    {% endif %}
                                     
-                                <li class="nav-item">
-
-                                    <a class="nav-link active" data-toggle="tab" href="#tabs-1" role="tab">
-                                        
-                                        <div class="product__thumb__pic set-bg" data-setbg="{{product.image1.url}}">
+                                    {% if product.image2 %}
+                                        <li class="nav-item">
+                                            <a class="nav-link{% if not product.image1 %} active{% endif %}" data-toggle="tab" href="#tabs-2" role="tab">
+                                                <div class="product__thumb__pic set-bg" data-setbg="{{ product.image2.url }}">
+                                                </div>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                    
+                                    {% if product.image3 %}
+                                        <li class="nav-item">
+                                            <a class="nav-link{% if not product.image1 and not product.image2 %} active{% endif %}" data-toggle="tab" href="#tabs-3" role="tab">
+                                                <div class="product__thumb__pic set-bg" data-setbg="{{ product.image3.url }}">
+                                                </div>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                    
+                                    {% if additional_images %}
+                                        {% for i in product.additional_images %}
+                                            <li class="nav-item">
+                                                <a class="nav-link{% if not product.image1 and not product.image2 and not product.image3 and forloop.first %} active{% endif %}" data-toggle="tab" href="#tabs-add-{{ forloop.counter }}" role="tab">
+                                                    <div class="product__thumb__pic set-bg" data-setbg="{{ i.url }}">
+                                                    </div>
+                                                </a>
+                                            </li>
+                                        {% endfor %}
+                                    {% endif %}
+                                </ul>
+                            </div>
+    
+                            <div class="col-lg-8 col-md-12">
+                                <div class="tab-content">
+                                    {% if product.image1 %}
+                                        <div class="tab-pane active" id="tabs-1" role="tabpanel">
+                                            <div class="product__details__pic__item">
+                                                <img src="{{ product.image1.url }}" data-zoom-image="{{ product.image1.url }}" id="zoom" alt="image">
+                                            </div>
                                         </div>
-                                    </a>
-                                </li>
-                                {% else %}
-                                
-                                {% endif %}
-                                <li class="nav-item">
-                                    <a class="nav-link" data-toggle="tab" href="#tabs-2" role="tab">
-                                        <div style="width:100px;" class="product__thumb__pic set-bg" data-setbg="{{ product.image2.url }}">
+                                    {% endif %}
+                                    
+                                    {% if product.image2 %}
+                                        <div class="tab-pane{% if not product.image1 %} active{% endif %}" id="tabs-2" role="tabpanel">
+                                            <div class="product__details__pic__item">
+                                                <img src="{{ product.image2.url }}" data-zoom-image="{{ product.image2.url }}" id="zoom2" alt="image">
+                                            </div>
                                         </div>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" data-toggle="tab" href="#tabs-3" role="tab">
-                                        <div class="product__thumb__pic set-bg" data-setbg="{{ product.image3.url }}">
+                                    {% endif %}
+                                    
+                                    {% if product.image3 %}
+                                        <div class="tab-pane{% if not product.image1 and not product.image2 %} active{% endif %}" id="tabs-3" role="tabpanel">
+                                            <div class="product__details__pic__item">
+                                                <img src="{{ product.image3.url }}" data-zoom-image="{{ product.image3.url }}" id="zoom3" alt="web photo">
+                                            </div>
                                         </div>
-                                    </a>
-                                </li>
-                            {% if additional_images %}
-                                
-                            {% for i in product.additional_images %}
-                                <li class="nav-item">
-                                    <p>{{ i.url }}</p>
-                                    <a class="nav-link" data-toggle="tab" href="#tabs-add-{{ forloop.counter }}" role="tab">
-                                        <div class="product__thumb__pic set-bg" data-setbg="{{ i.url }}">
-                                        </div>
-                                    </a>
-                                </li>
-                            {% endfor %}
-                            {% endif %}
-                            </ul>
-                        </div>
-                        
-                        <div class="col-lg-8 col-md-12" >
-                            {% if product.image1 %}
-                                
-                            <div class="tab-content">
-                                <div class="tab-pane active" id="tabs-1" role="tabpanel">
-                                    <div class="product__details__pic__item">
-                                        <img src="{{ product.image1.url }}"  data-zoom-image="{{ product.image1.url }}" id="zoom" alt="image">
-                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if additional_images %}
+                                        {% for i in product.additional_images %}
+                                            <div class="tab-pane{% if not product.image1 and not product.image2 and not product.image3 and forloop.first %} active{% endif %}" id="tabs-add-{{ forloop.counter }}" role="tabpanel">
+                                                <div class="product__details__pic__item">
+                                                    <img src="{{ i.url }}" data-zoom-image="{{ i.url }}" alt="additional image">
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
                                 </div>
-                                
-                            {% endif %}
-                                <div class="tab-pane" id="tabs-2" role="tabpanel">
-                                    <div class="product__details__pic__item">
-                                        <img src="{{ product.image2.url }}" data-zoom-image="{{ product.image2.url }}" id="zoom2" alt="image">
-                                    </div>
-                                </div>
-                                <div class="tab-pane" id="tabs-3" role="tabpanel">
-                                    <div class="product__details__pic__item">
-                                        <img src="{{ product.image3.url }}" data-zoom-image="{{ product.image3.url }}" id="zoom3" alt="web photo">
-                                    </div>
-                                </div>
-
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-lg-6 mt-5 ">
-            <div class="product__details__text">
-                    
-                
-                <h4>{{ product.product.product_name }}</h4>
-                <div class="rating">
-                    <i class="fa fa-star"></i>
-                    <i class="fa fa-star"></i>
-                    <i class="fa fa-star"></i>
-                    <i class="fa fa-star"></i>
-                    <i class="fa fa-star-o"></i>
-                    <span> - 5 Reviews</span>
-                </div>
-            {% if product.product.price > product.product.offer_price %}
-
-                    
-                <h3>₹ {{product.product.offer_price|floatformat:0 }} <span>{{ product.product.price }}</span></h3>
-
-                {% if product_offers %}
-                    
-                    {% for offer in product_offers %}
-                        
-                    <ul >
-
-                        <li class="text-success" style="list-style-type: none;" >{{ offer.percentage }}% Discount Until {{ offer.end_date }}</li>
-                        
-                    </ul>
-                    
-
-
-                    {% endfor %}                
-
-
-                {% endif %}
-                
-            {% else %}
-                    
-                <h3>₹{{ product.product.price }}</h3>
-
-            {% endif %}
-
-                <form id="add-cart-form" action="{% url 'add_cart' %}" method="post">
-                    {% csrf_token %}
-
-
-                    <div class="product__details__option">
-
-                        <div class="product__details__option__size mb-3">
-                        {% if product.product.is_available and product.is_active %}
-                            
-                            {% for size in sizes %}
-                            <label class="size-option" style="border-radius: 30px; margin-bottom:3px;">
-                            {% if size.stock %}
-                                <div class="size-box" style="display: inline-block;" >{{ size.size }}</div>
-                            {% else %}
-                                <div class="size-box disabled" style="color: #e60000; cursor: not-allowed; text-decoration: line-through; " disabled >{{ size.size }}</div>
-                            {% endif %}
-                                {% if size.stock <= 0 %}
-                                <input class="text-danger" type="radio" name="size" value="{{ size.id }}" data-stock="no stock is left">
-                                {% endif %}
-                                <input type="radio" name="size" value="{{ size.id }}" data-stock="{{ size.stock }}"  >
-                            </label>
-                            
     
-                            {% endfor %}
-                        {% else %}
-
-                            <h5>Sold out !</h5>
-                        {% endif %}
-
-                        </div>
-                        {% if product.product.is_available and product.is_active  %}
-                        
-                        <div class='stock mb-3'>
-                            <p style="font-size: 17px;">{% if sizes %}stock left : <span id="stock"></span>{% else %}
-                                select a size : {% endif %}
-                            </p>
-                        </div>
-                        {% endif %}
+            <div class="col-lg-6 mt-5">
+                <div class="product__details__text">
+                    <h4>{{ product.product.product_name }}</h4>
+                    <div class="rating">
+                        <i class="fa fa-star"></i>
+                        <i class="fa fa-star"></i>
+                        <i class="fa fa-star"></i>
+                        <i class="fa fa-star"></i>
+                        <i class="fa fa-star-o"></i>
+                        <span> - 5 Reviews</span>
                     </div>
-
-                    <div class="product__details__option__color">
-                        <span>Color:</span>
-                        {% for variant in variants %}
-                        <a href="{% url 'shop_details' variant.id %}">
-                            
-                            <label class="color-label" for="color-{{ variant.id }}" style="background-color: {{ variant.color }};">
-                            </label>
-                        </a>
-
-                        {% endfor %}
-                    </div>
-                    </div>                         
-                    <br>
-                    <div class="product__details__cart__option">
-                        <div class="quantity">
-                    </div>
-                    {% if total_stock > 0 and product.product.is_available == True and product.is_active %}
                     
-                    <input type="text" hidden value="{{product.id}}" name="product_id" >
-                    <button type="submit" class="primary-btn">
-                        <i class="fa fa-cart-shopping" style="color: #ffffff;"></i>
-                        ADD TO CART
-                    </button>
-
+                    {% if product.product.price > product.product.offer_price %}
+                        <h3>₹ {{ product.product.offer_price|floatformat:0 }} <span>{{ product.product.price }}</span></h3>
+                        {% if product_offers %}
+                            {% for offer in product_offers %}
+                                <ul>
+                                    <li class="text-success" style="list-style-type: none;">{{ offer.percentage }}% Discount Until {{ offer.end_date }}</li>
+                                </ul>
+                            {% endfor %}
+                        {% endif %}
                     {% else %}
-
-                    <a href="#" type="submit" disabled class="primary-btn btn-danger">Out of Stock</a>
-
+                        <h3>₹{{ product.product.price }}</h3>
                     {% endif %}
                     
-
-
-                {% comment %} {% if out_of_stock %}
-
-                <a href="#" type="submit" disabled class="primary-btn btn-danger">Out of Stock</a>
-                
-                {% endif %} {% endcomment %}
+                    <form id="add-cart-form" action="{% url 'add_cart' %}" method="post">
+                        {% csrf_token %}
+                        <div class="product__details__option">
+                            <div class="product__details__option__size mb-3">
+                                {% if product.product.is_available and product.is_active %}
+                                    {% for size in sizes %}
+                                        <label class="size-option" style="border-radius: 30px; margin-bottom:3px;">
+                                            {% if size.stock %}
+                                                <div class="size-box" style="display: inline-block;">{{ size.size }}</div>
+                                            {% else %}
+                                                <div class="size-box disabled" style="color: #e60000; cursor: not-allowed; text-decoration: line-through;" disabled>{{ size.size }}</div>
+                                            {% endif %}
+                                            {% if size.stock <= 0 %}
+                                                <input class="text-danger" type="radio" name="size" value="{{ size.id }}" data-stock="no stock is left">
+                                            {% endif %}
+                                            <input type="radio" name="size" value="{{ size.id }}" data-stock="{{ size.stock }}">
+                                        </label>
+                                    {% endfor %}
+                                {% else %}
+                                    <h5>Sold out!</h5>
+                                {% endif %}
+                            </div>
+                            {% if product.product.is_available and product.is_active %}
+                                <div class='stock mb-3'>
+                                    <p style="font-size: 17px;">
+                                        {% if sizes %}stock left : <span id="stock"></span>{% else %}select a size : {% endif %}
+                                    </p>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="product__details__option__color">
+                            <span>Color:</span>
+                            {% for variant in variants %}
+                                <a href="{% url 'shop_details' variant.id %}">
+                                    <label class="color-label" for="color-{{ variant.id }}" style="background-color: {{ variant.color }};"></label>
+                                </a>
+                            {% endfor %}
+                        </div>
+                        <br>
+                        
+                        <br>
+                        <div class="product__details__cart__option">
+                            <div class="quantity"></div>
+                            {% if total_stock > 0 and product.product.is_available == True and product.is_active %}
+                                <input type="text" hidden value="{{ product.id }}" name="product_id">
+                                <button type="submit" class="primary-btn">
+                                    <i class="fa fa-cart-shopping" style="color: #ffffff;"></i>
+                                    ADD TO CART
+                                </button>
+                            {% else %}
+                                <a href="#" type="submit" disabled class="primary-btn btn-danger">Out of Stock</a>
+                            {% endif %}
+                        </div>
+                    </form>
                     
+                    <div class="product__details__btns__option">
+                        <a href="{% url 'add_to_wishlist' product.id %}"><i class="fa fa-heart"></i> add to wishlist</a>
                     </div>
-
-                </form>
-                <div class="product__details__btns__option">
-                    <a href="{% url 'add_to_wishlist' product.id %}"><i class="fa fa-heart"></i> add to wishlist</a>
-                </div>
-                <div class="product__details__last__option">
-                    <h5><span><button style='border-radius: 30px; font-size: 15px; height: 40px; background-color: black ; color: white; '>Guaranteed Safe Checkout</button></span></h5>
-                    <img src="img/shop-details/details-payment.png" alt="">
-                    <ul>
-                        <li><span>SKU:</span> 3812912</li>
-                        <li><span>Categories :  </span>{{ product.product.categorys.name }}</li>
-                    </ul>
+                    <div class="product__details__last__option">
+                        <h5>
+                            <span>
+                                <button style='border-radius: 30px; font-size: 15px; height: 40px; background-color: black; color: white;'>Guaranteed Safe Checkout</button>
+                            </span>
+                        </h5>
+                        <img src="img/shop-details/details-payment.png" alt="">
+                        <ul>
+                            <li><span>SKU:</span> 3812912</li>
+                            <li><span>Categories:</span> {{ product.product.categorys.name }}</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
-
-
-
-
-
-
 
     <div class="product__details__content">
         <div class="container">
@@ -464,7 +436,9 @@
     document.addEventListener('DOMContentLoaded', function() {
         displayMessages();
     });
+
 </script>
+
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/elevatezoom/3.0.8/jquery.elevatezoom.min.js"></script>
         

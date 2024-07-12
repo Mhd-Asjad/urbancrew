@@ -236,16 +236,18 @@
                                         <div class="product__item">
                                             <div class="product__item__pic set-bg zoom" data-setbg="" data-zoom="true" >
                                                 <a href="{% url 'shop_details' product.id %}">
+                                                    {% if product.image1 %}
+                                                        
                                                     <img style='width: 300px; height:270px;' src="{{ product.image1.url }}" alt="">
+                                                    {% else %}
+                                                    <img src="" alt="image">
+                                                    {% endif %}
                                                 </a>
-                                                <span class="label" style="background-color:green; border-radius:5px; color:white;">in stock</span>
-                                                {% for img in product.image.all %}
-                                                    {% if not img.is_active   %}
+                                                    {% if not product.isactive   %}
                                                         <span class="label" style="background-color:red; border-radius:5px; color:white;">Out Of Stock</span>
                                                     {% else %}
                                                         <span class="label" style="background-color:green; border-radius:5px; color:white;">In Stock</span>
                                                     {% endif %}
-                                                {% endfor %}
                                                 <ul class="product__hover">
                                                     <li><a href="{% url 'add_to_wishlist' product.id %}"><img src="{% static 'img/icon/heart.png' %}" alt=""></a></li>
                                                 </ul>

@@ -110,12 +110,12 @@
                                     <label for="coupon_code">Coupon Code</label>
                                     <input type="text" class="form-control" id="coupon_code" name="coupon_code" placeholder="enter here" required {% if request.session.coupon_applied %}
                                         
-                                   value="{{ coupon_code }}" {% endif %} >
+                                   value="{{ coupon_code }}" disabled{% endif %} >
                                 </div>
 
                                 {% if request.session.coupon_applied %}
+                                
                                 <button type="submit" class="site-btn">Remove</button>
-                                {% comment %} <input type="text" class="form-control" value=""  >  {% endcomment %}
                                 <input type="hidden" name="action" id="" value="remove_coupon">
                                 {% else %}
                                 <button type="submit" class="btn btn-primary">Apply Coupon</button>
@@ -123,7 +123,13 @@
                             </form>
                             <br>
                             <div id="available-coupons" style="display: none;" class="col-6" >
-                                <h6>Available Coupons</h6>
+                            {% if available_coupons %}
+                            <h6>Available Coupons</h6>
+
+                            {% else %}
+                            <h6 style="color:red;" >no coupons avilable!</h6>
+                                
+                            {% endif %}
                                 {% for coupon in available_coupons %}
                                 {% if coupon %}
                                     
@@ -134,10 +140,7 @@
                                     </li>
 
                                 </ul>
-                                {% else %}
-
-                                <h5><b>no Coupons available</b></h5>
-
+                               
                                 {% endif %}
                                 {% endfor %}
 

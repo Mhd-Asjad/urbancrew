@@ -117,7 +117,7 @@
                 <div class="d-flex justify-content-center">
 
                   {% if messages %}
-                    <ul class="messages" style="text-decoration:None;">
+                    <ul class="messages" style="list-style-type: none;">
 
                       {% for message in messages %}
                       <li{% if message.tags %} style="color: red;" class="{{ message.tags }}"{% endif %}>{{ message }}</li>

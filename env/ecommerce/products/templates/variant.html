@@ -101,16 +101,31 @@
                 <br>
                 <br>
                 <ul class="persons">
-                    <a href="#" data-toggle="modal" data-target="#imageModal" data-image-url="{{ item.image1.url }}">
-                      <img src="{{ item.image1.url }}" alt="Person" class="img-fluid" style="width;20px;" >
-                    </a>
-                    <a href="#"data-toggle="modal" data-target="#imageModal" data-image-url="{{ item.image2.url }}">
-                      <img src="{{ item.image2.url }}" alt="Person" class="img-fluid">
-                    </a>
-                    <a href="#" data-toggle="modal" data-target="#imageModal" data-image-url="{{ item.image3.url }}">
+                  {% if item.image1 %}
+                    
+                  <a href="#" data-toggle="modal" data-target="#imageModal" data-image-url="{{ item.image1.url }}">
+                    <img src="{{ item.image1.url }}" alt="Person" class="img-fluid" style="width;20px;" >
+                  </a>
+                  {% else %}
 
-                      <img src="{{ item.image3.url }}" alt="Person" class="img-fluid">
-                    </a>
+                  {% endif %}
+                  {% if item.image2 %}
+                    
+                  <a href="#"data-toggle="modal" data-target="#imageModal" data-image-url="{{ item.image2.url }}">
+                    <img src="{{ item.image2.url }}" alt="Person" class="img-fluid">
+                  </a>
+                  {% else %}
+
+                  {% endif %}
+                  {% if item.image3 %}
+                    
+                  <a href="#" data-toggle="modal" data-target="#imageModal" data-image-url="{{ item.image3.url }}">
+
+                    <img src="{{ item.image3.url }}" alt="Person" class="img-fluid">
+                  </a>
+                  {% else %}
+                  
+                  {% endif %}
                 </ul>
 
               </td>

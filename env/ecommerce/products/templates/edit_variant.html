@@ -28,7 +28,7 @@
                 <label for="image1" class="form-label"><b>Image 1</b>:</label>
                 <div class="d-flex align-items-center">
                     <input type="file" class="form-control" name="image1" accept="image/*" onchange="showPreview(event, 'preview1')">
-                    <a href="#" onclick="removeImage('remove_image1')" class="ml-3" style="text-decoration: none;">
+                    <a href="#" onclick="removeImage('remove_image1', 'preview1')" class="ml-3" style="text-decoration: none;">
                         <i class="fas fa-times-circle fa-2x" style="color: red;"></i>
                     </a>
                 </div>
@@ -45,7 +45,7 @@
                 <label for="image2" class="form-label"><b>Image 2</b>:</label>
                 <div class="d-flex align-items-center">
                     <input type="file" class="form-control" id="image2" name="image2" accept="image/*" onchange="showPreview(event, 'preview2')">
-                    <a href="#" onclick="removeImage('remove_image2')" class="ml-3" style="text-decoration: none;">
+                    <a href="#" onclick="removeImage('remove_image2', 'preview2')" class="ml-3" style="text-decoration: none;">
                         <i class="fas fa-times-circle fa-2x" style="color: red;"></i>
                     </a>
                 </div>
@@ -62,7 +62,7 @@
                 <label for="image3" class="form-label"><b>Image 3</b>:</label>
                 <div class="d-flex align-items-center">
                     <input type="file" class="form-control" id="image3" name="image3" accept="image/*" onchange="showPreview(event, 'preview3')">
-                    <a href="#" onclick="removeImage('remove_image3')" class="ml-3" style="text-decoration: none;">
+                    <a href="#" onclick="removeImage('remove_image3', 'preview3')" class="ml-3" style="text-decoration: none;">
                         <i class="fas fa-times-circle fa-2x" style="color: red;"></i>
                     </a>
                 </div>
@@ -80,7 +80,6 @@
         </div>
     </form>
 </div>
-
 
 
 <script src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
@@ -137,9 +136,9 @@
 </script>
 
 <script>
-    function removeImage(imageFieldId) {
+    function removeImage(imageFieldId, previewId) {
         document.getElementById(imageFieldId).value = 'on';
-        document.getElementById('preview' + imageFieldId.split('_')[2]).src = '';
+        document.getElementById(previewId).src = '';
     }
 
     function showPreview(event, previewId) {
@@ -151,6 +150,8 @@
         reader.readAsDataURL(event.target.files[0]);
     }
 </script>
+
+
 
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <script>

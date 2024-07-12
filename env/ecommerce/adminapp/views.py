@@ -83,7 +83,6 @@ def dash_view(request):
         total_sold=Sum('qnty')
         ).order_by('-total_sold')[:5]
 
-        # If the request is AJAX, return JSON data
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             data = {
                 'labels': [order['order__created_at__date'].strftime('%Y-%m-%d') for order in delivered_orders_per_day],

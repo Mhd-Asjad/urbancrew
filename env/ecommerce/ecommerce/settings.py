@@ -28,7 +28,7 @@ EMAIL_HOST_USER = "urbancrew144@gmail.com"
 EMAIL_HOST_PASSWORD = "ynxn tmnu jzau ohzv"
 
 
-ALLOWED_HOSTS = ['urbancrew.site', 'www.urbancrew.site', '0.0.0.0']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -107,9 +107,9 @@ WSGI_APPLICATION = "ecommerce.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "ecommerce_db",
-        "USER": "admin",
-        "PASSWORD": "1234",
+        "NAME": "ecommerce",
+        "USER": "postgres",
+        "PASSWORD": "asjadk123",
         "HOST": "localhost",
         "PORT": "5432",
     }
@@ -151,9 +151,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-#MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
-MEDIA_ROOT = '/home/ubuntu/Project_1/env/ecommerce/media'
+# MEDIA_ROOT = '/home/ubuntu/Project_1/env/ecommerce/media'
+# MEDIA_ROOT = r'C:\Users\Acer\Desktop\week9\env\ecommerce\media'
 
 #new
 STATIC_URL = '/static/'
@@ -161,6 +162,7 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

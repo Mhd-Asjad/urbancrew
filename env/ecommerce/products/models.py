@@ -139,7 +139,6 @@ def update_offer_price(self,**kwarg) :
     now = timezone.now()
     expired_offer = Offer.objects.get(end_date__lte = now , is_active = True)
     if expired_offer:
-
         expired_offer.is_active = False
     expired_offer.save()
 

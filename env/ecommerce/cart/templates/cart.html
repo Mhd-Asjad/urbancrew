@@ -126,15 +126,16 @@
 
                                     <td class="quantity__item ms-5">
                                         <div class="quantity">
-                                            <div class="pro-qty-2">
+                                            <div class="d-flex">
+                                                
 
-                                                <button onclick="updateQuantity('{{ cart_item.id }}','decrease')" class="reduced items-count" type="button">-</button>
-                                            
-                                                <input type="text" name="quantities[]" id="qty-{{ cart_item.id }}" min="1" max="10" maxlength="12" 
-                                                value="{{ cart_item.quantity }}" title="Quantity:" class="input-text qty" readonly >
-     
-                                                <button onclick="updateQuantity('{{ cart_item.id }}', 'increase')" class="increase items-count" type="button">+</button>
-
+                                                    <button onclick="updateQuantity('{{ cart_item.id }}','decrease')" class="reduced items-count" type="button">-</button>
+                                                
+                                                    <input type="text" name="quantities[]" id="qty-{{ cart_item.id }}" min="1" max="10" maxlength="12" 
+                                                    value="{{ cart_item.quantity }}" title="Quantity:" class="input-text qty" readonly style="width: 39px;padding: 0px 10px;border:none">
+         
+                                                    <button onclick="updateQuantity('{{ cart_item.id }}', 'increase')" class="increase items-count" type="button">+</button>
+    
                                             </div>
                                         </div>
                                     </td>
