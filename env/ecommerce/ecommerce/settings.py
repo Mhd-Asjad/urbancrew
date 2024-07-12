@@ -26,7 +26,10 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "urbancrew144@gmail.com"
 EMAIL_HOST_PASSWORD = "ynxn tmnu jzau ohzv"
-ALLOWED_HOSTS = []
+
+
+ALLOWED_HOSTS = ['urbancrew.site', 'www.urbancrew.site', '0.0.0.0']
+
 
 # Application definition
 SITE_ID = 2
@@ -104,9 +107,9 @@ WSGI_APPLICATION = "ecommerce.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "ecommerce",
-        "USER": "postgres",
-        "PASSWORD": "asjadk123",
+        "NAME": "ecommerce_db",
+        "USER": "admin",
+        "PASSWORD": "1234",
         "HOST": "localhost",
         "PORT": "5432",
     }
@@ -148,9 +151,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+#MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
-# MEDIA_ROOT = '/home/ubuntu/Project_1/env/ecommerce/media'
+MEDIA_ROOT = '/home/ubuntu/Project_1/env/ecommerce/media'
 
 #new
 STATIC_URL = '/static/'
