@@ -49,7 +49,7 @@ MANIFEST
 *.spec
 
 Lib/
-Scripts/
+Scripts
 pyvenv.cfg
 
 # Installer logs
@@ -163,7 +163,7 @@ dmypy.json
 
 # pytype static type analyzer
 .pytype/
-
+static/
 # Cython debug symbols
 cython_debug/
 staticfiles/
