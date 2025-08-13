@@ -1,0 +1,775 @@
+{% extends 'bases.html' %}
+{% load static %}
+
+
+{% block content %}
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.css">
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}" type="text/css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <!-- jQuery (required by Toastr) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+<style>
+    .info-container {
+        max-width: 600px;
+        margin: auto;
+    }
+    
+    .info-item h5 {
+        font-size: 1rem;
+    }
+    
+    .info-item p {
+        margin-bottom: 0;
+        font-size: 0.9rem;
+    }
+</style>
+</head>
+<!-- Demo header-->
+<section class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__links">
+                    <a href="{% url 'home' %}"><i class="fa fa-home"></i> Home</a>
+                    <a href="{% url 'user_profile' %}"><i></i> Personal Information</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+    <br>
+    <br>
+    <div class="d-flex  justify-content-center ">
+        <h3 style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif ;" >My Account</h4>
+    </div>
+
+<br>
+
+</section>
+<section class="py-5 header">
+    <div class="container py-4">
+
+        <div class="row">
+                
+            <div class="col-md-3">
+                <!-- Tabs nav -->
+                <div class="nav flex-column nav-pills nav-pills-custom" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+
+                    <a class="nav-link mb-3 p-3 shadow active" id="v-pills-home-tab" {% if tab == 'v-pills-home-tab' %}active{% endif %} data-toggle="pill" href="#v-pills-home" role="tab" aria-controls="v-pills-home" aria-selected="true">
+                        <i class="fa fa-user-circle-o mr-2"></i>
+                        <span class="font-weight-bold small text-uppercase">Personal information</span>
+                    </a>
+
+                    <a class="nav-link mb-3 p-3 shadow" id="v-pills-profile-tab"  {% if tab == 'v-pills-profile-tab' %}active{% endif %} data-toggle="pill" href="#v-pills-profile" role="tab" aria-controls="v-pills-profile" aria-selected="false">
+                        <i class="fa fa-calendar-minus-o mr-2"></i>
+                        <span class="font-weight-bold small text-uppercase">Order</span>
+                    </a>
+
+                    <a class="nav-link mb-3 p-3 shadow" id="v-pills-messages-tab" {% if tab == 'v-pills-messages-tab' %}active{% endif %} data-toggle="pill" href="#v-pills-messages" role="tab" aria-controls="v-pills-messages" aria-selected="false">
+                        <i class="fa fa-star mr-2"></i>
+                        <span class="font-weight-bold small text-uppercase">Address</span>
+                    </a>
+                </div>
+            </div>  
+
+            <div class="col-md-9">
+                <!-- Tabs content -->
+                <div class="tab-content" id="v-pills-tabContent">
+                    <div class="tab-pane fade shadow rounded bg-gradient show active p-5" {% if tab == 'v-pills-home' %}show active{% endif %} id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">
+                        <h4 class="font-italic mb-4">Personal information</h4>
+                        <div class="user-info">
+                            <div class="info-item mb-3">
+                                <h5 class="mb-0"><strong>Username:</strong></h5>
+                                <p class="text-muted">{{ about.user.username }}</p>
+                            </div>
+                            <div class="info-item mb-3">
+                                <h5 class="mb-0"><strong>Email:</strong></h5>
+                                <p class="text-muted">{{ about.user.email }}</p>
+                            </div>
+                            <div class="info-item mb-3">
+                                <h5 class="mb-0"><strong>Phone:</strong></h5>
+                                <p class="text-muted">{% if about.mobile %}{{ about.mobile }}{% else %}empty{% endif %}</p>
+                            </div>
+                            <div class="info-item mb-3">
+                                <h5 class="mb-0"><strong>Date of Birth:</strong></h5>
+                                <p class="text-muted">{% if not about.dob %}empty{% else %}{{ about.dob }}{% endif %}</p>
+                            </div>
+                            <div class="info-item mb-3">
+                                <h5 class="mb-0"><strong>Gender:</strong></h5>
+                                <p class="text-muted">{% if not about.gender %}
+                                    empty
+                                {% endif %}{{ about.gender }}</p>
+                            </div>
+                            <div class="d-flex justify-content-end mt-4">
+                                <button class="btn btn-primary mr-2" data-toggle="modal" data-target="#editModal">Edit</button>
+                                <button class="btn btn-secondary" data-toggle="modal" data-target="#changePasswordModal">Change Password</button>
+                            </div>
+                        </div>
+                    </div>
+
+                        
+                    
+                    <div class="tab-pane fade shadow rounded bg-gradient p-5" {% if tab == 'v-pills-profile' %}show active{% endif %} id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">
+                        <h4 class="font-italic mb-4">Bookings</h4>
+                        <div class="container">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Order Id</th>
+                                        <th>Date</th>
+                                        <th>Total amount</th>
+                                        <th>Payment Method</th>
+                                        <th>Order Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    
+                                    {% for order in orders %}
+
+
+                                        <tr>
+                                            <td>{{ order.tracking_id }}</td>
+                                            <td>{{ order.created_at|date:"Y-m-d" }}</td>
+                                            <td>₹ {{ order.total }}</td>
+                                            <td>{{ order.payment_method }}</td>
+
+                                                
+                                            <td> {{ order.status }}</td>
+
+                                            <div>
+
+                                                <td>{{ item.status }}</td>
+
+                                                <td>
+
+                                                    <a href="{% url 'order_details' order.id %}" class="btn btn-primary">View Details</a>
+
+                                                </td>
+
+                                            </div>
+                                        </tr>
+
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <p class="font-italic text-muted mb-2"></p>     
+                    </div>
+
+
+                    <div class="tab-pane fade shadow rounded bg-gradient p-5" {% if tab == 'v-pills-messages' %}show active{% endif %} id="v-pills-messages" role="tabpanel" aria-labelledby="v-pills-messages-tab">
+                        <h4 class="font-italic mb-4">Manage Address</h4>
+                        <div class="col-12 mb-3">
+                            <button class="btn w-100 btn-lg btn-outline-border" style="color: rgb(34, 21, 130);" onclick="toggleAddAddressForm()">Add Address</button>
+                            <i class="fe fe-plus" >
+
+                            </i>
+                        </div>
+
+                        <div id="add-address-form" style="display: none;">
+                            <form id="addAddressForm" method="post" action="{% url 'add_address' %}" onsubmit="return validateForm()">
+                                {% csrf_token %}
+                                <div class="row">
+                                    <div class="col-12 col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label" for="first_name">First Name *</label>
+                                            <input class="form-control" id="first_name" name="first_name" type="text" placeholder="First Name" required>
+                                            <small id="first_name_error" class="text-danger"></small>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label" for="last_name">Last Name *</label>
+                                            <input class="form-control" id="last_name" name="last_name" type="text" placeholder="Last Name" required>
+                                            <small id="last_name_error" class="text-danger"></small>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label" for="email">Email Address *</label>
+                                            <input class="form-control" id="email" name="email" type="email" placeholder="Email Address" required>
+                                            <small id="email_error" class="text-danger"></small>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label" for="house">House *</label>
+                                            <input class="form-control" id="house" name="house" type="text" placeholder="House Name" required>
+                                            <small id="house_error" class="text-danger"></small>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label" for="city">Town / City *</label>
+                                            <input class="form-control" id="city" name="city" type="text" placeholder="Place" required>
+                                            <small id="city_error" class="text-danger"></small>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label" for="state">State *</label>
+                                            <input class="form-control" id="state" name="state" type="text" placeholder="State" required>
+                                            <small id="state_error" class="text-danger"></small>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label" for="country">Country *</label>
+                                            <input class="form-control" id="country" name="country" type="text" placeholder="Country" required>
+                                            <small id="country_error" class="text-danger"></small>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label" for="zipPostcode">ZIP / Postcode *</label>
+                                            <input class="form-control" id="zipPostcode" name="pin_code" type="text" placeholder="ZIP / Postcode" required>
+                                            <small id="pin_code_error" class="text-danger"></small>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label" for="mobile_number">Mobile Phone *</label>
+                                            <input class="form-control" id="mobile_number" name="mobile_number" type="tel" placeholder="Mobile Phone" required>
+                                            <small id="mobile_number_error" class="text-danger"></small>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-check mb-0">
+                                            <input type="checkbox" class="form-check-input" id="defaultShippingAddress">
+                                            <label class="form-check-label" for="defaultShippingAddress">Default shipping address</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <br>
+                                <div class="d-flex justify-content-center">
+                                    <button type="submit" id="saveButton" class="btn btn-success">Save</button>
+                                </div>
+                            </form>
+                        </div>                    
+
+                            <br>
+                            {% if not address %}
+                            
+                            {% for address in addresses %}
+                            {% if address.is_deleted == False %}
+                                
+                            <div class="card card-lg bg-light ">
+                                <div class="card-body">
+                                    <!-- Heading -->
+                                    <h6 class="mb-6">
+
+                                        Shipping Address
+                                    </h6>
+                                    <br>
+                                    
+                                    <!-- Text -->
+                                    <p class="text-muted mb-0">
+                                        {{ address.first_name}} {{ address.last_name}} -{{ address.house }}<br>
+                                        {{ address.email }} <br>
+                                        {{ address.city }},{{ address.state}} , {{ address.country }}<br>
+                                        {{ address.pin_code }} <br>
+                                        ph : {{ address.mobile_number }}
+                                    </p>
+                            
+                            <!-- Action -->
+                            
+                            <p class="mb-0 text-black font-weight-bold d-flex justify-content-end">
+
+                                <a class="text-primary mr-3" href="{% url 'edit_address' address.id %}" >
+                                    <i class="icofont-ui-edit"></i> EDIT
+                                </a>
+
+                                <a class="text-danger delete-address-btn" data-url="{% url 'delete_address' address.id %}">
+                                    <i class="icofont-ui-delete"></i> DELETE
+                                </a>
+                                                          
+                            </p>
+
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                            
+                            {% else %}
+                            <h3 class="d-flex justify-content-center" style="color: white;" >No Adress found</h3>
+                            {% endif %}
+                        </div>
+                    </div>
+                          
+                    
+                </div>
+
+                
+            </div>
+        </div>
+        </div>
+    </div>
+</section>
+
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="background-color: white">
+            <br>
+            <div class="modal-header justify-content-center">
+            <h5 class="modal-title text-center" id="editModalLabel">
+                    Edit Personal Information
+                </h5>
+                <button type="button" class="close position-absolute end-0 me-3" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <form method="POST" action="{% url 'update_profile' %}">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" value="{{ about.user.username }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ about.user.email }}" required>
+                        <small class="error-message text-danger" id="emailError"></small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mobile">Phone</label>
+                        <input type="text" class="form-control" id="mobile" name="mobile" value="{{ about.mobile }}" pattern="[0-9]{10}">
+                        <small class="error-message text-danger" id="mobileError"></small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dob">Date of Birth</label>
+                        <input type="date" class="form-control" id="dob" name="dob" value="{{ about.dob }}">
+                        <small class="error-message text-danger" id="dobError"></small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gender">Gender</label>
+                        <select class="form-control" id="gender" name="gender">
+                            <option value="Male" {% if about.gender == "Male" %}selected{% endif %}>Male</option>
+                            <option value="Female" {% if about.gender == "Female" %}selected{% endif %}>Female</option>
+                            <option value="other" {% if about.gender == "others" %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+                    <br>
+                    <br>
+                    <button type="submit" class="btn btn-primary">
+                        Save changes
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Password Change Modal -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" action="{% url 'change_pass' user.id %}" id="changePasswordForm">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="current_password">Current Password</label>
+                        <input type="password" class="form-control" id="current_password" name="current_password" >
+                        <div class="invalid-feedback" id="current_password_error"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="new_password">New Password</label>
+                        <input type="password" class="form-control" id="new_password" name="new_password" >
+                        <div class="invalid-feedback" id="new_password_error"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm_password">Confirm New Password</label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" >
+                        <div class="invalid-feedback" id="confirm_password_error"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Delete Address Modal -->
+<div class="modal fade" id="deleteAddressModal" tabindex="-1" role="dialog" aria-labelledby="deleteAddressModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteAddressModalLabel">Confirm Deletion</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this address?
+            </div>
+      
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var activeTab = "{{ tab }}";
+        if (activeTab) {
+            var tabLink = document.querySelector('a[href="#' + activeTab + '"]');
+            if (tabLink) {
+                tabLink.click();
+            }
+        }
+    });
+</script>
+
+<script>
+    $('#deleteAddressModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var url = button.data('url');
+        var modal = $(this);
+        modal.find('#deleteAddressForm').attr('action', url);
+    });
+</script>
+
+    
+    <script>
+
+        function toggleAddAddressForm() {
+            var form = document.getElementById('add-address-form');
+            var addressList = document.getElementById('address-list');
+            if (form.style.display === 'none') {
+                form.style.display = 'block';
+                addressList.style.display = 'none';
+            } else {
+                form.style.display = 'none';
+                addressList.style.display = 'block';
+            }
+        }
+
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <script>
+        toastr.options = {
+            "closeButton": false,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-top-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        }
+
+        // Function to display Toastr messages
+        function displayMessages() {
+
+            {% if messages %}
+                {% for message in messages %}
+                    toastr["{{ message.tags }}"]("{{ message }}")
+                {% endfor %}
+            {% endif %}
+
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            displayMessages();
+        });
+    </script>
+
+    <script>
+        function validateForm() {
+            let isValid = true;
+    
+            // Regular expression pattern for 6-digit number
+            let pinCodePattern = /^\d{6}$/;
+    
+            let pinCodeInput = document.getElementById("zipPostcode");
+            let pinCodeError = document.getElementById("pin_code_error");
+    
+            if (!pinCodePattern.test(pinCodeInput.value.trim())) {
+                pinCodeError.innerText = "PIN / Postcode must contain exactly 6 digits.";
+                isValid = false;
+            } else {
+                pinCodeError.innerText = ""; // Clear error message if valid
+            }
+    
+            toggleButtonState(isValid);
+    
+            return isValid;
+        }
+    
+        function toggleButtonState(isValid) {
+            let saveButton = document.getElementById("saveButton");
+            saveButton.disabled = !isValid;
+        }
+    
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("addAddressForm");
+            form.addEventListener("input", validateForm);
+        });
+    </script>
+    
+    <script>
+        // Regular expressions for validation
+        const namePattern = /^[a-zA-Z]+(?:\s[a-zA-Z]+)*$/;
+        const locationPattern = /^[a-zA-Z\s]+$/;
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const mobilePattern = /^\d{10,12}$/;
+    
+        // Function to toggle between form and address list
+        function toggleAddAddressForm() {
+            var form = document.getElementById('add-address-form');
+            var addressList = document.getElementById('address-list');
+            if (form.style.display === 'none') {
+                form.style.display = 'block';
+                addressList.style.display = 'none';
+            } else {
+                form.style.display = 'none';
+                addressList.style.display = 'block';
+            }
+        }
+    
+        // Function to validate form fields
+        function validateForm() {
+            let isValid = true;
+    
+            // Reset all error messages
+            document.querySelectorAll('.text-danger').forEach(function (el) {
+                el.innerText = '';
+            });
+    
+            // Validate First Name
+            let firstNameInput = document.getElementById("first_name");
+            let firstNameError = document.getElementById("first_name_error");
+            if (!namePattern.test(firstNameInput.value.trim())) {
+                firstNameError.innerText = "First name must contain only letters and spaces.";
+                isValid = false;
+            }
+    
+            // Validate Last Name
+            let lastNameInput = document.getElementById("last_name");
+            let lastNameError = document.getElementById("last_name_error");
+            if (!namePattern.test(lastNameInput.value.trim())) {
+                lastNameError.innerText = "Last name must contain only letters and spaces.";
+                isValid = false;
+            }
+    
+            // Validate Email Address
+            let emailInput = document.getElementById("email");
+            let emailError = document.getElementById("email_error");
+            if (!emailPattern.test(emailInput.value.trim())) {
+                emailError.innerText = "Email address is not valid.";
+                isValid = false;
+            }
+    
+            // Validate House
+            let houseInput = document.getElementById("house");
+            let houseError = document.getElementById("house_error");
+            if (!locationPattern.test(houseInput.value.trim())) {
+                houseError.innerText = "House name must contain only letters and spaces.";
+                isValid = false;
+            }
+    
+            // Validate City
+            let cityInput = document.getElementById("city");
+            let cityError = document.getElementById("city_error");
+            if (!locationPattern.test(cityInput.value.trim())) {
+                cityError.innerText = "City name must contain only letters and spaces.";
+                isValid = false;
+            }
+    
+            // Validate State
+            let stateInput = document.getElementById("state");
+            let stateError = document.getElementById("state_error");
+            if (!locationPattern.test(stateInput.value.trim())) {
+                stateError.innerText = "State name must contain only letters and spaces.";
+                isValid = false;
+            }
+    
+            // Validate Country
+            let countryInput = document.getElementById("country");
+            let countryError = document.getElementById("country_error");
+            if (!locationPattern.test(countryInput.value.trim())) {
+                countryError.innerText = "Country name must contain only letters and spaces.";
+                isValid = false;
+            }
+    
+            // Validate Mobile Number
+            let mobileNumberInput = document.getElementById("mobile_number");
+            let mobileNumberError = document.getElementById("mobile_number_error");
+            if (!mobilePattern.test(mobileNumberInput.value.trim())) {
+                mobileNumberError.innerText = "Mobile number is not valid.";
+                isValid = false;
+            }
+    
+            // Enable/disable save button based on validity
+            const saveButton = document.getElementById("saveButton");
+            saveButton.disabled = !isValid;
+    
+            // Return validity status
+            return isValid;
+        }
+    
+        // Add event listeners for form input and initial state
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("addAddressForm");
+            form.addEventListener("input", validateForm);
+        });
+
+    </script>
+    <script>
+        document.getElementById('changePasswordForm').addEventListener('submit', function(event) {
+            let form = this;
+            let currentPassword = document.getElementById('current_password');
+            let newPassword = document.getElementById('new_password');
+            let confirmPassword = document.getElementById('confirm_password');
+    
+            let currentPasswordError = document.getElementById('current_password_error');
+            let newPasswordError = document.getElementById('new_password_error');
+            let confirmPasswordError = document.getElementById('confirm_password_error');
+    
+            let valid = true;
+    
+            // Clear previous error messages
+            currentPassword.classList.remove('is-invalid');
+            newPassword.classList.remove('is-invalid');
+            confirmPassword.classList.remove('is-invalid');
+            currentPasswordError.textContent = '';
+            newPasswordError.textContent = '';
+            confirmPasswordError.textContent = '';
+    
+            // Validate current password
+            if (currentPassword.value.trim() === '') {
+                currentPassword.classList.add('is-invalid');
+                currentPasswordError.textContent = 'Current password is required.';
+                valid = false;
+            }
+    
+            // Validate new password
+            if (newPassword.value.length < 8) {
+                newPassword.classList.add('is-invalid');
+                newPasswordError.textContent = 'Password must be at least 8 characters long.';
+                valid = false;
+            }
+    
+            // Validate confirm password
+            if (newPassword.value !== confirmPassword.value) {
+                confirmPassword.classList.add('is-invalid');
+                confirmPasswordError.textContent = 'Passwords do not match.';
+                valid = false;
+            }
+    
+            if (!valid) {
+                event.preventDefault();
+            }
+        });
+    </script>
+<script>
+
+document.addEventListener('DOMContentLoaded', function() {
+    const mobileInput = document.getElementById('mobile');
+    const dobInput = document.getElementById('dob');
+    const mobileError = document.getElementById('mobileError');
+    const dobError = document.getElementById('dobError');
+
+    mobileInput.addEventListener('input', function() {
+        const mobilePattern = /^[0-9]{10}$/;
+        if (!mobilePattern.test(mobileInput.value)) {
+            mobileError.textContent = 'Please enter a valid 10-digit phone number.';
+        } else {
+            mobileError.textContent = '';
+        }
+    });
+
+    dobInput.addEventListener('input', function() {
+        const today = new Date();
+        const dob = new Date(dobInput.value);
+        if (dob >= today) {
+            dobError.textContent = 'Date of birth must be in the past.';
+        } else {
+            dobError.textContent = '';
+        }
+    });
+    });
+</script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var activeTab = "{{ tab }}";
+            if (activeTab) {
+                var tabLink = document.querySelector('a[href="#' + activeTab + '"]');
+                if (tabLink) {
+                    tabLink.click();
+                }
+            }
+    
+            // Attach event listeners to delete buttons
+            document.querySelectorAll('.delete-address-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    var url = this.getAttribute('data-url');
+                    Swal.fire({
+                        title: "Are you sure?",
+                        text: "You won't be able to revert this!",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#3085d6",
+                        cancelButtonColor: "#d33",
+                        confirmButtonText: "Yes, delete it!"
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            fetch(url, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': '{{ csrf_token }}'
+                                },
+                            }).then(response => {
+                                if (response.ok) {
+                                    Swal.fire({
+                                        title: "Deleted!",
+                                        text: "Your address has been deleted.",
+                                        icon: "success"
+                                    }).then(() => {
+                                        location.reload();
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        title: "Error!",
+                                        text: "An error occurred while deleting the address.",
+                                        icon: "error"
+                                    });
+                                }
+                            });
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+{% endblock content %}
