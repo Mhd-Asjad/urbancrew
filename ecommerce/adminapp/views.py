@@ -121,10 +121,8 @@ def adminlog(request):
     if request.method == "POST" :
         username = request.POST.get("username")
         password = request.POST.get("password")
-        print(username,password)
 
         user = authenticate(request, username=username, password=password)
-        print(user)
 
         if user is not None and user.is_superuser:
             request.session['is_admin'] = True
@@ -177,7 +175,6 @@ def category_view(request):
 def sf_delete_cat(request, category_id):
     try:
 
-        print(category_id)
         cat1 = category.objects.get(id=category_id)
         cat1.is_deleted = True
         cat1.save()
@@ -416,7 +413,6 @@ def confirm_return_order_item(request, item_id):
 def return_refund(request,return_id) :
     try :
         return_item = Order_items.objects.get(id = return_id)
-        print(return_id)
 
     except Order_items.DoesNotExist:
         messages.error(request, "Order item does not exist.")
@@ -428,13 +424,9 @@ def return_refund(request,return_id) :
         total_discount = order.discount_amount if order.coupon_appliyed else 0
         total_amount = 0
         total_amount = order.total
-        print(total_amount,'this is my total amount@@@@@@@')
-        print(total_discount, 'wallet offer pricee')
         total_quantity = Order_items.objects.filter(order = order).aggregate(total_quantity = Sum('qnty'))['total_quantity']
         discount_per_item = Decimal(total_discount) / Decimal(total_quantity)
-        print('discount forr per itemmm !!!' ,discount_per_item)
         original_price = return_item.product.product.offer_price if return_item.product.product.offer_price else return_item.product.product.price
-        print('og pricee:',original_price)
         refunt_amount = 0
 
         discount_return_item =  discount_per_item * Decimal(return_item.qnty)
@@ -448,9 +440,6 @@ def return_refund(request,return_id) :
         else :
             refunt_amount = order.total
         
-        print(order.total ,'after refund') 
-        print('refund amount with shipping fee :',refunt_amount)
-        print('count afterr!!',non_returned_items_count)
         order.save()
 
         product_size = ProductSize.objects.get(image = return_item.product , size = return_item.size)
@@ -465,7 +454,6 @@ def return_refund(request,return_id) :
         tranc_id = "Re_" + get_random_string(6,'ABCPMOZ456789')
         if Wallet_transactions.objects.filter(transaction_id = tranc_id).exists() :
             tranc_id = "Re_" + get_random_string(6,'ABCPMOZ456789' )
-            print(tranc_id,'this is the second one')
 
         Wallet_transactions.objects.create(
 
@@ -663,8 +651,6 @@ def sales_report(request):
 
             request.session['filters'] = filters
 
-            print(request.session.get('filters'),'adffdsdataaaaaaaaaaaa')
-
             count = order.count()
             total = order.aggregate(total=Sum('order__total'))["total"]
             total_discount = order.aggregate(total_discount=Sum('order__discount_amount'))['total_discount']
@@ -694,7 +680,6 @@ def sales_report(request):
 def generate_report(request):
     if request.user.is_superuser:
         filters = request.session.get("filters", {})
-        print(filters,'newwwwwwwwwwwwwwww datat')
         sales_data = Order_items.objects.filter(
             cancel=False,
             request_return=False,

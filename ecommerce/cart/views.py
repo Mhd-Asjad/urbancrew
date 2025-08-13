@@ -33,8 +33,7 @@ def add_cart(request):
         if request.method == "POST":
             size_id = request.POST.get('size')
             product_id = request.POST.get('product_id')
-
-            print(size_id)
+            
             if  size_id is None:
                 messages.error(request,"Select a size." )
                 return redirect("shop_details", product_id)
@@ -47,12 +46,6 @@ def add_cart(request):
 
                 messages.warning(request, "There is no stock left.")
                 return redirect("shop_details", product_id)
-
-
-
-            print(product_id,'this is prod id')
-            print(size_id,'sizess')
-
 
             if Cart.objects.filter(user = request.user ,product = product ,sizes = size).exists():
                 messages.warning(request,'this item already in the cart')
@@ -178,13 +171,11 @@ def update_tot_price(request):
             cart_items.save()
             subtotal = Cart.objects.filter(user_id=user).aggregate(sum=Sum("total"))
             subs_amnt = subtotal["sum"]
-            print(subs_amnt)
             shippingfee = 100
             if subs_amnt < 5000:
                 full_total = subs_amnt + shippingfee
             else:
                 full_total = subs_amnt
-            print(full_total)
 
             return JsonResponse(
                 {
@@ -242,10 +233,8 @@ def additional_address(req):
 
     if req.method == 'POST' :
         
-        print('this is takingggg')
         
         user = User.objects.get(id=req.user.id)
-        print(user.id,'addressssssssssssssssssss')
         first_name = req.POST.get('first_name')
         last_name = req.POST.get('last_name')
         email = req.POST.get('email')
@@ -308,7 +297,6 @@ def additional_address(req):
         )
         
         messages.success(req, 'address addedd succesfully')
-        print('address added')
         return redirect('checkout')
     
     states = [
@@ -389,7 +377,6 @@ def apply_coupon(req):
                 shipping_fee = 0
 
             total = sub_total + shipping_fee
-            print('total amount in checkout',total)
 
 
             if total <= coupon.minimum_amnt or total >= coupon.max_amount :
@@ -561,7 +548,6 @@ def place_order(request) :
                 coupon_appliyed = request.session.get('coupon_applied'),
                 discount_amount = discount_amount 
             )
-            print('address')
 
             shipping_address = Shipping_address.objects.create(
                 order = order, 
@@ -612,11 +598,8 @@ def place_order(request) :
             customer = User.objects.get(username = request.user.username)
             cart_items = Cart.objects.filter(user=customer)
             register_user = register.objects.filter(user=customer.id).first()
-            print(register_user,'uesrsss')
-            print(register_user)
             sub_total = sum(item.total for item in cart_items)
             shipping_fee = 0
-            print('this is the sub_total :',sub_total)
 
             address_obj = get_object_or_404(Address,id = address_id)
 
@@ -626,7 +609,6 @@ def place_order(request) :
                 shipping_fee = 0
 
             full_total = sub_total if sub_total >= 5000 else sub_total + shipping_fee
-            print('full_amount',full_total)
 
             order_id = get_random_string(8,'abcdfgh123456789')
             while Order.objects.filter(tracking_id = order_id).exists():
@@ -634,23 +616,18 @@ def place_order(request) :
 
             discount_amount = 0
 
-            print(sub_total)
             if request.session.get('coupon_applied'):
                 coupon_id = request.session.get('coupon_id')
                 applied_coupon = Coupon.objects.get(id = coupon_id)
                 discount_amount = ( sub_total * applied_coupon.discount_percentage ) / 100
-                print(discount_amount,'disc')
                 full_total -= discount_amount
             else:
                 applied_coupon = None
 
-                print('this is the discount amounntttt : ',discount_amount)
-                print('applied ccoupoonnnn' , applied_coupon)
             order_id = get_random_string(8,'abcdfgh123456789')
             while Order.objects.filter(tracking_id = order_id).exists():
                 order_id = get_random_string(8,'abcdfgh123456789')
 
-            print(register_user.id)
             request.session['register'] = register_user.id
             request.session['address_id'] = address_id
             request.session['total'] = full_total
@@ -690,14 +667,12 @@ def place_order(request) :
                 mobile_number = address.mobile_number
             )
             
-            print('temp order createdd')
             request.session['order_id'] = temp_order.id
             return redirect('razorpay_order_summary')
         
         elif pm == 'wallet' :
 
             user_customer = customer
-            print(user_customer)
             balance = Wallet.objects.get(user = user_customer)
 
             sub_total = sum(item.total for item in cart_items)
@@ -733,7 +708,6 @@ def place_order(request) :
                 coupon_id = request.session.get('coupon_id')
                 applied_coupon = Coupon.objects.get(id = coupon_id )
                 discount_amount = ( sub_total * applied_coupon.discount_percentage ) / 100
-                print(discount_amount,'disc')
                 full_total -= discount_amount
             else:
                 applied_coupon = None
@@ -822,7 +796,6 @@ def razorpay_view(request):
         payment_id = request.session.get('payment_id')
         if cart :
             total = request.session.get('total')
-            print('totall razz:',total)
             razorpay_order_id = ''
             order_currency = "INR"
 
@@ -854,9 +827,7 @@ def payment_success(request):
         total = request.session.get('total')
         razorpay_order_id = request.POST.get("razorpay_order_id")
         razorpay_payment_id = request.POST.get("razorpay_payment_id")
-        print('razorpay payment', razorpay_payment_id)
         razorpay_signature = request.POST.get("razorpay_signature")
-        print(razorpay_signature)
         payment_error = request.POST.get("payment_error", "")
 
         params_dict = {
@@ -876,16 +847,12 @@ def payment_success(request):
         except razorpay.errors.SignatureVerificationError :
             payment_status = False
 
-            print(payment_status,'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-
         with transaction.atomic():
             if payment.paid :
                 return redirect('user_profile')
             else :
                 payment.paid = payment_status
-                print(payment_status)
                 payment.pending = not payment_status
-                print(not payment_status)
                 payment.success = payment_status
                 payment.failed = True if not payment_status else False
                 payment.paid_at = timezone.now() if payment_status else None
@@ -904,7 +871,6 @@ def payment_success(request):
                 order.status = 'Pending'
 
             order.payment = payment
-            print(payment_status,'helloooowww1')
             order.save()
 
             cart_items = Cart.objects.filter(user=request.user)
@@ -914,7 +880,6 @@ def payment_success(request):
                 if product_size.stock >= item.quantity :
                     product_size.stock -= item.quantity
                     product_size.save()
-                print(item.product,'productsssssssssssssssssssssssssssss')
                 Order_items.objects.create(
                     order=order,
                     status= 'Order Placed' if payment_status else 'Payment Failed',
@@ -971,7 +936,7 @@ def order_failure(request) :
 @login_required(login_url='user_login')
 def order_details(request, order_id) :
     try :
-        print(order_id,'this is theh order iddd')
+
         order = Order.objects.get(id = order_id ,register__user = request.user)
         order_items = Order_items.objects.filter(order=order).order_by('-id')
         user_address = Address.objects.filter(user = request.user , is_deleted = False)
@@ -1117,7 +1082,7 @@ def request_return_order_item(req , item_id) :
 
     try:
         order_items = Order_items.objects.get(id=item_id)
-        print(order_items,'fhksdhkshah')
+
     except Order_items.DoesNotExist:
         pass
 
@@ -1145,10 +1110,10 @@ def request_return_order_item(req , item_id) :
 def invoice(request, order_id):
     if request.user.is_authenticated :
         customer = register.objects.filter(user = request.user).first()
-        print(customer)
+
         try :
             order_items = Order_items.objects.filter(order__id = order_id , order__register = customer)
-            print(order_items)
+
         except register.DoesNotExist :
             messages.error(request,'this product havet reachedd.....!')
 
@@ -1158,8 +1123,6 @@ def invoice(request, order_id):
         for i , item in enumerate(order_items,1):
             product = item.product.product
             price = item.price
-            print(i ,':', price)
-            print(' og price : ',product.price, 'off price :',product.offer_price)
             total += Decimal(price) * item.qnty
 
         shipping_fee = order.shipping_charge

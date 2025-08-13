@@ -32,14 +32,9 @@ def add_product(req):
 
         if req.method == "POST":
             product_name = req.POST.get("name")
-            print(product_name)
-
             price = req.POST.get("price")
-            print(price)
             c_id = req.POST.get("cat")
-            print(c_id)
             image_upload = req.FILES.get("image")
-            print(image_upload,'IMG')
 
             if not product_name or not price or not c_id or not image_upload :
                 messages.error(req, "Please fill in all the required fields.")
@@ -80,7 +75,6 @@ def add_product(req):
 def add_variant(req,product_id) :
     if req.user.is_authenticated :
         pro = Product.objects.get(id = product_id)
-        print()
         if req.method == "POST" :
 
             color = req.POST.get("color")
@@ -94,7 +88,6 @@ def add_variant(req,product_id) :
             sxlarge = req.POST.get("sxlarge")
 
             prod_id = product_id
-            print(prod_id,'this is the id of the product')
             if not color :
                 messages.error(req,'this field is requiredd')
                 return redirect('addvariant',prod_id)
@@ -108,8 +101,7 @@ def add_variant(req,product_id) :
                 if image and not image.name.split('.')[-1].lower() in allowed_extensions:
                     messages.error(req, 'Only image files are allowed (jpg, jpeg, png, gif ,avif ).')
                     return redirect('addvariant',prod_id)
-            print(Ssmall ,smedium,slarge)
-            print(type(Ssmall))
+
 
             if not Ssmall and not smedium and not slarge and not sxlarge :
                 messages.error(req,'give atleast stock for one size')
@@ -167,7 +159,6 @@ def edit_size(req, color_id):
             color = get_object_or_404(AddImages, id=color_id)
 
         except AddImages.DoesNotExist:
-            print('this variant does not exists')
             messages.error(req, 'This variant does not exist.')
 
         for size_id, stock in req.POST.items():
@@ -247,9 +238,7 @@ def valid_color(request) :
 def active(request , variant_id):
     if request.user.is_superuser :
         if variant_id :
-            print(variant_id)
             variant = AddImages.objects.get(id = variant_id)
-            print(variant)
             variant.is_active = True
             variant.save()
             prod_id = variant.product.id
@@ -314,7 +303,6 @@ def unlist_prod(request, product_id):
 @never_cache
 @login_required(login_url="adminlog")
 def edit_prod(request, product_id):
-    print("product id",product_id)
 
     try:
         products = get_object_or_404(Product, id=product_id)
@@ -327,13 +315,9 @@ def edit_prod(request, product_id):
     
     if request.method == "POST":
         name = request.POST.get("product_name")
-        print(name)
         price = request.POST.get("price")
-        print('total :',price)
         cat_id = request.POST.get("category")
-        print(cat_id)
         thumb_img = request.FILES.get("thumbnail")
-        print(thumb_img)
 
         if not name.strip() :
             messages.error(request, "Product name cannot be empty or contain only whitespace")
@@ -383,8 +367,6 @@ def search_results(request):
     query = request.GET.get("query")
     results = AddImages.objects.filter(product__product_name__icontains=query)
 
-    print(query)
-    print(results)
     return render(request, "search.html", {"products": results, "query": query})
 
 def log_out(request):

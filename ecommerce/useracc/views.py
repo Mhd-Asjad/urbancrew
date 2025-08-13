@@ -27,7 +27,6 @@ from django.db.models import *
 
 def base(req) :
     cat1 = category.objects.all()
-    print(cat1)
     context = {"cat1": cat1}
     return render(req, "base.html", context)
 
@@ -87,17 +86,14 @@ def reg(request):
             errors['email'] = "Email already exists."
 
         if not any(char.isupper() for char in password):
-            print('validd')
             messages.error(request, "Password must contain at least one uppercase letter")
             return redirect("register")
 
         if not any(char.islower() for char in password):
             messages.error(request, "Password must contain at least one lowercase letter.")
-            print('not a valid onee')
             return redirect("register")
 
         if not any(char in '!@#$%^&*()_+' for char in password):
-            print('not a valid oonww2')
             messages.error(request, "Password must contain at least one special character.")
             return redirect("register")
 
@@ -117,7 +113,6 @@ def reg(request):
 def otp_send_to_email(email):
     otp = random.randint(1000, 9999)
     otp_generated_at = datetime.now().isoformat()
-    print('new otp founded :', otp)
 
     send_mail(
         subject="Welcome! OTP for verification",
@@ -193,8 +188,6 @@ def otp_form(request):
 def resend_otp(request):
     otp_new = random.randint(1000, 9999)
     otp_generated_at_new = datetime.now().isoformat()
-    print(otp_new)
-
     email = request.session.get("email")
 
     send_mail(
@@ -219,7 +212,6 @@ def resend_otp(request):
         "otp": otp_new,
         "otp_generated_at": otp_generated_at_new,
     }
-    print(otp_new)
     return redirect(otp_form)
 
 @never_cache
@@ -231,17 +223,12 @@ def user_login(request):
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
-        print(username, password)
-
-        print("reached near authentication")
-
         user = authenticate(request, username=username, password=password)
 
         if user is not None and not user.is_superuser :
             if 'is_admin' in request.session:
                 del request.session['is_admin']
             login(request, user)
-            print("passed authentication")
             return redirect("home")
 
         else:
@@ -355,7 +342,6 @@ def product_list(request):
 
     products_query = AddImages.objects.filter(is_active=True).order_by('id')
     colors = AddImages.objects.values_list('color', flat=True).distinct()
-    print(colors)
 
     if search_query :
         products_query = products_query.filter(product__product_name__icontains = search_query)
@@ -397,12 +383,6 @@ def product_list(request):
         offers[f"category_{offer.categorys.id}"] = offer
     for offer in product_offers :
         offers[f"product_{offer.product.id}"] = offer
-
-    print(offers,'sdjfdiosaufoisdfjosj')
-
-
-    print(f"Current page: {products_page.number}")
-    print(f"Page range: {list(products_page.paginator.page_range)}")  
 
     return render(request, "shop.html", {
         "is_authenticated": is_authenticated,
@@ -490,14 +470,12 @@ def update_profile(request):
     about = register.objects.filter(user=user).first()
 
     if request.method == 'POST':
-        print('Form submission detected')
         username = request.POST.get('username')
         email = request.POST.get('email')
         mobile = request.POST.get('mobile')
         dob = request.POST.get('dob')
         gender = request.POST.get('gender')
 
-        print(f'Received data: username={username}, email={email}, mobile={mobile}, dob={dob}, gender={gender}')
 
         users = register.objects.filter(user=user).first()
 
@@ -532,10 +510,7 @@ def update_profile(request):
                 error_message['dob'] = 'Invalid date format. Use YYYY-MM-DD.'
 
         if error_message:
-            print('Error_messages', error_message)
             return render(request, 'profile.html', {'about': users, 'error_message': error_message})
-
-        print('No validation errors, proceeding to save')
 
         if username:
             users.user.username = username
@@ -544,7 +519,6 @@ def update_profile(request):
         if gender:
             users.gender = gender
 
-        print('Attempting to save user profile')
         users.user.save()
         users.save()
         messages.success(request, 'Profile saved successfully')
@@ -584,7 +558,7 @@ def change_pass(req, pass_id):
 def add_address(req) :
     if req.user.is_authenticated :
         user = req.user
-        print(user)
+
         if req.method == 'POST' :
             first_name = req.POST.get('first_name')
             last_name = req.POST.get('last_name')
@@ -647,11 +621,7 @@ def edit_address(req,address_id):
     addresses = Address.objects.filter(user=user).order_by('-id')
     address = get_object_or_404(Address,id=address_id ,user=user)
     if req.method == "POST" and req.user.is_authenticated:
-        print(addresses)
-        print(user,'this the user for')
-        print(address,'this is my address')
         
-    
         first_name = req.POST.get('first_name')
         last_name = req.POST.get('last_name')
         email = req.POST.get('email')

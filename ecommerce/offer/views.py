@@ -101,7 +101,6 @@ def edit_offer(request ,offer_id) :
         today = timezone.now()
         offer = get_object_or_404(Offer, id = offer_id )
 
-        print(offer)
         products = Product.objects.all()
         categories = category.objects.all()
         
