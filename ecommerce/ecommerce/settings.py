@@ -12,13 +12,18 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+load_dotenv()
+
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-xo)x1b0m#(t-w!ycm5eojlaqmmom#g$6q-rwl&w768*f9gv71c"
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.getenv('DEBUG') == 'True'
+
+print('setting debug' , DEBUG)
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
@@ -27,9 +32,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "urbancrew144@gmail.com"
 EMAIL_HOST_PASSWORD = "ynxn tmnu jzau ohzv"
 
-
-ALLOWED_HOSTS = ["*"]
-
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOST').split(',')
 
 # Application definition
 SITE_ID = 2 
@@ -107,9 +110,9 @@ WSGI_APPLICATION = "ecommerce.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "ecommerce",
-        "USER": "postgres",
-        "PASSWORD": "postgres",
+        "NAME": os.getenv('DB_NAME'),
+        "USER": os.getenv('DB_USER'),
+        "PASSWORD": os.getenv('DB_PASSWORD'),
         "HOST": "localhost",
         "PORT": "5432",
     }
@@ -178,5 +181,5 @@ LOGOUT_REDIRECT_URL = "/"
 
 SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
 
-RAZORPAY_KEY_ID = "rzp_test_L5qNNRXVbhmnhr"
-RAZORPAY_KEY_SECRET = "ciivOcvarUcV6uSV7WniDwfj"
+RAZORPAY_KEY_ID = os.getenv('RAZORPAY_KEY_ID')
+RAZORPAY_KEY_SECRET = os.getenv('RAZORPAY_KEY_SECRET')
