@@ -1,11 +1,10 @@
 from django.shortcuts import render , redirect
-
 from .models import *
 from products.models import *
 from adminapp.models import category
 from django.views.decorators.cache import never_cache, cache_control
 from django.contrib import messages
-from datetime import datetime , timedelta
+from datetime import datetime 
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect
@@ -56,6 +55,7 @@ def add_offer(request) :
                 return redirect('add_offer')
             
             if offer_type == 'category' :
+                end_date = timezone.make_aware(datetime.strptime(end_date, "%Y-%m-%d"))
                 if Offer.objects.filter(categorys__id = category_id).exists():
                     messages.error(request,'already added')
                     return redirect('add_offer')
@@ -66,7 +66,7 @@ def add_offer(request) :
 
                     offer_type = Offer.CATEGORY,
                     categorys = cat ,
-                    percentage = disc ,
+                    percentage = disc,
                     end_date = end_date
                 )
 
@@ -77,7 +77,12 @@ def add_offer(request) :
                     messages.error(request,'this alreaddy added!')
                     return redirect('add_offer')
                 
-                end_date = timezone.make_aware(timezone.datetime.strptime(end_date, "%Y-%m-%d"))
+                try:
+                    end_date = timezone.make_aware(datetime.strptime(end_date, "%Y-%m-%d"))
+                except ValueError:
+                    messages.error(request, 'Invalid date format. Use YYYY-MM-DD.')
+                    return redirect('add_offer')
+                
                 if str(end_date) < str(today) :
                     messages.error(request,'date cannot be in the past!!')
                     return redirect('add_offer')
@@ -86,7 +91,7 @@ def add_offer(request) :
                 Offer.objects.create(
                     offer_type = Offer.PRODUCT,
                     product = prod ,
-                    percentage = disc,
+                    percentage = disc,  
                     end_date = end_date 
                 )
                 messages.success(request,'offer added successfully')

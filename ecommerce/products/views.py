@@ -66,7 +66,7 @@ def add_product(req):
                 img=image_upload,
             )
 
-            return redirect("dashboard")
+            return redirect("product")
         return render(req, "addproducts.html", {"categories": categories, "size_add": size_add})
     else :
         return redirect('adminlog')

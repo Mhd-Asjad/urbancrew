@@ -69,68 +69,48 @@ def check_product_stock(sender, instance, **kwargs):
     product.save()
 
 
-@receiver([post_save,post_delete,pre_save],sender = Offer)
-def update_offer_price(sender,instance,**kwargs) :
-    product = instance.product
-    category = instance.categorys
-    today = timezone.now()
-    print(today)
+@receiver([post_save, post_delete], sender=Offer)
+def update_offer_price(sender, instance, **kwargs):
+    try:
+        product = instance.product
+        category = instance.categorys
+        today = timezone.now()
 
+        if product and not instance.is_active:
+            product.offer_price = 0
+            product.save()
 
-    if not instance.is_active and product :
-        product.offer_price = 0
+        if product and product.is_available:
+            product_offers = Offer.objects.filter(product=product, is_active=True, end_date__gt=today)
+            max_discount = max((offer.percentage for offer in product_offers), default=0)
+            full_amount = product.price
+            if max_discount > 0:
+                full_amount -= (full_amount * max_discount / 100)
+            product.offer_price = round(full_amount)
+            product.save()
 
-    if product and product.is_available == True :
-        product_offers = Offer.objects.filter(product = product , is_active = True)
-        Max_discound = 0
-
-        for offer in product_offers :
-            if offer.percentage > Max_discound :
-                Max_discound =  offer.percentage
-
-        full_amount = product.price
-        if Max_discound > 0 :
-            full_amount -= (full_amount * Max_discound / 100 )
-
-        product.offer_price = round(full_amount)
-        print(product.offer_price ,'ytuytyutyutyt')
-        product.save()
-
-    elif instance.is_active and category :
-        
-        products_in_category = Product.objects.filter(categorys = category)
-
-        for product_in_category in products_in_category :
-
-            product_offer_in_cat = Offer.objects.filter(product = product_in_category,is_active = True)
-            print(product_in_category)
-            print(product_in_category,'this is category offer for the products !!!')
-
-            if product_offer_in_cat.exists() :
-
-                biggest_discount = max(offer.percentage for offer in product_offer_in_cat)
-            else :
-                biggest_discount = 0
-
-                print(biggest_discount ,'amount for the discount')
-
-            category_offers = Offer.objects.filter(categorys=category)
-            biggest_discount_in_category = max((offer.percentage for offer in category_offers ) , default=0)
-            final_discount = max(biggest_discount,biggest_discount_in_category)
-            final_price_in_cat  = product_in_category.price
-            if final_discount > 0 :
-                final_price_in_cat -= (final_price_in_cat * final_discount / 100)
-            print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ ' , final_price_in_cat)
-
-            product_in_category.offer_price = round(final_price_in_cat)
-            product_in_category.save()
+        elif instance.is_active and category:
+            products_in_category = Product.objects.filter(categorys=category)
+            for product in products_in_category:
+                product_offers = Offer.objects.filter(product=product, is_active=True, end_date__gt=today)
+                biggest_discount = max((offer.percentage for offer in product_offers), default=0)
+                category_offers = Offer.objects.filter(categorys=category, is_active=True, end_date__gt=today)
+                biggest_discount_in_category = max((offer.percentage for offer in category_offers), default=0)
+                final_discount = max(biggest_discount, biggest_discount_in_category)
+                final_price = product.price * (1 - final_discount / 100)
+                product.offer_price = round(final_price)
+                product.save()
+    except OSError as e:
+        print(f"OSError in update_offer_price for offer {instance.id}: {e}")
+        raise
 
 def update_offer_price(self,**kwarg) :
+    print('product offfer updated')
     now = timezone.now()
-    expired_offer = Offer.objects.get(end_date__lte = now , is_active = True)
-    if expired_offer:   
-        expired_offer.is_active = False
-    expired_offer.save()
+    expired_offers = Offer.objects.filter(end_date__lte=now, is_active=True)
+    for offer in expired_offers:
+        offer.is_active = False
+        offer.save()
 
 @receiver(pre_save, sender=Product)
 def prod_offer_price(sender, instance, **kwargs):
@@ -163,26 +143,3 @@ def prod_offer_price(sender, instance, **kwargs):
             else:
                 # No active offers, reset offer_price to the original price
                 instance.offer_price = instance.price
-
-# @receiver([post_save, post_delete], sender=Offer)
-# def update_offer_price(sender, instance, **kwargs):
-#     today = timezone.now()
-
-#     if instance.product:
-#         update_product_offer(instance.product)
-#     elif instance.categorys:
-#         update_category_offer(instance.categorys)
-
-# def update_product_offer(product):
-#     offers = Offer.objects.filter(product=product, is_active=True, end_date__gte=timezone.now())
-#     if offers.exists():
-#         max_discount = max(offer.percentage for offer in offers)
-#         product.offer_price = product.price - (product.price * max_discount / 100)
-#     else:
-#         product.offer_price = None 
-#     product.save()
-
-# def update_category_offer(category):
-#     products = Product.objects.filter(categorys=category)
-#     for product in products:
-#         update_product_offer(product)
