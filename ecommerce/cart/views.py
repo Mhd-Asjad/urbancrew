@@ -504,7 +504,7 @@ def place_order(request) :
             customer = User.objects.get(username = request.user.username)
             cart_items = Cart.objects.filter(user = customer)
 
-            register_user = register.objects.get(user=customer.id)
+            register_user = register.objects.filter(user=customer.id).first()
             sub_total = sum(item.total for item in cart_items)
 
 
