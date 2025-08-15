@@ -15,15 +15,13 @@ import os
 from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-load_dotenv()
+load_dotenv(BASE_DIR / '.env')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG') == 'True'
-
-print('setting debug' , DEBUG)
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
@@ -33,9 +31,8 @@ EMAIL_HOST_USER = "urbancrew144@gmail.com"
 EMAIL_HOST_PASSWORD = "ynxn tmnu jzau ohzv"
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOST').split(',')
-
 # Application definition
-SITE_ID = 2 
+SITE_ID = 3
 INSTALLED_APPS = [
     
     "django.contrib.admin",
