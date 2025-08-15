@@ -503,7 +503,8 @@ def place_order(request) :
         
             customer = User.objects.get(username = request.user.username)
             cart_items = Cart.objects.filter(user = customer)
-
+            
+            # fetch registered user for order
             register_user = register.objects.filter(user=customer.id).first()
             sub_total = sum(item.total for item in cart_items)
 
