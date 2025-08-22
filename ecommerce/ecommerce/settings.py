@@ -15,7 +15,8 @@ import os
 from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-load_dotenv(BASE_DIR / '.env')
+# load_dotenv(BASE_DIR / '.env')
+load_dotenv()
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
@@ -29,10 +30,9 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "urbancrew144@gmail.com"
 EMAIL_HOST_PASSWORD = "ynxn tmnu jzau ohzv"
-
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOST').split(',')
 # Application definition
-SITE_ID = 3
+SITE_ID = 2
 INSTALLED_APPS = [
     
     "django.contrib.admin",
@@ -62,7 +62,7 @@ SOCIALACCOUNT_PROVIDERS = {
 SOCIALACCOUNT_LOGIN_ON_GET = True
 
 MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
+    "django.middleware.security.SecurityMiddleware",    
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",

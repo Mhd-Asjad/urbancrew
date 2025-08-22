@@ -2,6 +2,7 @@
 
 
 {% block body %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
 
@@ -64,9 +65,9 @@
                         <th style="width: 25%;">Product Name</th>
                         <th style="width: 15%;">Price</th>
                         <th style="width: 10%;">Quantity</th>
+                        <th style="width: 10px;" >Date</th>
                         <th style="width: 15%;">Status</th>
                         <th style="width: 15%;">Action</th>
-                        {% comment %} <th style="width: 15px;" >return</th> {% endcomment %}
                     </tr>
                 </thead>
                 <tbody>
@@ -90,16 +91,31 @@
                         {% else %}
                         <td>
                             ₹{{ item.product.product.price}}
-                        </td>
+                        </td>   
                         {% endif %}
                         <td>{{ item.qnty }}</td>
-                        <td>{{ item.status }}</td>
+                        <td>{{ order.created_at|date:"F d, Y h:i A" }}</td>
+                        <td>
+                            {% if item.request_return and item.return_reason %}
+                            {{ item.status }}<br>
+                            {{ item.return_reason }} - {{ item.return_approval_status }}
+                            {% else %}
+                            {{ item.status }}
+                            {% endif %}
+
+                        </td>
                         <td>
 
-
-                            {% if item.request_return and item.status != 'Returned' and item.status != 'Refunded' %}
+                            {% if item.request_return and item.status != 'Returned' and item.status != 'Refunded' and item.return_approval_status != 'Rejected' %}
                                     
                                 <a class="btn btn-warning" href="{% url 'confirm_return_order_item' item.id %}" >Confirm Return</a>
+                                <br>
+                                <br>
+                                    <a href="{% url 'reject_return_order_item' item.id %}" 
+                                    class="btn btn-danger reject-return-btn" 
+                                    data-url="{% url 'reject_return_order_item' item.id %}">
+                                    Reject Return
+                                    </a>
                                 <br>
                                 <br>
 
@@ -115,7 +131,7 @@
                             {% endif %}
 
                             
-                            {% if item.status == 'Delivered' or item.request_return or item.status == 'Cancelled' or item.status == 'Returned' or item.status == 'Refunded' %}
+                        {% if item.status == 'Delivered' or item.request_return or item.status == 'Cancelled' or item.status == 'Returned' or item.status == 'Refunded' %}
 
                         <select name="status_{{ item.id }}" class="form-select" disabled>
                             {% for choice in item.STATUS_CHOICES %}
@@ -154,20 +170,47 @@
     </div>
     <br>
 
-    <div class="card mb-3" style="width:400px;" >
-        <div class="card-header">
-            Shipping Address
-        </div>
-        <div class="card-body">
-              
-            <p>{{ order.address.first_name }} - {{ order.address.last_name }} </p>
-            <p>{{ order.address.email }}</p>
-            <p>{{ order.address.house }}, {{ order.address.state }} - {{ order.address.pin_code }}</p>
-            <p>{{ order.address.country }}</p>
-            <p>Phone: {{ order.address.mobile_number }}</p>
-
+   <div class="row" style="margin: 0;">
+    <!-- Shipping Address -->
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-header">
+                Shipping Address
+            </div>
+            <div class="card-body">
+                <p>{{ order.address.first_name }} - {{ order.address.last_name }}</p>
+                <p>{{ order.address.email }}</p>
+                <p>{{ order.address.house }}, {{ order.address.state }} - {{ order.address.pin_code }}</p>
+                <p>{{ order.address.country }}</p>
+                <p>Phone: {{ order.address.mobile_number }}</p>
+            </div>
         </div>
     </div>
+
+    <!-- Order Summary -->
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-header">
+                Order Summary
+            </div>
+            <div class="card-body" style="text-align: center;">
+                <p>Tracking ID: {{ order.tracking_id }}</p>
+                <p>Total Amount: ₹{{ order.total }}</p>
+                <p>Payment Method: {{ order.payment_method }}</p>
+                <p>Status: {{ order.status }}</p>
+                {% if order.cancel %}
+                    <p>Cancellation Reason: {{ order.cancel_reason }}</p>
+                {% endif %}
+                {% if order.request_return %}
+                    <p>Return Requested: Yes</p>
+                {% else %}
+                    <p>Return Requested: No</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
 
 
 
@@ -257,6 +300,34 @@
         });
     }
 </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    document.querySelectorAll(".reject-return-btn").forEach(function(button) {
+        button.addEventListener("click", function(e) {
+            e.preventDefault(); // prevent direct navigation
+
+            const targetUrl = this.getAttribute("data-url");
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you really want to reject this return?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, reject it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = targetUrl;
+                }
+            });
+        });
+    });
+});
+</script>
+
 
 
 {% endblock body %}

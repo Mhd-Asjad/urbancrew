@@ -565,16 +565,17 @@ def place_order(request) :
 
             for item in cart_items :
                 product_size = item.sizes 
-                if product_size.stock >= item.quantity :
+                if product_size.stock >= item.quantity  :
                     product_size.stock -= item.quantity
+                    if product_size.stock < 0:
+                        product_size.stock = 0
                     product_size.save()
 
-                
             for item in cart_items :
                 items = Order_items.objects.create(
 
                     order = order , 
-                    status = "Order Placed" ,
+                    status = "Order Placed",
                     product = item.product,
                     price = item.product.product.price,
                     qnty = item.quantity,
@@ -585,11 +586,6 @@ def place_order(request) :
                 if request.session.get('coupon_applied') == True :
                     del request.session['coupon_applied']
                     del request.session['coupon_id']
-
-            for item in cart_items:
-                product_size = item.sizes
-                product_size.stock -= item.quantity
-                product_size.save()
 
             cart_items.delete()
             return redirect('order_success')
@@ -649,7 +645,7 @@ def place_order(request) :
                 coupon_appliyed = request.session.get('coupon_applied'),
                 discount_amount = int(discount_amount) ,
                 status = 'Pending'
-
+                
             )
 
             temp_order.create_razorpay_order()
@@ -1083,14 +1079,17 @@ def request_return_order_item(req , item_id) :
 
     try:
         order_items = Order_items.objects.get(id=item_id)
-
+        return_reason = req.POST.get('return_reason')
     except Order_items.DoesNotExist:
         pass
 
     if req.user.is_authenticated:
+        print(order_items.id , 'idddddddddddddddddd')
         if order_items.order.register.user == req.user and order_items.status == 'Delivered' :
             if not order_items.request_return :
                 order_items.request_return = True
+                order_items.return_reason = return_reason
+                order_items.return_approval_status = 'pending'
                 order_items.save()
                 messages.success(req,'return request has been submitted')
                 return redirect('order_details', order_id = order_items.order.id)

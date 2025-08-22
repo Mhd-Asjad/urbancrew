@@ -335,10 +335,13 @@ def fetch_orders(request):
                 'tracking_id': order.tracking_id,
                 'username': order.register.user.username ,
                 'total': order.total,
+                'order_date' : order.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                'status': order.status,
                 'payment_method': order.payment_method,
                 'detail_url': f"/ordered_item/{order.id}"  # Adjust URL pattern as needed
 
             })
+        print('orders_list', orders_list)
 
         return JsonResponse({
             'orders': orders_list,
@@ -349,7 +352,7 @@ def fetch_orders(request):
         return JsonResponse({'error': 'Unauthorized'}, status=403)
 
 @user_passes_test(lambda u: u.is_superuser, login_url='adminlog')
-def ordered_item(request, order_id):
+def ordered_item(request, order_id):    
     order = get_object_or_404(Order, id=order_id)
     order_items = Order_items.objects.filter(order=order).order_by('-id')
 
@@ -358,7 +361,7 @@ def ordered_item(request, order_id):
         return redirect('order_view')  # Redirect to some admin log page or handle as needed
 
     context = {
-        'order': order,
+        'order': order, 
         'order_items': order_items,
     }
 
@@ -398,6 +401,7 @@ def confirm_return_order_item(request, item_id):
         
         # Check if a return request exists
         if order_item.request_return :
+            order_item.return_approval_status = "Approved"
             order_item.status = 'Returned'
             order_item.save()
             messages.success(request, 'Return request has been confirmed.')
@@ -408,7 +412,25 @@ def confirm_return_order_item(request, item_id):
     except Order_items.DoesNotExist:
         messages.error(request, 'Order item not found.')
         return redirect('orders')
-
+    
+def reject_return_order_item(request, item_id):
+    print(item_id , 'item_id')
+    try:
+        # Retrieve the order item using the item_id
+        order_item = Order_items.objects.get(id=item_id)
+        
+        # Check if a return request exists
+        if order_item.request_return and order_item.return_approval_status == 'pending':
+            order_item.return_approval_status = "Rejected"
+            order_item.return_reject_reason = "not eligible for return"
+            order_item.save()
+            messages.success(request, 'Return request has been rejected.')
+        else:
+            messages.error(request, 'No return request found for this item.')
+        return redirect('ordered_item', order_id=order_item.order.id)
+    except Order_items.DoesNotExist:
+        messages.error(request, 'Order item not found.')
+        return redirect('orders')
 
 def return_refund(request,return_id) :
     try :

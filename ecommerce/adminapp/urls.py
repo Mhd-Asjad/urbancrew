@@ -29,7 +29,7 @@ urlpatterns = [
     path('ordered_item/<int:order_id>/',views.ordered_item,name='ordered_item'),
     path('update_order_status/<int:order_id>',views.update_order_status,name='update_order_status'),
     path('confirm_return_order_item/<int:item_id>/',views.confirm_return_order_item,name='confirm_return_order_item'),
-
+    path('reject_return_order_item/<int:item_id>/',views.reject_return_order_item,name='reject_return_order_item'),
     path('return_refund/<int:return_id>/',views.return_refund,name='return_refund'),
     path('sales_report/', views.sales_report, name='sales_report'),
     path('generate_report/', views.generate_report, name='generate_report'),

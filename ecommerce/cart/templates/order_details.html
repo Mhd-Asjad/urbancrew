@@ -2,29 +2,36 @@
 {% load static %}
 {% block content %}
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-<!-- jQuery (required by Toastr) -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    
-<style>
+<head>
 
-    @import url('https://fonts.googleapis.com/css?family=Open+Sans&display=swap');body{background-color: #eeeeee;font-family: 'Open Sans',serif}.container{margin-top:50px;margin-bottom: 50px}.card{position: relative;display: -webkit-box;display: -ms-flexbox;display: flex;-webkit-box-orient: vertical;-webkit-box-direction: normal;-ms-flex-direction: column;flex-direction: column;min-width: 0;word-wrap: break-word;background-color: #fff;background-clip: border-box;border: 1px solid rgba(0, 0, 0, 0.1);border-radius: 0.10rem}.card-header:first-child{border-radius: calc(0.37rem - 1px) calc(0.37rem - 1px) 0 0}.card-header{padding: 0.75rem 1.25rem;margin-bottom: 0;background-color: #fff;border-bottom: 1px solid rgba(0, 0, 0, 0.1)}.track{position: relative;background-color: #ddd;height: 7px;display: -webkit-box;display: -ms-flexbox;display: flex;margin-bottom: 60px;margin-top: 50px}.track .step{-webkit-box-flex: 1;-ms-flex-positive: 1;flex-grow: 1;width: 25%;margin-top: -18px;text-align: center;position: relative}.track .step.active:before{background: #FF5722}.track .step::before{height: 7px;position: absolute;content: "";width: 100%;left: 0;top: 18px}.track .step.active .icon{background: #ee5435;color: #fff}.track .icon{display: inline-block;width: 40px;height: 40px;line-height: 40px;position: relative;border-radius: 100%;background: #ddd}.track .step.active .text{font-weight: 400;color: #000}.track .text{display: block;margin-top: 7px}.itemside{position: relative;display: -webkit-box;display: -ms-flexbox;display: flex;width: 100%}.itemside .aside{position: relative;-ms-flex-negative: 0;flex-shrink: 0}.img-sm{width: 80px;height: 80px;padding: 7px}ul.row, ul.row-sm{list-style: none;padding: 0}.itemside .info{padding-left: 15px;padding-right: 7px}.itemside .title{display: block;margin-bottom: 5px;color: #212529}p{margin-top: 0;margin-bottom: 1rem}.btn-warning{color: #ffffff;background-color: #ee5435;border-color: #ee5435;border-radius: 1px}.btn-warning:hover{color: #ffffff;background-color: #000000 ;border-color:  #ede6e4;border-radius: 1px
-    }
-
-    .body{
-        margin:0;
-    }
-    .active .step.active {
-        color: green;
-    }
-    .modal-dialog-centered {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <!-- bootstrap icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     
-</style>
+    <!-- jQuery (required by Toastr) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+    
+        @import url('https://fonts.googleapis.com/css?family=Open+Sans&display=swap');body{background-color: #eeeeee;font-family: 'Open Sans',serif}.container{margin-top:50px;margin-bottom: 50px}.card{position: relative;display: -webkit-box;display: -ms-flexbox;display: flex;-webkit-box-orient: vertical;-webkit-box-direction: normal;-ms-flex-direction: column;flex-direction: column;min-width: 0;word-wrap: break-word;background-color: #fff;background-clip: border-box;border: 1px solid rgba(0, 0, 0, 0.1);border-radius: 0.10rem}.card-header:first-child{border-radius: calc(0.37rem - 1px) calc(0.37rem - 1px) 0 0}.card-header{padding: 0.75rem 1.25rem;margin-bottom: 0;background-color: #fff;border-bottom: 1px solid rgba(0, 0, 0, 0.1)}.track{position: relative;background-color: #ddd;height: 7px;display: -webkit-box;display: -ms-flexbox;display: flex;margin-bottom: 60px;margin-top: 50px}.track .step{-webkit-box-flex: 1;-ms-flex-positive: 1;flex-grow: 1;width: 25%;margin-top: -18px;text-align: center;position: relative}.track .step.active:before{background: #FF5722}.track .step::before{height: 7px;position: absolute;content: "";width: 100%;left: 0;top: 18px}.track .step.active .icon{background: #ee5435;color: #fff}.track .icon{display: inline-block;width: 40px;height: 40px;line-height: 40px;position: relative;border-radius: 100%;background: #ddd}.track .step.active .text{font-weight: 400;color: #000}.track .text{display: block;margin-top: 7px}.itemside{position: relative;display: -webkit-box;display: -ms-flexbox;display: flex;width: 100%}.itemside .aside{position: relative;-ms-flex-negative: 0;flex-shrink: 0}.img-sm{width: 80px;height: 80px;padding: 7px}ul.row, ul.row-sm{list-style: none;padding: 0}.itemside .info{padding-left: 15px;padding-right: 7px}.itemside .title{display: block;margin-bottom: 5px;color: #212529}p{margin-top: 0;margin-bottom: 1rem}.btn-warning{color: #ffffff;background-color: #ee5435;border-color: #ee5435;border-radius: 1px}.btn-warning:hover{color: #ffffff;background-color: #000000 ;border-color:  #ede6e4;border-radius: 1px
+        }
+    
+        .body{
+            margin:0;
+        }
+        .active .step.active {
+            color: green;
+        }
+        .modal-dialog-centered {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }     
+        
+    </style>
+</head>
 <div class="container py-2 ">
     <div class="card">
         <header class="card-header"> My Orders / Tracking </header>
@@ -50,8 +57,6 @@
                     <div class="col"> <strong>offer applied :</strong> <br>{% if order.coupon_appliyed %}
                       coupon name : <b style="color:green;"> {{ order.applied_coupen.coupon_name }} {{ order.applied_coupen.discount_percentage }}%</b>
                       you saved <b>₹{{ order.discount_amount }}</b> from this order !!
-                        
-                        
                         
                     {% else %}
                     <strong style="color:red;">
@@ -131,114 +136,98 @@
 
 {% if order_items %}
 <div class="card mb-5 bg-gradient" style="border-radius:25px;" >
-        {% for item in order_items %}
-            <div class="card-body">
-                
-                <table class="table text-dark">
+    {% for item in order_items %}
+        <div class="card-body">
+        <h5 style="color:brown;">{{ forloop.counter }} - {{ item.product.product.product_name }} - {{ item.product.color }}</h5>
 
+        <table class="table text-dark">
+            <thead>
+            <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td class="d-flex justify-content-center">
+                <img src="{{ item.product.image1.url }}" alt="img"
+                    style="width: 100px; height: 100px; border-radius:1px; margin: 20px;">
+                <br>size : {{ item.size }}
+                </td>
+                <td>₹ {{ item.price }}</td>
+                <td>{{ item.qnty }}</td>
+                <td>
+                    {{ item.status }}</td>
+                <td>
+                    {% if item.status == "Delivered" or item.status == 'Returned' %}
+                        {% if item.request_return and item.return_approval_status == 'pending' %}
+                            <p>Return request submitted: {{ item.return_reason }}</p>
+                            <p>Status: {{ item.return_approval_status }}</p>
 
-                <h5 style="color:brown;" >{{ forloop.counter }} - {{ item.product.product.product_name }} - {{ item.product.color }}</h5>
-                    
-                <thead>
-                    <tr>
-                        <th>Product </th>
-                        <th>Price</th>
-                        <th>Quantity</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-
-
-                        <tr>
-                        
-                            <td class="d-flex justify-content-center">
-                                <img src="{{ item.product.image1.url }}" alt="img" style="width: 100px; height: 100px; border-radius:1px; margin: 20px;" >
-                                <br>
-                                 size : {{ item.size }}
-                            </td>
-                            
-                            <td>₹ {{ item.price }}</td>
-                     
-                            <td>{{ item.qnty }}</td>
-
-                            <td>{{ item.status }}</td>
-
-                        <td>
-
-                {% if item.status != 'Payment Failed' %}
-                    
-                    {% if not item.request_return %}
-                            
-                        {% if item.cancel == False and item.status != 'Delivered' and item.status != 'Out for Delivery' %}
-
-                        <a class="btn btn-danger" id="cancelOrderBtn{{ item.id }}" hrer="#">
-                            CANCEL
-                            
-                            </a>
-                        {% elif item.status == 'Delivered' %}
-
-                        {% elif item.status == 'Out for Delivery' %}
-                    <br>
-                        <h6 class="text-warning">it reached nearby your place</h6>
-
+                        {% elif item.request_return and item.return_approval_status == 'Approved' %}
+                            <p style="color:green;">Return Approved</p>
+                        {% elif item.request_return and item.return_approval_status == 'Rejected' %}
+                            <p style="color:red;">Return Rejected: {{ item.return_reject_reason }}</p>
                         {% else %}
-                                
-                               <h6 style="color:red;">Cancelled Successfully</h6>
-                                
+                        <button type="button"
+                                class="btn btn-warning"
+                                data-bs-toggle="modal"
+                                data-bs-target="#returnModal{{ item.id }}">
+                            Request Return
+                        </button>
                         {% endif %}
-
-                    {% elif item.status == 'Returned' %}
-
-                        <div class="d-flex justify-content-center" >
-                            <p class="text-success" >item will return after 5 days </p>
-                        </div>
-                    {% elif item.status == 'Refunded' %}
-                    <div class="d-flex justify-content-between">
-                        <p class="text-success" >item refunded <br> updated on you wallet transactions!! </p>
-                    </div>
-
-                    {% elif item.order.payment.Failed %}
-                    <div class="d-flex justify-content-between">
-                        <p style="font-family: Georgia, 'Times New Roman', Times, serif;" class="text-danger" >Transaction is not proccesed! </p>
-                    </div>
                     {% endif %}
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
 
-                    {% comment %} {% if item.status == 'Cancelled' and not item.refund_processed  %}
-                        {% if item.order.payment_method == 'razorpay' or item.order.payment_method == 'Wallet' %}
-                            
-                        <a href="{% url 'cancel_refund' item.id %}" class="btn btn-success" >Refund</a>
-                        {% endif %}
-                    {% endif %} {% endcomment %}
+        <div class="modal fade"
+            id="returnModal{{ item.id }}"
+            tabindex="-1"
+            aria-labelledby="returnRequestLabel{{ item.id }}"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content"> 
+                <form method="post" action="{% url 'request_return_order_item' item.id %}">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                    <div class="d-flex align-items-center mb-3">
+                            <i class="bi bi-arrow-counterclockwise fs-3 me-2"></i>
+                            <h5 class="mb-0">Submit Return Request</h5>
+                        </div>        
+                    </div>
+                    <div class="modal-body">
+                    <label for="return_reason{{ item.id }}" class="form-label fw-semibold">Return Reason</label>
+                    <textarea name="return_reason"
+                            id="return_reason{{ item.id }}"
+                            class="form-control mb-3"
+                            rows="3"
+                            required></textarea>    
 
-                            {% if item.status == "Delivered" %}
-                            {% if item.request_return and item.status == 'Delivered' %}
+                    <!-- Suggested reasons styled as list-group -->
+                    <small class="form-text text-muted fw-semibold">Suggested reasons:</small>
+                    <ul class="list-group mt-2">
+                        <li class="list-group-item py-2">Item damaged or defective</li>
+                        <li class="list-group-item py-2">Wrong item delivered</li>
+                        <li class="list-group-item py-2">Product does not match description</li>
+                        <li class="list-group-item py-2">Changed mind about purchase</li>
+                    </ul>
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Submit Return Request</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        </div>
+    {% endfor %}
 
-                            <a class="btn btn-success" disabled >
-                                RETURN REQUESTED
-                            </a>
-
-
-                                    {% else %}
-                                
-                                <a class="btn btn-warning" href="{% url 'request_return_order_item' item.id %}">
-                                    REQUEST RETURN  
-                                </a>
-
-                            {% endif %}
-                            
-                            {% endif %}
-                        
-                            {% if not item.request_return %}
-                            
-                            {% endif %}
-
-                        {% endif %}
-                        </td>
-                        
-                        </tr>
-            {% endfor %}
 
         {% else %}
 
@@ -246,12 +235,12 @@
                     this order items not found some problem happened
                 </div>
 
-            {% endif %}
+        {% endif %}
 
-                </tbody>
-            </table>
+            </tbody>
+        </table>
 
-        </div>
+     </div>
     </div>
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
@@ -324,28 +313,25 @@
     });
 </script>
 {% endfor %}
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
 <script>
     toastr.options = {
-        "closeButton": false,
-        "debug": false,
-        "newestOnTop": false,
-        "progressBar": false,
-        "positionClass": "toast-top-right",
-        "preventDuplicates": false,
-        "onclick": null,
-        "showDuration": "300",
-        "hideDuration": "1000",
-        "timeOut": "5000",
-        "extendedTimeOut": "1000",
-        "showEasing": "swing",
-        "hideEasing": "linear",
-        "showMethod": "fadeIn",
-        "hideMethod": "fadeOut"
-    }
-
+            "closeButton": false,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-top-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        }
     // Function to display Toastr messages
     function displayMessages() {
 

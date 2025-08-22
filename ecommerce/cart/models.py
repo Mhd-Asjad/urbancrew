@@ -58,7 +58,7 @@ class Order(models.Model) :
     paid = models.BooleanField(default=False)
     applied_coupen = models.ForeignKey(Coupon,on_delete=models.CASCADE,null=True)
     payment = models.OneToOneField('cart.Payment',on_delete=models.CASCADE,null = True)
-    coupon_appliyed = models.BooleanField(null=True)
+    coupon_appliyed = models.BooleanField(null=True) 
     discount_amount = models.IntegerField(default = 0)
     payment_success = models.BooleanField(default=False)
 
@@ -70,8 +70,10 @@ class Order(models.Model) :
         order_amount = self.total * 100
         print(type(order_amount))
         order_currency = "INR"
+        print(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
         try :
             client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+
             razorpay_order = client.order.create({
 
                 'amount' : order_amount ,
@@ -106,8 +108,19 @@ class Order_items(models.Model):
     qnty = models.PositiveIntegerField(default=0)
     cancel_reason = models.TextField(blank=True,null=True)
     cancel = models.BooleanField(default=False)
-    request_return = models.BooleanField(default=False)
+    request_return = models.BooleanField(default=False) 
     refund_processed = models.BooleanField(default=False)
+    return_reason = models.TextField(blank=True,null=True)
+    return_approval_status = models.CharField(max_length=20,
+        choices=(
+            ('Pending', 'Pending'),
+            ("Approved", "Approved"), 
+            ("Rejected", "Rejected")
+        ),
+        default="Pending"
+    )
+    return_reject_reason = models.TextField(blank=True,null=True)
+    
 
     def __str__(self):
         return f" {self.product.product.product_name} {self.size} qnty : {self.qnty}  orders:{self.status}"
