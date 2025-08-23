@@ -149,13 +149,14 @@ def update_tot_price(request):
                         "message": "updated",
                         "total": cart_items.total,
                         "subtotal": subtotal["sum"],
+                        "quantity": cart_items.quantity,
                         "full_total" : full_total ,
 
                     },
                 )
             else:
                 clear_coupon_session(request)
-                return JsonResponse({"success": False, "message": "notupdated"})
+                return JsonResponse({"success": False, "message": "You can't update the quantity, stock reached limit"})
         elif data.get("operation") == "decrease" :
             quantity = data.get("quantity")
             cartid = data.get("cartid")
@@ -183,6 +184,7 @@ def update_tot_price(request):
                     "message": "dec_updated" ,
                     "total": cart_items.total ,
                     "subtotal": subtotal["sum"],
+                    "quantity": cart_items.quantity,
                     "full_total": full_total,
                     "shippingfee" : shippingfee
                 },
@@ -534,61 +536,60 @@ def place_order(request) :
             if full_total > 1000 :
                 messages.error(request,'cash on delivery only available under 1000rs purchase ')
                 return redirect('checkout')
-
-            order = Order.objects.create (
-                register = register_user ,
-                address = address ,
-                payment_method = pm ,
-                status = 'Order placed',
-                sub_total = sub_total ,
-                shipping_charge = shipping_fee , 
-                total = full_total ,
-                paid = False ,
-                tracking_id = order_id,
-                applied_coupen = applied_coupon  ,
-                coupon_appliyed = request.session.get('coupon_applied'),
-                discount_amount = discount_amount 
-            )
-
-            shipping_address = Shipping_address.objects.create(
-                order = order, 
-                first_name = address.first_name,
-                last_name = address.last_name,
-                email = address.email ,
-                house = address.house , 
-                city = address.city ,
-                state = address.state,
-                pin_code = address.pin_code,
-                country = address.country,
-                mobile_number = address.mobile_number
-            )
-
-            for item in cart_items :
-                product_size = item.sizes 
-                if product_size.stock >= item.quantity  :
-                    product_size.stock -= item.quantity
-                    if product_size.stock < 0:
-                        product_size.stock = 0
-                    product_size.save()
-
-            for item in cart_items :
-                items = Order_items.objects.create(
-
-                    order = order , 
-                    status = "Order Placed",
-                    product = item.product,
-                    price = item.product.product.price,
-                    qnty = item.quantity,
-                    size = item.sizes.size
-
+            with transaction.atomic():
+                order = Order.objects.create (
+                    register = register_user ,
+                    address = address ,
+                    payment_method = pm ,
+                    status = 'Order placed',
+                    sub_total = sub_total ,
+                    shipping_charge = shipping_fee , 
+                    total = full_total ,
+                    paid = False ,
+                    tracking_id = order_id,
+                    applied_coupen = applied_coupon  ,
+                    coupon_appliyed = request.session.get('coupon_applied'),
+                    discount_amount = discount_amount 
+                )
+                shipping_address = Shipping_address.objects.create(
+                    order = order, 
+                    first_name = address.first_name,
+                    last_name = address.last_name,
+                    email = address.email ,
+                    house = address.house , 
+                    city = address.city ,
+                    state = address.state,
+                    pin_code = address.pin_code,
+                    country = address.country,
+                    mobile_number = address.mobile_number
                 )
 
-                if request.session.get('coupon_applied') == True :
-                    del request.session['coupon_applied']
-                    del request.session['coupon_id']
+                for item in cart_items :
+                    product_size = item.sizes 
+                    if product_size.stock >= item.quantity  :
+                        product_size.stock -= item.quantity
+                        if product_size.stock < 0:
+                            product_size.stock = 0
+                        product_size.save()
 
-            cart_items.delete()
-            return redirect('order_success')
+                for item in cart_items :
+                    items = Order_items.objects.create(
+
+                        order = order , 
+                        status = "Order Placed",
+                        product = item.product,
+                        price = item.product.product.price,
+                        qnty = item.quantity,
+                        size = item.sizes.size
+
+                    )
+
+                    if request.session.get('coupon_applied') == True :
+                        del request.session['coupon_applied']
+                        del request.session['coupon_id']
+
+                cart_items.delete()
+                return redirect('order_success')
             
         elif pm == "razorpay" :
 
@@ -631,41 +632,41 @@ def place_order(request) :
             request.session['discount_amount'] = discount_amount
             request.session['applied_coupon'] = coupon_id if applied_coupon else None
 
+            with transaction.atomic():
+                temp_order = Order.objects.create(
 
-            temp_order = Order.objects.create(
+                    register = register_user ,
+                    address = address_obj ,
+                    payment_method = pm,
+                    tracking_id = order_id ,
+                    shipping_charge = shipping_fee,
+                    total = int(full_total),
+                    paid = False ,
+                    applied_coupen = applied_coupon,
+                    coupon_appliyed = request.session.get('coupon_applied'),
+                    discount_amount = int(discount_amount) ,
+                    status = 'Pending'
+                    
+                )
 
-                register = register_user ,
-                address = address_obj ,
-                payment_method = pm,
-                tracking_id = order_id ,
-                shipping_charge = shipping_fee,
-                total = int(full_total),
-                paid = False ,
-                applied_coupen = applied_coupon,
-                coupon_appliyed = request.session.get('coupon_applied'),
-                discount_amount = int(discount_amount) ,
-                status = 'Pending'
+                temp_order.create_razorpay_order()
+
+                shipping_address = Shipping_address.objects.create(
+
+                    order = temp_order, 
+                    first_name = address.first_name,
+                    last_name = address.last_name,
+                    email = address.email ,
+                    house = address.house , 
+                    city = address.city ,
+                    state = address.state,
+                    pin_code = address.pin_code,
+                    country = address.country,
+                    mobile_number = address.mobile_number
+                )
                 
-            )
-
-            temp_order.create_razorpay_order()
-
-            shipping_address = Shipping_address.objects.create(
-
-                order = temp_order, 
-                first_name = address.first_name,
-                last_name = address.last_name,
-                email = address.email ,
-                house = address.house , 
-                city = address.city ,
-                state = address.state,
-                pin_code = address.pin_code,
-                country = address.country,
-                mobile_number = address.mobile_number
-            )
-            
-            request.session['order_id'] = temp_order.id
-            return redirect('razorpay_order_summary')
+                request.session['order_id'] = temp_order.id
+                return redirect('razorpay_order_summary')
         
         elif pm == 'wallet' :
 
@@ -710,77 +711,77 @@ def place_order(request) :
                 applied_coupon = None
             
             request.session['discount'] = discount_amount
+            with transaction.atomic():
+                order = Order.objects.create(
+                    register = register_user,
+                    address= address ,
+                    payment_method = 'Wallet',
+                    tracking_id = order_id,
+                    status = 'Payment Successful',
+                    sub_total = sub_total ,
+                    total = full_total,
+                    paid = True ,
+                    coupon_appliyed = request.session.get('coupon_applied'),
+                    applied_coupen = applied_coupon,
+                    discount_amount = request.session.get('discount')
 
-            order = Order.objects.create(
-                register = register_user,
-                address= address ,
-                payment_method = 'Wallet',
-                tracking_id = order_id,
-                status = 'Payment Successful',
-                sub_total = sub_total ,
-                total = full_total,
-                paid = True ,
-                coupon_appliyed = request.session.get('coupon_applied'),
-                applied_coupen = applied_coupon,
-                discount_amount = request.session.get('discount')
-
-            )
-            shipping_address = Shipping_address.objects.create(
-
-                order = order, 
-                first_name = address.first_name,
-                last_name = address.last_name,
-                email = address.email ,
-                house = address.house , 
-                city = address.city ,
-                state = address.state,
-                pin_code = address.pin_code,
-                country = address.country,
-                mobile_number = address.mobile_number
-
-            )
-            
-            paymnet = Payment.objects.create(
-                amount = full_total,
-                transaction_id = transaction_id ,
-                paid_at = timezone.now(),
-                pending=False,
-                success=True
-
-            )
-
-            for item in cart_items:
-                product_size = item.sizes
-                product_size.stock -= item.quantity
-                product_size.save()
-
-
-            for item in cart_items :
-                od = item.sizes
-
-                order_items = Order_items.objects.create(
-                    order = order,
-                    product = item.product ,
-                    price = item.product.product.offer_price,
-                    size = item.sizes.size ,
-                    qnty = item.quantity , 
-                    status = 'Order placed'
                 )
-        
-            balance.balance -= full_total
-            balance.save()
+                shipping_address = Shipping_address.objects.create(
 
-            wallet = Wallet_transactions.objects.create(
-                wallet = balance ,
-                type = 'withdrawal',
-                amount = full_total ,
-                transaction_id = transaction_id ,
-                description = 'money withdrwed',
-                time_stamp = timezone.now()
+                    order = order, 
+                    first_name = address.first_name,
+                    last_name = address.last_name,
+                    email = address.email ,
+                    house = address.house , 
+                    city = address.city ,
+                    state = address.state,
+                    pin_code = address.pin_code,
+                    country = address.country,
+                    mobile_number = address.mobile_number
 
-            )
-            cart_items.delete()
-            return redirect('order_success')
+                )
+                
+                paymnet = Payment.objects.create(
+                    amount = full_total,
+                    transaction_id = transaction_id ,
+                    paid_at = timezone.now(),
+                    pending=False,
+                    success=True
+
+                )
+
+                for item in cart_items:
+                    product_size = item.sizes
+                    product_size.stock -= item.quantity
+                    product_size.save()
+
+
+                for item in cart_items :
+                    od = item.sizes
+
+                    order_items = Order_items.objects.create(
+                        order = order,
+                        product = item.product ,
+                        price = item.product.product.offer_price,
+                        size = item.sizes.size ,
+                        qnty = item.quantity , 
+                        status = 'Order placed'
+                    )
+            
+                balance.balance -= full_total
+                balance.save()
+
+                wallet = Wallet_transactions.objects.create(
+                    wallet = balance ,
+                    type = 'withdrawal',
+                    amount = full_total ,
+                    transaction_id = transaction_id ,
+                    description = 'money withdrwed',
+                    time_stamp = timezone.now()
+
+                )
+                cart_items.delete()
+                return redirect('order_success')
     return redirect('checkout')
 client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 
@@ -1084,7 +1085,6 @@ def request_return_order_item(req , item_id) :
         pass
 
     if req.user.is_authenticated:
-        print(order_items.id , 'idddddddddddddddddd')
         if order_items.order.register.user == req.user and order_items.status == 'Delivered' :
             if not order_items.request_return :
                 order_items.request_return = True

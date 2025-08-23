@@ -253,36 +253,30 @@
                 },
                 contentType: 'application/json',
                 dataType: 'json',
+                complete: function() {
+                    $(".increase, .reduced").prop("disabled", false);
+                },
                 data: JSON.stringify({
                     'operation':"increment",
                     'quantity': quantity,
                     'cartid': cartid
                 }),
                 success: function(data) {
-                    if(data.message == "updated"){
-                        quantity++;
-                        quantityInput.value = quantity;
-
+                    if(data.success){
+                        quantityInput.value = data.quantity; // always use server quantity
                         $("#total_price-" + cartid).html("₹" + data.total);
                         $("#sub-total").html("₹" + data.subtotal);
-                        var shippingFee = updateShippingFee(data.subtotal);
-                        $("#grant_total").html("₹" + data.full_total)
-
-                        console.log(data.subtotal)
-                        console.log(data.full_total)
-
-                    }else if(data.message == "notupdated"){
-
+                        $("#grant_total").html("₹" + data.full_total);
+                        updateShippingFee(data.subtotal);
+                    } else {
                         swal({
-
                             title: "STOP",
                             icon: "error",
-                            text :"You can't update the quantity, Stock limit reached"
-                        })
+                            text: data.message || "Update failed"
+                        });
                     }
-                   
-                    // You can update subtotal and grant total if needed here
                 },
+
                 error: function(error) {
                     console.error('Error:', error);
                 }
@@ -297,6 +291,9 @@
                 },
                 contentType: 'application/json',
                 dataType: 'json',
+                complete: function() {
+                    $(".increase, .reduced").prop("disabled", false);
+                },
                 data: JSON.stringify({
                     'operation':"decrease",
                     'quantity': quantity ,
@@ -305,7 +302,7 @@
                 success: function(data) {
                     if (data.message=="dec_updated"){
                         quantity-- ;
-                        quantityInput.value = quantity;
+                        quantityInput.value = data.quantity;
                         $("#total_price-" + cartid).html("₹" + data.total);
                         $("#sub-total").html("₹" + data.subtotal);
                         var shippingFee = updateShippingFee(data.subtotal);                      

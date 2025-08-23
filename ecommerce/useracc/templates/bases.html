@@ -12,7 +12,7 @@
     <link rel="icon" href="{% static 'img/images.png' %}">
     
     <!-- CSS Links -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Pacifico&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
@@ -31,7 +31,6 @@
     <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}" type="text/css">
     <link rel="stylesheet" href="{% static 'css/slicknav.min.css' %}" type="text/css">
     <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
-    {% comment %} <link rel="stylesheet" type="text/css" href="{% static 'css/toastr.css' %}" media="all"> {% endcomment %}
     <link rel="stylesheet" href="{% static 'css/ionicons.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
@@ -46,7 +45,6 @@
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/elevatezoom/3.0.8/jquery.elevatezoom.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
-    {% comment %} <script src="{% static 'js/toastr.min.js' %}"></script> {% endcomment %}
     
     <style>
 
@@ -75,34 +73,6 @@
 <div id="preloder">
     <div class="loader"></div>
 </div>
-{% comment %} <script src="{% static 'js/toastr.min.js' %}"></script> {% endcomment %}
-
-{% comment %} <script type="text/javascript">
-    {% if messages %}
-        $(document).ready(function() {
-            {% for message in messages %}
-                toastr.options = {
-                    "closeButton": true,
-                    "debug": false,
-                    "newestOnTop": true,
-                    "progressBar": true,
-                    "positionClass": "toast-top-right",
-                    "preventDuplicates": false,
-                    "onclick": null,
-                    "showDuration": "300",
-                    "hideDuration": "1000",
-                    "timeOut": "5000",
-                    "extendedTimeOut": "1000",
-                    "showEasing": "swing",
-                    "hideEasing": "linear",
-                    "showMethod": "fadeIn",
-                    "hideMethod": "fadeOut"
-                };
-                toastr["{{ message.tags }}"]("{{ message }}");
-            {% endfor %}
-        });
-    {% endif %}
-</script> {% endcomment %}
 
 <header class="header">
     <div class="container">
