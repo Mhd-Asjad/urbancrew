@@ -648,9 +648,12 @@ def place_order(request) :
                     status = 'Pending'
                     
                 )
-
-                temp_order.create_razorpay_order()
-
+                try:
+                    
+                    temp_order.create_razorpay_order()
+                except Exception as e:
+                    messages.error(request, 'Error creating Razorpay order. Please try again.')
+                    return redirect('checkout')
                 shipping_address = Shipping_address.objects.create(
 
                     order = temp_order, 

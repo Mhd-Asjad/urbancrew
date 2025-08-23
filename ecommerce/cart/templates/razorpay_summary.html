@@ -21,6 +21,25 @@
         </div>
     </div>
 </div>
+
+<!-- Cancel Confirmation Modal -->
+<div class="modal fade" id="cancelConfirmModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-3 shadow">
+      <div class="modal-header">
+        <h5 class="modal-title">Cancel Payment?</h5>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to cancel this payment?
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="notConfirmBtn" class="btn btn-secondary" data-bs-dismiss="modal">No, go back</button>
+        <button type="button" class="btn btn-danger" id="confirmCancelBtn">Yes, cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <br><br><br><br><br><br><br><br><br>
 
   <form id="payment-form" action="{% url 'payment_success' %}" method="post" >
@@ -65,14 +84,19 @@
     },
     "modal": {
       "ondismiss": function() {
-          if (!confirm("Are you sure you want to cancel the payment?")) {
-              // Reopen the payment modal if the user cancels the confirmation
-              rzp1.open();
-          } else {
-              document.getElementById('payment_error').value = "Payment was not completed.";
-              document.getElementById('payment-form').submit();
-          }
+        var cancelModal = new bootstrap.Modal(document.getElementById('cancelConfirmModal'));
+        cancelModal.show();
+
+        // Handle button click
+        document.getElementById('confirmCancelBtn').onclick = function() {
+          document.getElementById('payment_error').value = "Payment was not completed.";
+          document.getElementById('payment-form').submit();
+        };
+        document.getElementById('notConfirmBtn').onclick = function() {
+          cancelModal.hide();
+        };
       }
+
     }
   };
 

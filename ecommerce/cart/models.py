@@ -5,7 +5,7 @@ from adminapp.models import *
 from  useracc.models import *
 import razorpay
 from django.conf import settings
-
+import time
 # Create your models here.
 
 class Cart(models.Model) :
@@ -68,25 +68,30 @@ class Order(models.Model) :
     
     def create_razorpay_order(self) :
         order_amount = self.total * 100
-        print(type(order_amount))
         order_currency = "INR"
-        print(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
-        try :
-            client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+        for attempt in range(3) :
+            try :
+                client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 
-            razorpay_order = client.order.create({
+                razorpay_order = client.order.create({
 
-                'amount' : order_amount ,
-                'currency' : order_currency,
-                'payment_capture' : '1' 
-            })
-            self.razorpay_order_id = razorpay_order['id']
-            self.save()
+                    'amount' : order_amount ,
+                    'currency' : order_currency,
+                    'payment_capture' : '1' 
+                })
+                self.razorpay_order_id = razorpay_order['id']
+                self.save(update_fields=['razorpay_order_id'])
+                return razorpay_order
+            except OSError as e:
+                print(f"[Attempt {attempt+1}] OSError in create_razorpay_order: {e}")
+                time.sleep(1)
+                if attempt == 2 :
+                    raise
 
-        except Exception as e :
-            print(f'An erro occures {e}')
-            raise
-
+            except Exception as e :
+                print(f'An erro occures {e}')
+                raise
+                
 class Order_items(models.Model):
     order = models.ForeignKey(Order,on_delete=models.CASCADE,related_name='order_items')
     STATUS_CHOICES = (

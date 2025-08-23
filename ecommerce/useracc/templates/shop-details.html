@@ -8,6 +8,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <!-- jQuery (required by Toastr) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/elevatezoom/3.0.8/jquery.elevatezoom.min.js"></script>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         
     <style>
@@ -443,15 +446,32 @@
 </script>
 
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/elevatezoom/3.0.8/jquery.elevatezoom.min.js"></script>
-        
 <script>
-    $(document).ready(function() {
-        $('#zoom').zoom();
+$(document).ready(function(){
+    function initZoom(){
+        $("img[data-zoom-image]").each(function(){
+            // Destroy any previous zoom (avoid double binding)
+            if ($.isFunction($(this).data('elevateZoom'))) {
+                $(this).data('elevateZoom').destroy();
+                $('.zoomContainer').remove();
+            }
+            $(this).elevateZoom({
+                zoomType: "lens",   // or "inner" or "window"
+                lensShape: "round",
+                lensSize: 150
+            });
+        });
+    }
 
+    initZoom();
+
+    // If using Bootstrap tabs:
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function () {
+        initZoom();
     });
-    
+});
 </script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const sizeOptions = document.querySelectorAll('.size-option input[type="radio"]');
