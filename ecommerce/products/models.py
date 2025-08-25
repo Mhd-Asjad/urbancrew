@@ -101,11 +101,9 @@ def update_offer_price(sender, instance, **kwargs):
                 product.offer_price = round(final_price)
                 product.save()
     except OSError as e:
-        print(f"OSError in update_offer_price for offer {instance.id}: {e}")
-        raise
+        raise Exception("An error occurred while updating offer prices.") from e
 
 def update_offer_price(self,**kwarg) :
-    print('product offfer updated')
     now = timezone.now()
     expired_offers = Offer.objects.filter(end_date__lte=now, is_active=True)
     for offer in expired_offers:

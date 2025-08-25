@@ -341,7 +341,6 @@ def fetch_orders(request):
                 'detail_url': f"/ordered_item/{order.id}"  # Adjust URL pattern as needed
 
             })
-        print('orders_list', orders_list)
 
         return JsonResponse({
             'orders': orders_list,
@@ -414,7 +413,6 @@ def confirm_return_order_item(request, item_id):
         return redirect('orders')
     
 def reject_return_order_item(request, item_id):
-    print(item_id , 'item_id')
     try:
         # Retrieve the order item using the item_id
         order_item = Order_items.objects.get(id=item_id)

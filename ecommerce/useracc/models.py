@@ -40,4 +40,3 @@ class register(models.Model):
 def create_Customer(sender,instance,created,**kwargs) :
     if created :
         register.objects.create(user = instance)
-        print('customer createdd!')

@@ -30,4 +30,3 @@ class Wallet_transactions(models.Model) :
 def Create_user_wallet(sender , instance, created , **kwargs):
     if created :
         Wallet.objects.create(user=instance)
-        print(f'{instance.username} wallet createddd!!')
