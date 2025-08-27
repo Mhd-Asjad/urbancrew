@@ -119,7 +119,7 @@
                                 <br>
                                 <br>
 
-                            {% elif item.status == 'Returned' and not item.refund_processed and item.order.payment_method != 'COD' %}
+                            {% elif item.status == 'Returned' and not item.refund_processed %}
                             
                                 <a href="{% url 'return_refund' item.id %}" class="btn btn-success">Refund Return</a>
                                 <br>

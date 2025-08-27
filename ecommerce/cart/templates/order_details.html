@@ -151,14 +151,39 @@
                     style="width: 100px; height: 100px; border-radius:1px; margin: 20px;">
                 <br>size : {{ item.size }}
                 </td>
-                <td>₹ {{ item.price }}</td>
+                <td>
+                        
+                    ₹ {{ item.price }}
+                </td>
                 <td>{{ item.qnty }}</td>
                 <td>
                     {{ item.status }}</td>
                 <td>
+                {% if item.status != 'Payment Failed' %}
+                    
+                    {% if not item.request_return %}
+                            
+                        {% if item.cancel == False and item.status != 'Delivered' and item.status != 'Out for Delivery' and item.status != 'Shipped' %}
+
+                        <a class="btn btn-danger" id="cancelOrderBtn{{ item.id }}" hrer="#">
+                            CANCEL
+                            
+                            </a>
+                        {% elif item.status == 'Delivered' %}
+                            <p style="color:green;">Your order has been delivered</p>
+                        {% elif item.status == 'Out for Delivery' %}
+
+                            <br>
+                            <p style="color:green;">Your order is out for delivery</p>
+                        {% elif item.cancel == True %}
+                            <p style="color:red;">You have cancelled this order</p>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+
                     {% if item.status == "Delivered" or item.status == 'Returned' %}
                         {% if item.request_return and item.return_approval_status == 'pending' %}
-                            <p>Return request submitted: {{ item.return_reason }}</p>
+                            <p><span style="font-weight: bold;" >Return request submitted: </span>{{ item.return_reason }}</p>
                             <p>Status: {{ item.return_approval_status }}</p>
 
                         {% elif item.request_return and item.return_approval_status == 'Approved' %}

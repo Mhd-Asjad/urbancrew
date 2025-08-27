@@ -578,7 +578,7 @@ def place_order(request) :
                         order = order , 
                         status = "Order Placed",
                         product = item.product,
-                        price = item.product.product.price,
+                        price = item.product.product.price if not item.product.product.offer_price else item.product.product.offer_price,
                         qnty = item.quantity,
                         size = item.sizes.size
 
@@ -765,7 +765,7 @@ def place_order(request) :
                     order_items = Order_items.objects.create(
                         order = order,
                         product = item.product ,
-                        price = item.product.product.offer_price,
+                        price = item.product.product.price if not item.product.product.offer_price else item.product.product.offer_price ,
                         size = item.sizes.size ,
                         qnty = item.quantity , 
                         status = 'Order placed'
@@ -885,7 +885,7 @@ def payment_success(request):
                     order=order,
                     status= 'Order Placed' if payment_status else 'Payment Failed',
                     product=item.product ,
-                    price =  item.product.product.offer_price ,
+                    price =  item.product.product.price if not item.product.product.offer_price else item.product.product.offer_price,
                     qnty=item.quantity,
                     size=item.sizes.size
                 )

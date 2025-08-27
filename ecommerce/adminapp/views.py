@@ -436,13 +436,12 @@ def return_refund(request,return_id) :
 
     except Order_items.DoesNotExist:
         messages.error(request, "Order item does not exist.")
-        return redirect('ordered_item')
+        return redirect('ordered_item') 
     
     order = return_item.order
-    if return_item.request_return == True and return_item.status == 'Returned' and return_item.order.payment_method != "COD" :
+    if return_item.request_return == True and return_item.status == 'Returned' and not return_item.refund_processed:
 
         total_discount = order.discount_amount if order.coupon_appliyed else 0
-        total_amount = 0
         total_amount = order.total
         total_quantity = Order_items.objects.filter(order = order).aggregate(total_quantity = Sum('qnty'))['total_quantity']
         discount_per_item = Decimal(total_discount) / Decimal(total_quantity)
