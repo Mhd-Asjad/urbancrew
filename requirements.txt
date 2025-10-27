@@ -8,11 +8,13 @@ click==8.1.7
 colorama==0.4.6
 cryptography==42.0.5
 defusedxml==0.7.1
+dj-database-url==3.0.1
 Django==5.0.3
 django-allauth==0.61.1
 django-phonenumber-field==7.3.0
 django-wkhtmltopdf==3.4.0
 dotenv==0.9.9
+gunicorn==23.0.0
 idna==3.6
 mypy-extensions==1.0.0
 oauthlib==3.2.2
