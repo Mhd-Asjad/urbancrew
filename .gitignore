@@ -1,5 +1,6 @@
 # created by virtualenv automatically
 *.pyc
+.vscode/
 
 ### Django ###
 *.log
@@ -167,3 +168,5 @@ static/
 # Cython debug symbols
 cython_debug/
 staticfiles/
+
+.gitignore/
