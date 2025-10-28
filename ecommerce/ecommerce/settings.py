@@ -31,7 +31,8 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "urbancrew144@gmail.com"
 EMAIL_HOST_PASSWORD = "ynxn tmnu jzau ohzv"
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOST').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOST',"*").split(',')
+print("ALLOWED_HOSTS:", ALLOWED_HOSTS)
 # Application definition
 SITE_ID = 3
 INSTALLED_APPS = [
